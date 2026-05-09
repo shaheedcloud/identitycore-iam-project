@@ -2,6 +2,11 @@ const express = require("express");
 const { requireAuth } = require("../middleware/auth");
 const { requireRole } = require("../middleware/rbac");
 const { listUsersWithoutPasswords } = require("../users");
+const {
+  buildAuthorizationCheck,
+  buildSimulatedClaims,
+  buildSimulatedToken
+} = require("../claims");
 
 const router = express.Router();
 
@@ -26,6 +31,22 @@ router.get("/debug/session", requireAuth, (req, res) => {
       user: req.session.user
     }
   });
+});
+
+router.get("/claims", requireAuth, (req, res) => {
+  res.json({
+    localOnly: true,
+    warning: "Simulated claims only. These are not from a real identity provider.",
+    claims: buildSimulatedClaims(req.session.user, req.session.authTime)
+  });
+});
+
+router.get("/token-simulation", requireAuth, (req, res) => {
+  res.json(buildSimulatedToken(req.session.user, req.session.authTime));
+});
+
+router.get("/claims/authorization-check", requireAuth, (req, res) => {
+  res.json(buildAuthorizationCheck(req.session.user, req.session.authTime));
 });
 
 // Later JWT phases can add token validation middleware before protected API handlers.

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore Claims</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 2 local simulation</p>
+        <h1>Claims inspection</h1>
+        <p>Claims are identity facts about the signed-in user, such as email, name, roles, groups, and department. Applications use those facts to decide what the user can access.</p>
+        <p>Roles and groups often appear in identity data because they are compact ways to describe authorization. In this app, route access is still local, but the examples show how future identity provider claims could influence the same decisions.</p>
+        <p>This page prepares for later OIDC and JWT work by showing token-like claim payloads before any real token validation exists.</p>
+
+        <div class="notice">
+          This is not a real JWT. The simulated token uses <code>alg: none</code>, is not signed, and is only a local learning object.
+        </div>
+
+        <h2>Current Simulated Claims</h2>
+        <pre id="claims-output">Loading claims...</pre>
+
+        <h2>Authorization Check</h2>
+        <pre id="authorization-output">Loading authorization decisions...</pre>
+
+        <nav class="actions">
+          <a class="button" href="/dashboard">Back to dashboard</a>
+          <a class="button" href="/api/token-simulation">API: token simulation</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      async function loadJson(route, elementId) {
+        const response = await fetch(route);
+        const data = await response.json();
+        document.getElementById(elementId).textContent = JSON.stringify(data, null, 2);
+      }
+
+      loadJson("/api/claims", "claims-output");
+      loadJson("/api/claims/authorization-check", "authorization-output");
+    </script>
+  </body>
+</html>

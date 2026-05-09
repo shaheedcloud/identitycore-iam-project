@@ -29,6 +29,7 @@ router.post("/login", (req, res) => {
   }
 
   req.session.user = withoutPassword(user);
+  req.session.authTime = Math.floor(Date.now() / 1000);
   return res.redirect("/dashboard");
 });
 

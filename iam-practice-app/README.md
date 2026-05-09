@@ -1,8 +1,8 @@
-# IdentityCore IAM Practice App - Phase 1
+# IdentityCore IAM Practice App - Phases 1 and 2
 
-This app is the local Phase 1 target application for the IdentityCore IAM Project. It demonstrates local authentication, Express sessions, and role-based access control with dummy users only. The goal is to keep the app small and understandable while shaping it so later phases can use it as a relying party or service provider for identity integration labs.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced.
 
-Phase 1 is still local-only. It does not use real OIDC, SAML, SCIM, JWT validation, AWS Cognito, databases, tenant IDs, client IDs, client secrets, or real credentials.
+The app is still local-only. It does not use real OIDC, SAML, SCIM, JWT validation, AWS Cognito, databases, tenant IDs, client IDs, client secrets, access tokens, refresh tokens, or real credentials.
 
 ## What Phase 1 Demonstrates
 
@@ -12,6 +12,17 @@ Phase 1 is still local-only. It does not use real OIDC, SAML, SCIM, JWT validati
 - RBAC middleware that checks the signed-in user's local role
 - Protected API routes that return dummy identity data
 - Local identity objects that resemble future claims without using real tenant data
+
+## What Phase 2 Demonstrates
+
+- Simulated identity claims built from local dummy users
+- A simulated unsigned token-like object
+- Claims inspection in the browser
+- Role and group claim mapping
+- Claim-based authorization explanations
+- Local API routes that return simulated claim and token data
+
+Phase 2 does not add real token simulation libraries, token signing, token validation, OIDC metadata, SAML assertions, SCIM provisioning, Entra ID integration, Okta integration, or AWS integration.
 
 ## Install Dependencies
 
@@ -41,22 +52,26 @@ http://localhost:3000
 | `/login` | `POST` | Checks local dummy credentials and creates a session | Public form post |
 | `/logout` | `POST` | Destroys the local session | Session action |
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
+| `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
 | `/access-denied` | `GET` | RBAC denial page | Authenticated users |
 | `/api/me` | `GET` | Returns the current local user profile without password | Authenticated users |
 | `/api/debug/session` | `GET` | Local-only session troubleshooting data | Authenticated users |
+| `/api/claims` | `GET` | Returns the current user's simulated claims | Authenticated users |
+| `/api/token-simulation` | `GET` | Returns a local unsigned token-like object | Authenticated users |
+| `/api/claims/authorization-check` | `GET` | Explains route access using role and group claims | Authenticated users |
 | `/api/admin/users` | `GET` | Returns all local dummy users without passwords | `admin` |
 
 ## Role-To-Route Access Matrix
 
-| Role | `/dashboard` | `/admin` | `/security` | `/finance` | `/api/me` | `/api/debug/session` | `/api/admin/users` |
+| Role | `/dashboard` | `/claims` | `/admin` | `/security` | `/finance` | Claims APIs | `/api/admin/users` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `admin` | Allow | Allow | Allow | Allow | Allow | Allow | Allow |
-| `security_analyst` | Allow | Deny | Allow | Deny | Allow | Allow | Deny |
-| `finance_user` | Allow | Deny | Deny | Allow | Allow | Allow | Deny |
-| `standard_user` | Allow | Deny | Deny | Deny | Allow | Allow | Deny |
+| `security_analyst` | Allow | Allow | Deny | Allow | Deny | Allow | Deny |
+| `finance_user` | Allow | Allow | Deny | Deny | Allow | Allow | Deny |
+| `standard_user` | Allow | Allow | Deny | Deny | Deny | Allow | Deny |
 
 ## Local Dummy Users
 
@@ -70,6 +85,49 @@ The app checks submitted email and password values against `src/users.js`. Passw
 | `user@identitycore.local` | `UserPass123!` | `standard_user` | General Workforce | Workforce User | `GRP-Workforce-Standard` |
 
 Each local user also has fake `futureClaimsPreview` values. These are local placeholders that help explain how claims may later influence authorization decisions. They are not copied from any real identity provider.
+
+## What Claims Are
+
+Claims are identity facts about a user. Common claims include a stable subject identifier, email address, display name, roles, groups, department, and job title. In real identity systems, these facts often come from an identity provider and are placed into a token or assertion.
+
+In Phase 2, claims are generated locally from `src/users.js`. They are safe training data only.
+
+## What A Token Represents
+
+A token is a package of identity and authorization-related information that an application can inspect after authentication. Real tokens may be signed and validated so the application can trust the issuer and the payload.
+
+Phase 2 uses a simulated token-like object:
+
+```json
+{
+  "header": {
+    "alg": "none",
+    "typ": "SIMULATED_JWT"
+  },
+  "payload": {
+    "email": "admin@identitycore.local",
+    "roles": ["admin"],
+    "groups": ["GRP-Identity-Admins"]
+  },
+  "signature": "not-used-local-simulation"
+}
+```
+
+This is not a real JWT. It is not signed, not validated, and not trusted. It exists only to teach the shape of token data before later real JWT work.
+
+## Authentication vs Authorization
+
+Authentication answers: who signed in?
+
+Authorization answers: what is this signed-in user allowed to access?
+
+In this app, local login performs authentication. Roles and groups drive authorization decisions for `/admin`, `/security`, and `/finance`.
+
+## Why Roles And Groups Appear In Tokens
+
+Roles and groups are commonly included in identity data because they let applications make access decisions without asking the identity provider on every request. For example, a user with the `admin` role or `GRP-Identity-Admins` group can be allowed into admin-only areas.
+
+Phase 2 shows this with `/api/claims/authorization-check`, which explains why the current user's simulated claims allow or deny access to protected routes.
 
 ## How Dummy Login Works
 
@@ -96,7 +154,7 @@ In later labs, this app can act as the target application that trusts an externa
 - As a SCIM-enabled application, it could expose provisioning endpoints so an identity provider can create, update, or deactivate app users.
 - As a protected API, it could require JWT validation before returning data.
 
-Phase 1 prepares the app shape for those flows without implementing them yet.
+Phases 1 and 2 prepare the app shape for those flows without implementing them yet.
 
 ## Future Integration Notes
 
@@ -110,13 +168,43 @@ JWT: Later phases can protect API routes with JWT validation middleware. The cur
 
 Claims: The current `futureClaimsPreview` field is only a fake local preview. It helps learners see how claim-like values may later support access decisions without using real tenant data.
 
+## Phase 2 Claims Routes
+
+| Route | Purpose |
+| --- | --- |
+| `/claims` | Browser view that explains claims and shows simulated claim data |
+| `/api/claims` | JSON response containing the current user's simulated claims |
+| `/api/token-simulation` | JSON response containing the simulated unsigned token-like object |
+| `/api/claims/authorization-check` | JSON explanation of route access based on simulated role and group claims |
+
+## Phase 2 Testing Checklist
+
+1. Start the app with `npm.cmd start`.
+2. Sign in as `admin@identitycore.local` with `AdminPass123!`.
+3. Open `/claims` and confirm claim JSON and authorization decisions load.
+4. Open `/api/claims` and confirm it contains local placeholder `iss`, `aud`, `roles`, and `groups`.
+5. Open `/api/token-simulation` and confirm it says the token is a local training object only.
+6. Open `/api/claims/authorization-check` and confirm admin access is allowed.
+7. Log out and sign in as `user@identitycore.local` with `UserPass123!`.
+8. Open `/api/claims/authorization-check` and confirm admin, security, and finance access are denied.
+
+## Phase 2 Break/Fix Scenario
+
+Break: remove or change the role claim source for a user in `src/users.js`.
+
+Symptom: `/api/claims/authorization-check` shows access changes, or protected route access fails because the user's local role no longer maps to the expected route policy.
+
+Fix: restore the correct `role` and `groups` values in the local user object.
+
+Lesson: applications depend on correct claims to make authorization decisions.
+
 ## Browser Testing Checklist
 
 1. Start the app with `npm.cmd start`.
 2. Open `http://localhost:3000`.
 3. Confirm `/` redirects to `/login` when signed out.
 4. Sign in as `admin@identitycore.local` with `AdminPass123!`.
-5. Confirm `/dashboard`, `/admin`, `/security`, and `/finance` load.
+5. Confirm `/dashboard`, `/claims`, `/admin`, `/security`, and `/finance` load.
 6. Log out.
 7. Sign in as `user@identitycore.local` with `UserPass123!`.
 8. Confirm `/dashboard` loads.
@@ -129,10 +217,13 @@ Browser-based API checks work after signing in because the browser already has t
 1. Sign in as `admin@identitycore.local`.
 2. Open `/api/me` and confirm the response contains the admin profile without a password.
 3. Open `/api/debug/session` and confirm it returns safe local session details.
-4. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-5. Log out and sign in as `user@identitycore.local`.
-6. Open `/api/me` and confirm the standard user profile appears.
-7. Open `/api/admin/users` and confirm access is denied.
+4. Open `/api/claims` and confirm simulated claims are returned.
+5. Open `/api/token-simulation` and confirm the response is clearly marked as not a real JWT.
+6. Open `/api/claims/authorization-check` and confirm admin access is allowed.
+7. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+8. Log out and sign in as `user@identitycore.local`.
+9. Open `/api/me` and confirm the standard user profile appears.
+10. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -177,9 +268,15 @@ Fix: check the user's `role` in `src/users.js` and compare it to the role-to-rou
 
 ### API route redirects to login
 
-Symptom: opening `/api/me` or `/api/debug/session` redirects to `/login`.
+Symptom: opening `/api/me`, `/api/debug/session`, `/api/claims`, or `/api/token-simulation` redirects to `/login`.
 
 Fix: sign in through the browser first so the browser has a local session cookie.
+
+### Claims page says loading
+
+Symptom: `/claims` loads but the claim panels stay on loading text.
+
+Fix: confirm the app is still running, refresh the page, and verify that `/api/claims` returns JSON while signed in.
 
 ## Phase 1 Security Limitations
 
@@ -188,5 +285,6 @@ Fix: sign in through the browser first so the browser has a local session cookie
 - Passwords are not hashed in Phase 1.
 - The fallback session secret is only for local training.
 - `/api/debug/session` is for local troubleshooting only and must not be exposed in production.
+- Simulated tokens are not real JWTs and must not be trusted.
 - There is no database, account lockout, MFA, audit logging, CSRF protection, OIDC, SAML, SCIM, JWT validation, or production identity provider integration.
 - Do not use these credentials, configuration values, or patterns in production.
