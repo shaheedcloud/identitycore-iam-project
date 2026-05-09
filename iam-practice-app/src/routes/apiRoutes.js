@@ -12,6 +12,23 @@ router.get("/me", requireAuth, (req, res) => {
   });
 });
 
+router.get("/debug/session", requireAuth, (req, res) => {
+  res.json({
+    localOnly: true,
+    purpose: "Troubleshoot the Phase 1 Express session without exposing passwords or secrets.",
+    session: {
+      id: req.sessionID,
+      cookie: {
+        httpOnly: req.session.cookie.httpOnly,
+        sameSite: req.session.cookie.sameSite,
+        secure: req.session.cookie.secure || false
+      },
+      user: req.session.user
+    }
+  });
+});
+
+// Later JWT phases can add token validation middleware before protected API handlers.
 router.get("/admin/users", requireRole(["admin"]), (req, res) => {
   res.json({
     users: listUsersWithoutPasswords()

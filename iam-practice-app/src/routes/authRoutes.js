@@ -14,6 +14,7 @@ router.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = findUserByEmail(email || "");
 
+  // Later OIDC or SAML phases can replace this local password check with an IdP callback.
   if (!user || user.password !== password) {
     return res.status(401).send(`
       <link rel="stylesheet" href="/styles.css">
