@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-1-app-skeleton`
+`feature/phase-2-token-claims-simulation`
 
 Codex must never work directly on `main`.
 
@@ -90,3 +90,89 @@ Expected command:
 
 ```bash
 git branch --show-current
+
+```
+
+---
+
+## Current Phase
+
+Phase 2 - Token and Claims Simulation
+
+Phase 2 is still local-only. It builds on the Phase 1 IAM Practice App without connecting to any real identity provider or cloud environment.
+
+Phase 2 may include:
+
+- local simulated identity claims
+- local simulated unsigned token-like objects
+- claim inspection page
+- local role/claim mapping
+- claim-based authorization examples
+- local API routes that return simulated claim data
+- documentation explaining claims, tokens, roles, groups, and authorization decisions
+
+Phase 2 must not include:
+
+- real OIDC
+- real SAML
+- real SCIM
+- real JWT validation
+- real Entra ID tenant integration
+- real Okta tenant integration
+- AWS integration
+- client IDs
+- tenant IDs
+- client secrets
+- access tokens
+- refresh tokens
+- private keys
+- .env files committed to Git
+
+Suggested Phase 2 commit message:
+
+```bash
+git commit -m "phase-2: simulate local identity claims and token inspection"
+```
+
+---
+
+## Security Rules
+
+Never commit:
+
+- secrets
+- private keys
+- client secrets
+- access tokens
+- refresh tokens
+- real tenant IDs
+- AWS account IDs
+- unredacted screenshots
+- .env files
+
+Always use:
+
+- .env.example
+- oidc.example.json
+- saml.example.json
+- placeholder values
+- redacted screenshots
+- least privilege
+- separate feature branches
+
+---
+
+## Definition of Done
+
+A phase is done only when:
+
+1. Code or documentation is created.
+2. App runs or documentation is complete.
+3. Acceptance criteria pass.
+4. Screenshots are captured or listed.
+5. README is updated.
+6. No secrets are committed.
+7. Git status is clean.
+8. Changes are pushed to feature branch.
+9. Pull request is reviewed.
+10. Work is merged into main only after review.
