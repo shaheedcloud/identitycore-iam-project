@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore Dashboard</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Protected</p>
+        <h1>Dashboard</h1>
+        <p>This page is available to any authenticated local training user.</p>
+
+        <nav class="actions">
+          <a class="button" href="/admin">Admin</a>
+          <a class="button" href="/security">Security</a>
+          <a class="button" href="/finance">Finance</a>
+          <a class="button" href="/api/me">API: me</a>
+          <a class="button" href="/api/admin/users">API: users</a>
+        </nav>
+
+        <form action="/logout" method="post">
+          <button type="submit" class="secondary">Log out</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore Login</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">IdentityCore IAM Practice App</p>
+        <h1>Local training login</h1>
+        <p>Use one of the dummy Phase 1 users to create a local session and test RBAC.</p>
+
+        <form action="/login" method="post" class="stack">
+          <label>
+            Email
+            <input type="email" name="email" placeholder="admin@identitycore.local" required>
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Training password" required>
+          </label>
+          <button type="submit">Sign in</button>
+        </form>
+
+        <div class="hint">
+          <strong>Dummy users:</strong>
+          admin@identitycore.local, analyst@identitycore.local, finance@identitycore.local, user@identitycore.local
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

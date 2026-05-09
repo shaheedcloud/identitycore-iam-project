@@ -1,0 +1,13 @@
+{
+  "name": "identitycore-iam-practice-app",
+  "version": "1.0.0",
+  "description": "Phase 1 IAM practice app skeleton with local sessions and RBAC.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}
