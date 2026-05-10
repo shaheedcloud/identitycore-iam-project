@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JML Readiness</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 7</p>
+        <h1>JML Lifecycle Simulation</h1>
+        <p>Phase 7 simulates Joiner, Mover, and Leaver lifecycle events locally. It records evidence for identity creation, access changes, deactivation, and simulated revocation without calling external systems.</p>
+
+        <div class="notice">
+          This is local-only IAM learning data. No real Entra, Okta, AWS, HR, email, SCIM provider, scheduled job, or production workflow is called.
+        </div>
+
+        <h2>Current JML Status</h2>
+        <pre id="jml-status">Loading JML status...</pre>
+
+        <h2>Recent JML Events</h2>
+        <pre id="jml-events">Loading JML events...</pre>
+
+        <h2>Run Simulation</h2>
+        <div class="actions">
+          <button type="button" onclick="runJoinerSimulation()">Run Joiner simulation</button>
+          <button type="button" onclick="runMoverSimulation()">Run Mover simulation</button>
+          <button type="button" onclick="runLeaverSimulation()">Run Leaver simulation</button>
+          <button type="button" class="secondary-link" onclick="resetJmlSimulation()">Reset JML simulation</button>
+        </div>
+
+        <h2>JML API Routes</h2>
+        <ul>
+          <li><code>GET /api/jml/status</code></li>
+          <li><code>GET /api/jml/events</code></li>
+          <li><code>POST /api/jml/joiner</code></li>
+          <li><code>POST /api/jml/mover</code></li>
+          <li><code>POST /api/jml/leaver</code></li>
+          <li><code>POST /api/jml/reset</code></li>
+        </ul>
+
+        <p>SAML login remains Phase 8. This page does not perform real lifecycle automation or production identity governance.</p>
+
+        <nav class="actions">
+          <a class="button" href="/api/jml/status">API: JML status</a>
+          <a class="button" href="/api/jml/events">API: JML events</a>
+          <a class="button" href="/dashboard">Back to dashboard</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      async function loadJmlData() {
+        const statusResponse = await fetch("/api/jml/status");
+        const eventsResponse = await fetch("/api/jml/events");
+        const status = await statusResponse.json();
+        const events = await eventsResponse.json();
+
+        document.getElementById("jml-status").textContent = JSON.stringify(status, null, 2);
+        document.getElementById("jml-events").textContent = JSON.stringify(events, null, 2);
+      }
+
+      async function postJmlAction(path, body) {
+        await fetch(path, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body || {})
+        });
+
+        await loadJmlData();
+      }
+
+      async function runJoinerSimulation() {
+        await postJmlAction("/api/jml/joiner", {
+          email: "user.finance.newjoin@identitycore.local",
+          displayName: "Finance New Joiner",
+          department: "Finance",
+          jobTitle: "Finance Analyst"
+        });
+      }
+
+      async function runMoverSimulation() {
+        await postJmlAction("/api/jml/mover", {
+          email: "user.finance.newjoin@identitycore.local",
+          displayName: "Finance New Joiner",
+          department: "Security Operations",
+          jobTitle: "Security Analyst"
+        });
+      }
+
+      async function runLeaverSimulation() {
+        await postJmlAction("/api/jml/leaver", {
+          email: "user.finance.newjoin@identitycore.local",
+          displayName: "Finance New Joiner"
+        });
+      }
+
+      async function resetJmlSimulation() {
+        await postJmlAction("/api/jml/reset");
+      }
+
+      loadJmlData();
+    </script>
+  </body>
+</html>

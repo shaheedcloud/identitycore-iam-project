@@ -34,6 +34,10 @@ router.get("/scim-readiness", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "scim-readiness.html"));
 });
 
+router.get("/jml-readiness", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "jml-readiness.html"));
+});
+
 router.get("/admin", requireRole(["admin"]), (req, res) => {
   res.sendFile(path.join(viewsPath, "admin.html"));
 });

@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-6-scim-groups`
+`feature/phase-7-jml-simulation`
 
 Codex must never work directly on `main`.
 
@@ -97,57 +97,66 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 6 - SCIM Groups Endpoint
+Phase 7 - JML Lifecycle Simulation
 
-Phase 6 adds a safe local SCIM 2.0 Groups endpoint simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users, and all existing readiness/status routes available.
+Phase 7 adds a safe local Joiner, Mover, Leaver lifecycle simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users and Groups, and all existing readiness/status routes available.
 
-Phase 6 may include:
+Phase 7 may include:
 
-- reuse of the existing placeholder-only SCIM settings
-- reuse of the existing SCIM configuration helper and bearer-token middleware
-- in-memory SCIM group storage
-- SCIM 2.0 metadata updates for Group schemas and resource types
-- SCIM 2.0 Groups routes for list, get, create, replace, patch members, and remove/deactivate
-- safe SCIM readiness/status output
-- README documentation for SCIM Users versus SCIM Groups
-- troubleshooting notes for local SCIM Groups testing
+- in-memory JML lifecycle simulation storage
+- local Joiner simulation with simulated identity creation, department/job title assignment, SCIM-style user action evidence, group assignment, and evidence records
+- local Mover simulation with department/job title updates, old access removal, new access assignment, and evidence records
+- local Leaver simulation with account deactivation, access removal, simulated session/access revocation evidence, and evidence records
+- safe JML status and event history API routes
+- a JML readiness page
+- README documentation for Joiner, Mover, and Leaver flows
+- troubleshooting notes for local JML simulation testing
 
-Phase 6 Groups endpoints must fail closed when SCIM is disabled, incomplete, or placeholder-based.
+Phase 7 must remain local-only and in-memory only.
 
-Phase 6 must not include:
+Phase 7 must not include:
 
 - committed `.env`
 - real SCIM bearer tokens committed to GitHub
 - Entra tokens committed to GitHub
 - Okta tokens committed to GitHub
+- real tenant IDs committed to GitHub
 - client secrets committed to GitHub
 - access tokens committed to GitHub
 - refresh tokens committed to GitHub
 - ID tokens committed to GitHub
 - SCIM bearer token logging
 - SCIM bearer tokens returned from any API
+- raw JWT logging or storage
 - private keys
 - screenshots showing tenant/client/secrets/tokens unredacted
+- external API calls
+- real Entra Lifecycle Workflows
+- real Okta Workflows
+- real HR integration
+- real SCIM provisioning from Entra or Okta
+- background jobs
+- scheduled tasks
+- real automation
+- real session revocation
 - SAML
 - AWS integration
 - Docker
 - database
 - persistent storage
-- JML lifecycle simulation
 - production provisioning
-- real Entra provisioning setup
-- real Okta provisioning setup
+- email notifications
+- approval workflow engine
 - role mapping
-- admin UI for SCIM users
 - admin UI
 - JWT authorization mapping
 
-JML lifecycle simulation is deferred to Phase 7. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
+SAML login remains Phase 8. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
 
-Suggested Phase 6 commit message:
+Suggested Phase 7 commit message:
 
 ```bash
-git commit -m "phase-6: add SCIM groups endpoint simulation"
+git commit -m "phase-7: add local JML lifecycle simulation"
 ```
 
 ---

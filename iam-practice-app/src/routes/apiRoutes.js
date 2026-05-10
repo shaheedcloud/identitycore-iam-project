@@ -11,6 +11,14 @@ const { getOidcStatus } = require("../oidcConfig");
 const { getJwtStatus } = require("../jwtConfig");
 const { getScimStatus } = require("../scimConfig");
 const { requireJwt } = require("../middleware/jwtAuth");
+const {
+  getEvents,
+  getStatus,
+  reset,
+  simulateJoiner,
+  simulateLeaver,
+  simulateMover
+} = require("../jmlStore");
 
 const router = express.Router();
 
@@ -63,6 +71,30 @@ router.get("/jwt/status", (req, res) => {
 
 router.get("/scim/status", (req, res) => {
   res.json(getScimStatus());
+});
+
+router.get("/jml/status", requireAuth, (req, res) => {
+  res.json(getStatus());
+});
+
+router.get("/jml/events", requireAuth, (req, res) => {
+  res.json(getEvents());
+});
+
+router.post("/jml/joiner", requireAuth, (req, res) => {
+  res.status(201).json(simulateJoiner(req.body));
+});
+
+router.post("/jml/mover", requireAuth, (req, res) => {
+  res.status(201).json(simulateMover(req.body));
+});
+
+router.post("/jml/leaver", requireAuth, (req, res) => {
+  res.status(201).json(simulateLeaver(req.body));
+});
+
+router.post("/jml/reset", requireAuth, (req, res) => {
+  res.json(reset());
 });
 
 router.get("/protected/profile", requireJwt, (req, res) => {

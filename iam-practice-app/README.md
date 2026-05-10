@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, and 6
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, and 7
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -69,7 +69,21 @@ Phase 5 does not add SCIM Groups, JML lifecycle simulation, production provision
 
 Phase 6 does not add JML lifecycle simulation, production provisioning, real Entra provisioning setup, real Okta provisioning setup, admin UI, role mapping, JWT authorization mapping, persistent storage, SAML, AWS, Docker, or a database.
 
-JML lifecycle simulation is deferred to Phase 7.
+JML lifecycle simulation is introduced in Phase 7 below.
+
+## What Phase 7 Demonstrates
+
+- Local Joiner lifecycle simulation
+- Local Mover lifecycle simulation
+- Local Leaver lifecycle simulation
+- Simulated identity, department, job title, group, and access changes
+- Simulated SCIM-style user action evidence
+- Simulated session/access revocation evidence
+- In-memory event history for troubleshooting and explanation
+
+Phase 7 does not add real Entra Lifecycle Workflows, real Okta Workflows, real HR integration, real SCIM provisioning from Entra or Okta, SAML login, AWS IAM, Docker, database storage, persistent storage, email notifications, background jobs, scheduled automation, approval workflow engine, admin UI, real session revocation, or production identity governance.
+
+SAML login remains Phase 8.
 
 ## Install Dependencies
 
@@ -105,6 +119,7 @@ http://localhost:3000
 | `/oidc-readiness` | `GET` | Browser page explaining OIDC readiness and current safe status | Authenticated users |
 | `/jwt-readiness` | `GET` | Browser page explaining protected API JWT validation status | Authenticated users |
 | `/scim-readiness` | `GET` | Browser page explaining SCIM Users and Groups readiness and current safe status | Authenticated users |
+| `/jml-readiness` | `GET` | Browser page explaining Joiner, Mover, Leaver simulation status | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -117,6 +132,12 @@ http://localhost:3000
 | `/api/oidc/status` | `GET` | Returns safe OIDC readiness status without secrets | Authenticated users |
 | `/api/jwt/status` | `GET` | Returns safe JWT validation status without tokens or secrets | Public safe status |
 | `/api/scim/status` | `GET` | Returns safe SCIM readiness status without bearer tokens | Public safe status |
+| `/api/jml/status` | `GET` | Returns safe local-only JML simulation status | Authenticated users |
+| `/api/jml/events` | `GET` | Returns local JML event history | Authenticated users |
+| `/api/jml/joiner` | `POST` | Simulates onboarding a user and assigning access | Authenticated users |
+| `/api/jml/mover` | `POST` | Simulates department/job changes and access movement | Authenticated users |
+| `/api/jml/leaver` | `POST` | Simulates deactivation, access removal, and revocation evidence | Authenticated users |
+| `/api/jml/reset` | `POST` | Clears local JML simulation state | Authenticated users |
 | `/api/protected/profile` | `GET` | Returns a safe profile after bearer JWT validation | Valid bearer JWT |
 | `/api/protected/claims` | `GET` | Returns safe decoded claims after bearer JWT validation | Valid bearer JWT |
 | `/api/protected/admin-check` | `GET` | Shows that admin authorization is deferred after JWT validation | Valid bearer JWT |
@@ -233,6 +254,16 @@ OIDC authenticates a person in the browser and creates an app session.
 JWT validation protects API routes by checking a bearer token on each API request.
 
 SCIM provisions identity records into an application. A provider such as Entra ID or Okta can create, update, and deactivate users and groups in a target app through SCIM endpoints. Phases 5 and 6 simulate those endpoints locally with in-memory stores.
+
+## Joiner, Mover, Leaver
+
+Joiner, Mover, Leaver, usually shortened to JML, describes identity lifecycle management:
+
+- Joiner: a new person enters the organization and receives the right identity, attributes, groups, and app access.
+- Mover: an existing person changes department, job title, or responsibility and access must be adjusted.
+- Leaver: a person leaves and access must be removed quickly and provably.
+
+Phase 7 simulates this lifecycle locally. It records evidence that an IAM engineer or architect would expect to review: identity changes, SCIM-style provisioning actions, group changes, access changes, deactivation, and simulated revocation.
 
 ## Relying Party And Service Provider Readiness
 
@@ -484,7 +515,7 @@ Phase 5 provides a local SCIM 2.0 Users simulation:
 - Users routes require a local SCIM bearer token.
 - Users are stored only in memory and reset when the app restarts.
 - `DELETE /scim/v2/Users/:id` deactivates a user instead of permanently deleting data.
-- JML lifecycle simulation is deferred to Phase 7.
+- JML lifecycle simulation is introduced in Phase 7 below.
 
 ## Phase 6 SCIM Groups Endpoint
 
@@ -495,9 +526,124 @@ Phase 6 adds a local SCIM 2.0 Groups simulation:
 - Group members are represented as SCIM member objects with `value`, `display`, and `type`.
 - `PATCH /scim/v2/Groups/:id` supports `add`, `replace`, and `remove` operations for members.
 - `DELETE /scim/v2/Groups/:id` removes the group from the in-memory store.
-- JML lifecycle simulation is deferred to Phase 7.
+- JML lifecycle simulation is introduced in Phase 7 below.
 
 SCIM Users represent provisioned application accounts. SCIM Groups represent collections of users that an identity provider can push for access organization, assignment context, or later lifecycle workflows. Phase 6 stores group membership data for learning only; it does not map groups to local app roles or JWT authorization.
+
+## Phase 7 JML Lifecycle Simulation
+
+Phase 7 adds a local-only Joiner, Mover, Leaver simulation:
+
+- Joiner prepares a simulated identity, sets department and job title, records a simulated SCIM-style user action, assigns a department-based group/access pair, and records evidence.
+- Mover updates the simulated identity, removes old group/access, adds new group/access, and records evidence.
+- Leaver deactivates the simulated identity, removes all group/access membership, records simulated session/access revocation evidence, and records evidence.
+- Reset clears the in-memory lifecycle simulation state.
+
+This phase does not call Entra, Okta, AWS, HR systems, email services, or external APIs. It does not add background jobs, scheduled automation, real session revocation, real approval workflows, or persistent storage.
+
+### JML API Endpoint List
+
+| Route | Behavior |
+| --- | --- |
+| `/api/jml/status` | Returns safe local-only simulation status |
+| `/api/jml/events` | Returns local JML event history |
+| `/api/jml/joiner` | Creates a simulated Joiner event |
+| `/api/jml/mover` | Creates a simulated Mover event |
+| `/api/jml/leaver` | Creates a simulated Leaver event |
+| `/api/jml/reset` | Clears local JML identities and events |
+| `/jml-readiness` | Browser page for JML learning and status |
+
+### Phase 7 PowerShell Tests
+
+Sign in through the browser first, or use a PowerShell web session:
+
+```powershell
+$session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$loginBody = "email=admin%40identitycore.local&password=AdminPass123%21"
+try {
+  Invoke-WebRequest http://localhost:3000/login -Method Post -Body $loginBody -ContentType "application/x-www-form-urlencoded" -WebSession $session -MaximumRedirection 0 -UseBasicParsing
+} catch {}
+```
+
+Check status and reset state:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/jml/status -WebSession $session
+Invoke-RestMethod http://localhost:3000/api/jml/reset -Method Post -WebSession $session
+```
+
+Simulate a Joiner:
+
+```powershell
+$joinerBody = @{
+  email = "jordan.joiner@identitycore.local"
+  displayName = "Jordan Joiner"
+  department = "Finance"
+  jobTitle = "Finance Analyst"
+} | ConvertTo-Json
+
+$joiner = Invoke-RestMethod http://localhost:3000/api/jml/joiner -Method Post -WebSession $session -ContentType "application/json" -Body $joinerBody
+$joiner.identity.id
+```
+
+Simulate a Mover:
+
+```powershell
+$moverBody = @{
+  id = $joiner.identity.id
+  department = "Security Operations"
+  jobTitle = "Security Analyst"
+} | ConvertTo-Json
+
+Invoke-RestMethod http://localhost:3000/api/jml/mover -Method Post -WebSession $session -ContentType "application/json" -Body $moverBody
+```
+
+Simulate a Leaver:
+
+```powershell
+$leaverBody = @{
+  id = $joiner.identity.id
+} | ConvertTo-Json
+
+Invoke-RestMethod http://localhost:3000/api/jml/leaver -Method Post -WebSession $session -ContentType "application/json" -Body $leaverBody
+```
+
+Review events:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/jml/events -WebSession $session
+```
+
+### Phase 7 curl Tests
+
+These examples use `curl.exe` and a cookie jar for the local session:
+
+```powershell
+curl.exe -c cookies.txt -d "email=admin@identitycore.local&password=AdminPass123!" -X POST http://localhost:3000/login
+curl.exe -b cookies.txt http://localhost:3000/api/jml/status
+curl.exe -b cookies.txt -X POST http://localhost:3000/api/jml/reset
+curl.exe -b cookies.txt -H "Content-Type: application/json" -d "{\"email\":\"jordan.joiner@identitycore.local\",\"displayName\":\"Jordan Joiner\",\"department\":\"Finance\",\"jobTitle\":\"Finance Analyst\"}" http://localhost:3000/api/jml/joiner
+curl.exe -b cookies.txt http://localhost:3000/api/jml/events
+Remove-Item cookies.txt
+```
+
+Do not commit cookie files, terminal transcripts containing real tokens, or screenshots with sensitive values.
+
+### Phase 7 Break/Fix Scenario
+
+Break: run a Mover request with the wrong identity `id`.
+
+Symptom: a new simulated identity is created or referenced instead of moving the intended identity.
+
+Fix: copy the `identity.id` from the Joiner response and use that same id in the Mover and Leaver requests.
+
+Lesson: lifecycle workflows depend on stable identity correlation. In real systems, a bad source anchor or mismatched identifier can move or deprovision the wrong account.
+
+### Phase 7 Deferrals
+
+Real Entra Lifecycle Workflows and real Okta Workflows are deferred. Real HR integration, real SCIM provisioning from Entra or Okta, background jobs, scheduled automation, email notifications, approval workflow engines, production identity governance, and real session revocation are not included.
+
+SAML login remains Phase 8.
 
 ### SCIM Environment Variables
 
@@ -848,14 +994,16 @@ Browser-based API checks work after signing in because the browser already has t
 7. Open `/api/oidc/status` and confirm no client secret is exposed.
 8. Open `/api/jwt/status` and confirm no raw token or secret is exposed.
 9. Open `/api/scim/status` and confirm no SCIM bearer token is exposed.
-10. Confirm `/api/protected/profile` rejects a request without a bearer token.
-11. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
-12. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
-13. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
-14. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-15. Log out and sign in as `user@identitycore.local`.
-16. Open `/api/me` and confirm the standard user profile appears.
-17. Open `/api/admin/users` and confirm access is denied.
+10. Open `/api/jml/status` and confirm it is local-only.
+11. Open `/api/jml/events` and confirm event history is returned.
+12. Confirm `/api/protected/profile` rejects a request without a bearer token.
+13. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
+14. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
+15. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
+16. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+17. Log out and sign in as `user@identitycore.local`.
+18. Open `/api/me` and confirm the standard user profile appears.
+19. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -994,6 +1142,18 @@ Symptom: PATCH returns the group, but the `members` array is unchanged.
 
 Fix: confirm the operation uses `op` as `add`, `replace`, or `remove`, uses `path` as `members`, and sends member objects with a `value`.
 
+### JML events are empty
+
+Symptom: `/api/jml/events` returns no events.
+
+Fix: run `/api/jml/joiner`, `/api/jml/mover`, or `/api/jml/leaver` first. The event store is in-memory only and resets when the app restarts or `/api/jml/reset` is called.
+
+### Mover updates the wrong identity
+
+Symptom: the Mover response does not show the expected identity.
+
+Fix: use the `identity.id` returned by the Joiner event. Stable identity correlation is the key lifecycle lesson in Phase 7.
+
 ## Phase 1 Security Limitations
 
 - Authentication is local-only and not production-safe.
@@ -1007,6 +1167,8 @@ Fix: confirm the operation uses `op` as `add`, `replace`, or `remove`, uses `pat
 - Real JWT validation values belong only in local uncommitted `.env`.
 - Real SCIM bearer tokens belong only in local uncommitted `.env`.
 - SCIM user and group data is in-memory only and resets on restart.
-- JML lifecycle simulation is intentionally deferred.
-- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, role/group authorization from Entra claims, or production identity governance integration.
+- JML identity and event data is in-memory only and resets on restart.
+- JML is a local simulation only and does not call external identity systems.
+- SAML login remains Phase 8.
+- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, role/group authorization from Entra claims, real workflow automation, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.
