@@ -9,15 +9,14 @@
   <body>
     <main class="shell">
       <section class="panel">
-        <p class="eyebrow">Phase 3A placeholder</p>
+        <p class="eyebrow">Phase 3B Entra OIDC</p>
         <h1>OIDC readiness</h1>
-        <p>OIDC is not active yet. The current app still uses local dummy login, sessions, local claims, and local RBAC.</p>
-        <p>In a later phase, real OIDC login will redirect to Entra ID or Okta. The identity provider will authenticate the user and redirect back to <code>/auth/oidc/callback</code> with an authorization code.</p>
-        <p>The server will later exchange that code for tokens. Tokens, client secrets, tenant values, and provider metadata must never be committed to GitHub.</p>
-        <p>ID token claims will later map to the app's local role and group model. Phase 4 will later handle JWT validation for protected APIs.</p>
+        <p>Phase 3B supports Entra OIDC login when <code>OIDC_ENABLED=true</code> and complete Entra values are present in a local uncommitted <code>.env</code> file.</p>
+        <p>Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role.</p>
+        <p>Role and group claim mapping is deferred to a later approved phase. Protected API JWT validation is deferred to Phase 4.</p>
 
         <div class="notice">
-          Phase 3A provides placeholders only. It does not start real OIDC login, exchange codes, store tokens, or validate JWTs.
+          Do not commit tenant IDs, client IDs, client secrets, token values, or unredacted screenshots. Raw tokens are not stored in the app session or returned by APIs.
         </div>
 
         <h2>OIDC Status</h2>

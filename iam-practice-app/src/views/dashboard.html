@@ -12,6 +12,7 @@
         <p class="eyebrow">Protected</p>
         <h1>Dashboard</h1>
         <p>This page is available to any authenticated local training user.</p>
+        <div class="notice" id="auth-source">Checking sign-in source...</div>
 
         <nav class="actions">
           <a class="button" href="/admin">Admin</a>
@@ -31,5 +32,17 @@
         </form>
       </section>
     </main>
+
+    <script>
+      async function loadAuthSource() {
+        const response = await fetch("/api/me");
+        const data = await response.json();
+        const source = data.user.authSource || "local";
+        const role = data.user.role || "unknown";
+        document.getElementById("auth-source").textContent = `Signed in with ${source}. Current local role: ${role}.`;
+      }
+
+      loadAuthSource();
+    </script>
   </body>
 </html>

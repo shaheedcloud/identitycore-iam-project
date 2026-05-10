@@ -1,16 +1,26 @@
 const placeholderValues = [
   "",
   "https://idp.example.local/identitycore",
+  "https://login.microsoftonline.com/REPLACE_WITH_TENANT_ID/v2.0",
   "replace-with-local-client-id",
-  "replace-with-local-client-secret"
+  "replace-with-local-client-secret",
+  "replace-with-entra-app-client-id",
+  "replace-with-entra-client-secret"
 ];
 
 function getEnvValue(name, fallback = "") {
-  return process.env[name] || fallback;
+  return (process.env[name] || fallback).trim();
 }
 
 function isPlaceholder(value) {
-  return placeholderValues.includes(value) || value.includes("example.local") || value.includes("replace-with");
+  const lowerValue = value.toLowerCase();
+
+  return (
+    placeholderValues.includes(value) ||
+    lowerValue.includes("example.local") ||
+    lowerValue.includes("replace-with") ||
+    lowerValue.includes("replace_with")
+  );
 }
 
 function maskValue(value) {
@@ -31,10 +41,10 @@ function maskValue(value) {
 
 function getOidcConfig() {
   const enabled = getEnvValue("OIDC_ENABLED", "false").toLowerCase() === "true";
-  const providerName = getEnvValue("OIDC_PROVIDER_NAME", "Example Identity Provider");
-  const issuerUrl = getEnvValue("OIDC_ISSUER_URL", "https://idp.example.local/identitycore");
-  const clientId = getEnvValue("OIDC_CLIENT_ID", "replace-with-local-client-id");
-  const clientSecret = getEnvValue("OIDC_CLIENT_SECRET", "replace-with-local-client-secret");
+  const providerName = getEnvValue("OIDC_PROVIDER_NAME", "Microsoft Entra ID");
+  const issuerUrl = getEnvValue("OIDC_ISSUER_URL", "https://login.microsoftonline.com/REPLACE_WITH_TENANT_ID/v2.0");
+  const clientId = getEnvValue("OIDC_CLIENT_ID", "replace-with-entra-app-client-id");
+  const clientSecret = getEnvValue("OIDC_CLIENT_SECRET", "replace-with-entra-client-secret");
   const redirectUri = getEnvValue("OIDC_REDIRECT_URI", "http://localhost:3000/auth/oidc/callback");
   const scopes = getEnvValue("OIDC_SCOPES", "openid profile email");
 
@@ -58,18 +68,19 @@ function getOidcConfig() {
     scopes,
     hasPlaceholderValues,
     missingFields,
-    configured: enabled && missingFields.length === 0 && !hasPlaceholderValues
+    isComplete: missingFields.length === 0,
+    canStartLogin: enabled && missingFields.length === 0 && !hasPlaceholderValues
   };
 }
 
-function getSafeOidcStatus() {
+function getOidcStatus() {
   const config = getOidcConfig();
 
   return {
     localOnly: true,
-    activeRealOidcLogin: false,
+    activeRealOidcLogin: config.canStartLogin,
     message: config.enabled
-      ? "OIDC is marked enabled, but Phase 3A does not perform real OIDC login."
+      ? "OIDC is enabled. Login starts only when required fields are complete and not placeholders."
       : "OIDC is disabled. Local dummy login remains active.",
     enabled: config.enabled,
     providerName: config.providerName,
@@ -77,15 +88,17 @@ function getSafeOidcStatus() {
     scopes: config.scopes,
     issuerUrl: maskValue(config.issuerUrl),
     clientId: maskValue(config.clientId),
-    clientSecret: config.clientSecret ? "********" : "",
+    clientSecretConfigured: Boolean(config.clientSecret),
     hasPlaceholderValues: config.hasPlaceholderValues,
     missingFields: config.missingFields,
-    configuredForFutureUse: config.configured,
-    warning: "Safe status only. No real discovery, authorization redirect, token exchange, or JWT validation is performed."
+    isComplete: config.isComplete,
+    canStartLogin: config.canStartLogin,
+    warning: "Safe status only. Client secrets and tokens are never returned."
   };
 }
 
 module.exports = {
   getOidcConfig,
-  getSafeOidcStatus
+  getOidcStatus,
+  getSafeOidcStatus: getOidcStatus
 };
