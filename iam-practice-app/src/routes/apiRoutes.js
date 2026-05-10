@@ -7,6 +7,7 @@ const {
   buildSimulatedClaims,
   buildSimulatedToken
 } = require("../claims");
+const { getSafeOidcStatus } = require("../oidcConfig");
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ router.get("/token-simulation", requireAuth, (req, res) => {
 
 router.get("/claims/authorization-check", requireAuth, (req, res) => {
   res.json(buildAuthorizationCheck(req.session.user, req.session.authTime));
+});
+
+router.get("/oidc/status", requireAuth, (req, res) => {
+  res.json(getSafeOidcStatus());
 });
 
 // Later JWT phases can add token validation middleware before protected API handlers.

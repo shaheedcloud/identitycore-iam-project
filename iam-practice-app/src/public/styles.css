@@ -94,6 +94,12 @@ button,
   background: #e8f1f6;
 }
 
+.secondary-link {
+  margin-top: 18px;
+  color: #245f7a;
+  background: #e8f1f6;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

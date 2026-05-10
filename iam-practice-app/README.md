@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1 and 2
+# IdentityCore IAM Practice App - Phases 1, 2, and 3A
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders without enabling real OIDC login.
 
 The app is still local-only. It does not use real OIDC, SAML, SCIM, JWT validation, AWS Cognito, databases, tenant IDs, client IDs, client secrets, access tokens, refresh tokens, or real credentials.
 
@@ -23,6 +23,16 @@ The app is still local-only. It does not use real OIDC, SAML, SCIM, JWT validati
 - Local API routes that return simulated claim and token data
 
 Phase 2 does not add real token simulation libraries, token signing, token validation, OIDC metadata, SAML assertions, SCIM provisioning, Entra ID integration, Okta integration, or AWS integration.
+
+## What Phase 3A Demonstrates
+
+- Where future OIDC login routes will plug into the app
+- How a future authorization-code callback route will fit into the flow
+- What issuer, client ID, redirect URI, scopes, authorization endpoint, token endpoint, and JWKS URI mean
+- Why current local login remains active until a real provider is configured locally
+- Why secrets, tenant values, token values, and provider metadata must stay out of GitHub
+
+Phase 3A does not perform real OIDC login, build a real authorization URL, exchange authorization codes, validate JWTs, store tokens, or connect to Entra ID or Okta.
 
 ## Install Dependencies
 
@@ -50,9 +60,12 @@ http://localhost:3000
 | `/` | `GET` | Redirects signed-in users to `/dashboard`, otherwise `/login` | Public redirect |
 | `/login` | `GET` | Shows the local login form | Public |
 | `/login` | `POST` | Checks local dummy credentials and creates a session | Public form post |
+| `/auth/oidc/start` | `GET` | OIDC start placeholder explaining not configured yet | Public placeholder |
+| `/auth/oidc/callback` | `GET` | OIDC callback placeholder explaining future code handling | Public placeholder |
 | `/logout` | `POST` | Destroys the local session | Session action |
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
+| `/oidc-readiness` | `GET` | Browser page explaining OIDC readiness and current safe status | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -62,6 +75,7 @@ http://localhost:3000
 | `/api/claims` | `GET` | Returns the current user's simulated claims | Authenticated users |
 | `/api/token-simulation` | `GET` | Returns a local unsigned token-like object | Authenticated users |
 | `/api/claims/authorization-check` | `GET` | Explains route access using role and group claims | Authenticated users |
+| `/api/oidc/status` | `GET` | Returns safe OIDC readiness status without secrets | Authenticated users |
 | `/api/admin/users` | `GET` | Returns all local dummy users without passwords | `admin` |
 
 ## Role-To-Route Access Matrix
@@ -168,6 +182,76 @@ JWT: Later phases can protect API routes with JWT validation middleware. The cur
 
 Claims: The current `futureClaimsPreview` field is only a fake local preview. It helps learners see how claim-like values may later support access decisions without using real tenant data.
 
+## Phase 3A OIDC Readiness
+
+OpenID Connect, usually shortened to OIDC, is an identity layer built on OAuth 2.0. It lets an application redirect a user to an identity provider, receive proof that the user authenticated, and use returned claims to create an application session.
+
+Current status: real OIDC is not configured. Local dummy login remains the working login method.
+
+### Authorization Code Flow Preview
+
+In a later phase, the app will use the authorization code flow:
+
+1. The user chooses OIDC login.
+2. The app redirects the browser to the identity provider authorization endpoint.
+3. Entra ID or Okta authenticates the user.
+4. The provider redirects back to `/auth/oidc/callback` with an authorization code.
+5. The server exchanges the code at the token endpoint.
+6. The server receives tokens and validates identity data before creating a local app session.
+
+Phase 3A stops before step 2. It explains the future flow but does not perform it.
+
+### OIDC Terms
+
+| Term | Meaning |
+| --- | --- |
+| Issuer | The identity provider that authenticates users and issues tokens |
+| Client ID | The public app registration identifier assigned by the provider |
+| Redirect URI | The app URL where the provider sends the browser after login |
+| Scopes | Requested identity permissions such as `openid`, `profile`, and `email` |
+| Authorization endpoint | Provider URL where browser-based login begins |
+| Token endpoint | Provider URL where the server later exchanges an authorization code for tokens |
+| JWKS URI | Provider URL containing public keys used later for JWT signature validation |
+
+### Placeholder OIDC Routes
+
+| Route | Current behavior |
+| --- | --- |
+| `/auth/oidc/start` | Shows a friendly "OIDC is not active yet" message and does not redirect to a provider |
+| `/auth/oidc/callback` | Shows a callback placeholder and does not exchange codes or store tokens |
+| `/oidc-readiness` | Shows readiness notes and loads safe status from `/api/oidc/status` |
+| `/api/oidc/status` | Returns safe OIDC readiness status, masks sensitive values, and never returns client secrets |
+
+### OIDC Environment Variables
+
+The `.env.example` file contains placeholder-only values:
+
+| Variable | Example value | Purpose |
+| --- | --- | --- |
+| `OIDC_ENABLED` | `false` | Keeps real OIDC disabled until a later phase |
+| `OIDC_PROVIDER_NAME` | `Example Identity Provider` | Display label for readiness messages |
+| `OIDC_ISSUER_URL` | `https://idp.example.local/identitycore` | Placeholder issuer URL |
+| `OIDC_CLIENT_ID` | `replace-with-local-client-id` | Placeholder client ID |
+| `OIDC_CLIENT_SECRET` | `replace-with-local-client-secret` | Placeholder client secret |
+| `OIDC_REDIRECT_URI` | `http://localhost:3000/auth/oidc/callback` | Local callback URL |
+| `OIDC_SCOPES` | `openid profile email` | Example scopes |
+
+Real values must only be placed later in a local uncommitted `.env` file. Do not commit real tenant IDs, Okta domains, client IDs, client secrets, issuer URLs, discovery metadata, authorization endpoints, token endpoints, JWKS URIs, access tokens, refresh tokens, ID tokens, or private keys.
+
+### Future Entra ID Notes
+
+In a later Entra ID phase, Entra will provide app registration settings such as issuer, client ID, redirect URI, scopes, and claims. Those values must come from a dedicated lab tenant and must stay out of GitHub.
+
+### Future Okta Notes
+
+In a later Okta phase, Okta will provide an authorization server issuer, client ID, redirect URI, scopes, and claim mappings. Those values must come from a lab Okta org and must stay out of GitHub.
+
+### Future Claims Mapping
+
+When real OIDC is added later, ID token claims can map to the app's local session shape. Roles and groups from the identity provider may eventually influence the same `/admin`, `/security`, and `/finance` authorization decisions shown in Phases 1 and 2.
+
+Phase 4 will later handle JWT validation for protected APIs. Phase 3A does not validate real JWTs.
+
 ## Phase 2 Claims Routes
 
 | Route | Purpose |
@@ -176,6 +260,28 @@ Claims: The current `futureClaimsPreview` field is only a fake local preview. It
 | `/api/claims` | JSON response containing the current user's simulated claims |
 | `/api/token-simulation` | JSON response containing the simulated unsigned token-like object |
 | `/api/claims/authorization-check` | JSON explanation of route access based on simulated role and group claims |
+
+## Phase 3A Testing Checklist
+
+1. Start the app with `npm.cmd start`.
+2. Open `/login` and confirm local dummy login still appears.
+3. Click `Sign in with OIDC (Coming in Phase 3B)`.
+4. Confirm `/auth/oidc/start` explains that OIDC is not active and does not redirect.
+5. Sign in with a local dummy user.
+6. Open `/oidc-readiness`.
+7. Confirm the page explains the future authorization code flow.
+8. Open `/api/oidc/status`.
+9. Confirm the response does not expose a client secret and says real OIDC login is not active.
+
+## Phase 3A Break/Fix Scenario
+
+Break: set `OIDC_ENABLED=true` without providing real provider configuration in a local uncommitted `.env` file.
+
+Symptom: OIDC readiness/status reports incomplete configuration or placeholder behavior.
+
+Fix: set `OIDC_ENABLED=false` until real Entra ID or Okta values are configured locally in an uncommitted `.env` file.
+
+Lesson: OIDC integrations depend on complete, correct provider metadata and careful secret handling.
 
 ## Phase 2 Testing Checklist
 
@@ -204,7 +310,7 @@ Lesson: applications depend on correct claims to make authorization decisions.
 2. Open `http://localhost:3000`.
 3. Confirm `/` redirects to `/login` when signed out.
 4. Sign in as `admin@identitycore.local` with `AdminPass123!`.
-5. Confirm `/dashboard`, `/claims`, `/admin`, `/security`, and `/finance` load.
+5. Confirm `/dashboard`, `/claims`, `/oidc-readiness`, `/admin`, `/security`, and `/finance` load.
 6. Log out.
 7. Sign in as `user@identitycore.local` with `UserPass123!`.
 8. Confirm `/dashboard` loads.
@@ -220,10 +326,11 @@ Browser-based API checks work after signing in because the browser already has t
 4. Open `/api/claims` and confirm simulated claims are returned.
 5. Open `/api/token-simulation` and confirm the response is clearly marked as not a real JWT.
 6. Open `/api/claims/authorization-check` and confirm admin access is allowed.
-7. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-8. Log out and sign in as `user@identitycore.local`.
-9. Open `/api/me` and confirm the standard user profile appears.
-10. Open `/api/admin/users` and confirm access is denied.
+7. Open `/api/oidc/status` and confirm no client secret is exposed.
+8. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+9. Log out and sign in as `user@identitycore.local`.
+10. Open `/api/me` and confirm the standard user profile appears.
+11. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -278,6 +385,12 @@ Symptom: `/claims` loads but the claim panels stay on loading text.
 
 Fix: confirm the app is still running, refresh the page, and verify that `/api/claims` returns JSON while signed in.
 
+### OIDC status shows placeholders
+
+Symptom: `/api/oidc/status` shows `hasPlaceholderValues: true`.
+
+Fix: for Phase 3A, this is expected. Keep `OIDC_ENABLED=false` until a later phase configures real provider values locally outside Git.
+
 ## Phase 1 Security Limitations
 
 - Authentication is local-only and not production-safe.
@@ -286,5 +399,7 @@ Fix: confirm the app is still running, refresh the page, and verify that `/api/c
 - The fallback session secret is only for local training.
 - `/api/debug/session` is for local troubleshooting only and must not be exposed in production.
 - Simulated tokens are not real JWTs and must not be trusted.
+- OIDC routes are placeholders only and must not be treated as real login.
+- Real OIDC values belong only in a local uncommitted `.env` file in a later phase.
 - There is no database, account lockout, MFA, audit logging, CSRF protection, OIDC, SAML, SCIM, JWT validation, or production identity provider integration.
 - Do not use these credentials, configuration values, or patterns in production.

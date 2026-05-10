@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore OIDC Readiness</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 3A placeholder</p>
+        <h1>OIDC readiness</h1>
+        <p>OIDC is not active yet. The current app still uses local dummy login, sessions, local claims, and local RBAC.</p>
+        <p>In a later phase, real OIDC login will redirect to Entra ID or Okta. The identity provider will authenticate the user and redirect back to <code>/auth/oidc/callback</code> with an authorization code.</p>
+        <p>The server will later exchange that code for tokens. Tokens, client secrets, tenant values, and provider metadata must never be committed to GitHub.</p>
+        <p>ID token claims will later map to the app's local role and group model. Phase 4 will later handle JWT validation for protected APIs.</p>
+
+        <div class="notice">
+          Phase 3A provides placeholders only. It does not start real OIDC login, exchange codes, store tokens, or validate JWTs.
+        </div>
+
+        <h2>OIDC Status</h2>
+        <pre id="oidc-status">Loading OIDC readiness status...</pre>
+
+        <nav class="actions">
+          <a class="button" href="/dashboard">Back to dashboard</a>
+          <a class="button" href="/auth/oidc/start">Try OIDC placeholder</a>
+          <a class="button" href="/api/oidc/status">API: OIDC status</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      async function loadOidcStatus() {
+        const response = await fetch("/api/oidc/status");
+        const data = await response.json();
+        document.getElementById("oidc-status").textContent = JSON.stringify(data, null, 2);
+      }
+
+      loadOidcStatus();
+    </script>
+  </body>
+</html>
