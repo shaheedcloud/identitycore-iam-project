@@ -13,6 +13,13 @@ const { getScimStatus } = require("../scimConfig");
 const { getSamlStatus } = require("../samlConfig");
 const { requireJwt } = require("../middleware/jwtAuth");
 const {
+  getAuditEvents,
+  getAuditStatus,
+  getTroubleshootingEvidence,
+  recordAuditEvent,
+  resetAuditEvents
+} = require("../auditStore");
+const {
   getEvents,
   getStatus,
   reset,
@@ -78,6 +85,22 @@ router.get("/saml/status", (req, res) => {
   res.json(getSamlStatus());
 });
 
+router.get("/audit/status", requireAuth, (req, res) => {
+  res.json(getAuditStatus());
+});
+
+router.get("/audit/events", requireAuth, (req, res) => {
+  res.json(getAuditEvents());
+});
+
+router.post("/audit/reset", requireAuth, (req, res) => {
+  res.json(resetAuditEvents());
+});
+
+router.get("/troubleshooting/evidence", requireAuth, (req, res) => {
+  res.json(getTroubleshootingEvidence());
+});
+
 router.get("/jml/status", requireAuth, (req, res) => {
   res.json(getStatus());
 });
@@ -87,19 +110,65 @@ router.get("/jml/events", requireAuth, (req, res) => {
 });
 
 router.post("/jml/joiner", requireAuth, (req, res) => {
-  res.status(201).json(simulateJoiner(req.body));
+  const event = simulateJoiner(req.body);
+  recordAuditEvent(
+    "jml_joiner",
+    "success",
+    {
+      identityId: event.identity.id,
+      email: event.identity.email,
+      department: event.identity.department,
+      evidenceActions: event.evidence.map((item) => item.action)
+    },
+    req
+  );
+  res.status(201).json(event);
 });
 
 router.post("/jml/mover", requireAuth, (req, res) => {
-  res.status(201).json(simulateMover(req.body));
+  const event = simulateMover(req.body);
+  recordAuditEvent(
+    "jml_mover",
+    "success",
+    {
+      identityId: event.identity.id,
+      email: event.identity.email,
+      department: event.identity.department,
+      evidenceActions: event.evidence.map((item) => item.action)
+    },
+    req
+  );
+  res.status(201).json(event);
 });
 
 router.post("/jml/leaver", requireAuth, (req, res) => {
-  res.status(201).json(simulateLeaver(req.body));
+  const event = simulateLeaver(req.body);
+  recordAuditEvent(
+    "jml_leaver",
+    "success",
+    {
+      identityId: event.identity.id,
+      email: event.identity.email,
+      active: event.identity.active,
+      evidenceActions: event.evidence.map((item) => item.action)
+    },
+    req
+  );
+  res.status(201).json(event);
 });
 
 router.post("/jml/reset", requireAuth, (req, res) => {
-  res.json(reset());
+  const result = reset();
+  recordAuditEvent(
+    "jml_reset",
+    "success",
+    {
+      reset: result.reset,
+      detail: result.detail
+    },
+    req
+  );
+  res.json(result);
 });
 
 router.get("/protected/profile", requireJwt, (req, res) => {

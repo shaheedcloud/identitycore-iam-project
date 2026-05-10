@@ -1,4 +1,5 @@
 const { getScimConfig, getScimStatus } = require("../scimConfig");
+const { recordAuditEvent } = require("../auditStore");
 
 function getBearerToken(req) {
   const authHeader = req.get("authorization") || "";
@@ -28,6 +29,18 @@ function requireScimBearer(req, res, next) {
   const config = getScimConfig();
 
   if (!config.canProvisionUsers) {
+    recordAuditEvent(
+      "scim_fail_closed",
+      "blocked",
+      {
+        reason: "scim_disabled_incomplete_or_placeholder",
+        enabled: config.enabled,
+        hasPlaceholderValues: config.hasPlaceholderValues,
+        missingFields: config.missingFields
+      },
+      req
+    );
+
     return scimError(
       res,
       503,

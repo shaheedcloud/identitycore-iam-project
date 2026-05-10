@@ -1,5 +1,6 @@
 const { webcrypto } = require("crypto");
 const { getJwtConfig, getJwtStatus, maskValue } = require("../jwtConfig");
+const { recordAuditEvent } = require("../auditStore");
 
 if (!globalThis.crypto) {
   globalThis.crypto = webcrypto;
@@ -89,6 +90,18 @@ async function requireJwt(req, res, next) {
   const bearer = getBearerToken(req);
 
   if (bearer.error) {
+    if (bearer.error === "missing_bearer_token" || bearer.error === "invalid_authorization_header" || bearer.error === "malformed_token") {
+      recordAuditEvent(
+        "jwt_token_rejected",
+        "blocked",
+        {
+          reason: bearer.error,
+          message: bearer.message
+        },
+        req
+      );
+    }
+
     return res.status(401).json({
       error: bearer.error,
       message: bearer.message

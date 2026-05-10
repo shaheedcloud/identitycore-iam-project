@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, and 8
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, and 9
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -95,7 +95,18 @@ Phase 7 does not add real Entra Lifecycle Workflows, real Okta Workflows, real H
 
 Phase 8 does not add real Entra SAML production integration, real Okta SAML production integration, production certificate handling, SAML group-to-role authorization, admin role mapping from SAML attributes, SCIM changes, JML changes, AWS IAM, Docker, database storage, persistent storage, audit logging engine, or production identity governance.
 
-Phase 9 is audit logging and troubleshooting evidence.
+## What Phase 9 Demonstrates
+
+- Local in-memory audit event history
+- Safe redaction of passwords, cookies, authorization headers, raw tokens, SAML assertions, certificates, private keys, and bearer values
+- Audit status, events, and reset APIs
+- Troubleshooting evidence checklist for local labs
+- Audit readiness page with recent events
+- Safe evidence for login, logout, JWT rejection, SCIM fail-closed, JML, and SAML simulation actions
+
+Phase 9 does not add external SIEM, Splunk, CloudTrail, AWS, Docker, database storage, file-based logs, raw request logging, alerting, background jobs, scheduled tasks, or production audit pipelines.
+
+Phase 10 is Docker and final portfolio documentation.
 
 ## Install Dependencies
 
@@ -133,6 +144,7 @@ http://localhost:3000
 | `/scim-readiness` | `GET` | Browser page explaining SCIM Users and Groups readiness and current safe status | Authenticated users |
 | `/jml-readiness` | `GET` | Browser page explaining Joiner, Mover, Leaver simulation status | Authenticated users |
 | `/saml-readiness` | `GET` | Browser page explaining SAML readiness and local simulation status | Authenticated users |
+| `/audit-readiness` | `GET` | Browser page showing safe local audit status, events, and evidence | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -147,6 +159,10 @@ http://localhost:3000
 | `/api/scim/status` | `GET` | Returns safe SCIM readiness status without bearer tokens | Public safe status |
 | `/api/jml/status` | `GET` | Returns safe local-only JML simulation status | Authenticated users |
 | `/api/saml/status` | `GET` | Returns safe SAML readiness status without certificates or assertions | Public safe status |
+| `/api/audit/status` | `GET` | Returns safe local audit status | Authenticated users |
+| `/api/audit/events` | `GET` | Returns safe local in-memory audit events | Authenticated users |
+| `/api/audit/reset` | `POST` | Clears only local in-memory audit events | Authenticated users |
+| `/api/troubleshooting/evidence` | `GET` | Returns a safe local troubleshooting checklist and recent event summary | Authenticated users |
 | `/api/jml/events` | `GET` | Returns local JML event history | Authenticated users |
 | `/api/jml/joiner` | `POST` | Simulates onboarding a user and assigning access | Authenticated users |
 | `/api/jml/mover` | `POST` | Simulates department/job changes and access movement | Authenticated users |
@@ -796,9 +812,118 @@ Lesson: SAML authentication proves who the user is, but authorization mapping mu
 
 ### Phase 8 Deferrals
 
-Real Entra SAML production setup, real Okta SAML production setup, production certificate handling, SAML assertion validation, SAML group-to-role authorization, admin role mapping from SAML attributes, audit logging, production governance, AWS IAM, Docker, database storage, and persistent storage are not included.
+Real Entra SAML production setup, real Okta SAML production setup, production certificate handling, SAML assertion validation, SAML group-to-role authorization, admin role mapping from SAML attributes, production governance, AWS IAM, Docker, database storage, and persistent storage are not included.
 
-Phase 9 is audit logging and troubleshooting evidence.
+## Phase 9 Audit Logging And Troubleshooting Evidence
+
+Phase 9 adds a safe local audit event store for IAM troubleshooting practice. Events are kept in memory only, are redacted before storage, and reset when the app restarts or when `/api/audit/reset` is called.
+
+The audit store records controlled event details for:
+
+- successful local login
+- failed local login
+- logout
+- JWT missing, malformed, or invalid authorization header attempts
+- SCIM disabled, incomplete, or placeholder-based fail-closed requests
+- JML joiner, mover, leaver, and reset actions
+- SAML disabled login attempts
+- local SAML simulation success
+
+The audit store does not capture raw request headers, cookies, passwords, authorization headers, bearer tokens, raw JWTs, OIDC tokens, SAML assertions, SCIM bearer tokens, private keys, certificates, screenshots, or raw request bodies.
+
+### Phase 9 Endpoint List
+
+| Route | Behavior |
+| --- | --- |
+| `/audit-readiness` | Browser page for audit learning, recent events, and reset |
+| `/api/audit/status` | Safe local audit status and redaction summary |
+| `/api/audit/events` | Safe in-memory audit event history |
+| `/api/audit/reset` | Clears local in-memory audit events only |
+| `/api/troubleshooting/evidence` | Safe troubleshooting checklist and recent event summary |
+
+### Phase 9 PowerShell Tests
+
+Start the app:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+npm.cmd install
+npm.cmd start
+```
+
+Create a failed login event:
+
+```powershell
+Invoke-WebRequest http://localhost:3000/login -Method Post -Body @{ email = "admin@identitycore.local"; password = "wrong-password" } -UseBasicParsing
+```
+
+Create a successful login event and use the session:
+
+```powershell
+$body = @{ email = "admin@identitycore.local"; password = "AdminPass123!" }
+Invoke-WebRequest http://localhost:3000/login -Method Post -Body $body -SessionVariable session -UseBasicParsing
+Invoke-RestMethod http://localhost:3000/api/audit/status -WebSession $session
+Invoke-RestMethod http://localhost:3000/api/audit/events -WebSession $session
+Invoke-RestMethod http://localhost:3000/api/troubleshooting/evidence -WebSession $session
+```
+
+Create JWT and SCIM troubleshooting evidence:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/protected/profile
+Invoke-RestMethod http://localhost:3000/scim/v2/Users
+```
+
+Create JML evidence:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/jml/joiner -Method Post -Body (@{
+  email = "audit.joiner@identitycore.local"
+  displayName = "Audit Joiner"
+  department = "Finance"
+  jobTitle = "Finance Analyst"
+} | ConvertTo-Json) -ContentType "application/json" -WebSession $session
+```
+
+Reset audit evidence:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/audit/reset -Method Post -WebSession $session
+```
+
+### Phase 9 Browser Tests
+
+1. Sign in with a local dummy user.
+2. Open `/audit-readiness`.
+3. Confirm audit status, recent events, and troubleshooting evidence load.
+4. Press the reset button.
+5. Confirm the event history clears.
+
+### Phase 9 Break/Fix Scenarios
+
+Break: call `/api/protected/profile` without an `Authorization` header.
+
+Symptom: the API returns `missing_bearer_token`, and `/api/audit/events` shows a `jwt_token_rejected` event without storing the token or header.
+
+Fix: send a valid local lab bearer token only when testing JWT validation.
+
+Lesson: protected APIs should fail closed and produce safe troubleshooting evidence without capturing credentials.
+
+Break: call `/scim/v2/Users` while SCIM is disabled or placeholder-based.
+
+Symptom: the API returns a SCIM fail-closed error, and `/api/audit/events` shows `scim_fail_closed`.
+
+Fix: keep fail-closed behavior unless testing SCIM locally with an uncommitted `.env`.
+
+Lesson: provisioning endpoints should explain readiness safely without exposing bearer tokens.
+
+### Phase 9 Security Notes
+
+This is not a production audit system. There is no external SIEM, Splunk, CloudTrail, AWS integration, database, file logging, alerting, webhook, email notification, background job, scheduled task, or persistent storage.
+
+Never add raw token capture, cookie logging, Authorization header logging, SAML assertion capture, SCIM bearer token capture, passwords, private keys, certificates, or screenshots to audit events.
+
+Phase 10 is Docker and final portfolio documentation.
 
 ### SCIM Environment Variables
 
@@ -1309,6 +1434,18 @@ Symptom: the Mover response does not show the expected identity.
 
 Fix: use the `identity.id` returned by the Joiner event. Stable identity correlation is the key lifecycle lesson in Phase 7.
 
+### Audit events are empty
+
+Symptom: `/api/audit/events` returns no events.
+
+Fix: trigger a local login, failed login, logout, JWT missing-token request, SCIM fail-closed request, JML action, or SAML disabled login attempt. Audit events are in-memory only and reset when the app restarts or `/api/audit/reset` is called.
+
+### Audit evidence does not show raw tokens
+
+Symptom: `/api/audit/events` does not include Authorization headers, cookies, raw JWTs, SAML assertions, SCIM bearer tokens, certificates, or passwords.
+
+Fix: this is expected. Phase 9 intentionally records only safe troubleshooting evidence.
+
 ## Phase 1 Security Limitations
 
 - Authentication is local-only and not production-safe.
@@ -1327,5 +1464,6 @@ Fix: use the `identity.id` returned by the Joiner event. Stable identity correla
 - Real SAML certificates and production SAML values belong only in local uncommitted `.env`.
 - SAML readiness and local simulation do not validate real assertions.
 - SAML-authenticated users are mapped to `standard_user` only.
-- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, production SAML integration, role/group authorization from Entra claims, real workflow automation, or production identity governance integration.
+- Audit events are local, in-memory, redacted, and not production audit logs.
+- There is no database, account lockout, local MFA enforcement, external SIEM, Splunk, CloudTrail, file-based logging, CSRF protection, production SAML integration, role/group authorization from Entra claims, real workflow automation, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.
