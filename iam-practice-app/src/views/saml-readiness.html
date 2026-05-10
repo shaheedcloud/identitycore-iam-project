@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SAML Readiness</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 8</p>
+        <h1>SAML Login Readiness</h1>
+        <p>Phase 8 prepares the app for SAML service-provider learning and provides a local-only callback simulation. Real Entra or Okta SAML production setup is deferred.</p>
+
+        <div class="notice">
+          SAML-authenticated users always map to <code>standard_user</code>. SAML groups and attributes do not grant admin access in this phase.
+        </div>
+
+        <h2>Current SAML Status</h2>
+        <pre id="saml-status">Loading SAML status...</pre>
+
+        <h2>SAML Concepts</h2>
+        <ul>
+          <li>Identity Provider: authenticates the user and sends a SAML assertion.</li>
+          <li>Service Provider: this app, which receives the assertion at the ACS URL.</li>
+          <li>ACS URL: <code>http://localhost:3000/auth/saml/callback</code></li>
+          <li>Entity ID: <code>http://localhost:3000/saml/metadata</code></li>
+        </ul>
+
+        <h2>SAML Routes</h2>
+        <ul>
+          <li><code>GET /auth/saml/login</code></li>
+          <li><code>POST /auth/saml/callback</code></li>
+          <li><code>GET /saml/metadata</code></li>
+          <li><code>GET /api/saml/status</code></li>
+        </ul>
+
+        <p>Phase 9 is audit logging and troubleshooting evidence. This page does not call a real IdP, parse real assertions, or store certificates/private keys.</p>
+
+        <nav class="actions">
+          <a class="button" href="/auth/saml/login">Test SAML placeholder</a>
+          <a class="button" href="/saml/metadata">SP metadata</a>
+          <a class="button" href="/api/saml/status">API: SAML status</a>
+          <a class="button" href="/dashboard">Back to dashboard</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      async function loadSamlStatus() {
+        const response = await fetch("/api/saml/status");
+        const data = await response.json();
+        document.getElementById("saml-status").textContent = JSON.stringify(data, null, 2);
+      }
+
+      loadSamlStatus();
+    </script>
+  </body>
+</html>

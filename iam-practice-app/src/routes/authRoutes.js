@@ -4,6 +4,11 @@ const { findUserByEmail, withoutPassword } = require("../users");
 const { redirectIfLoggedIn } = require("../middleware/auth");
 const { getOidcStatus } = require("../oidcConfig");
 const {
+  buildSamlSessionUserFromAttributes,
+  getSamlConfig,
+  getSamlStatus
+} = require("../samlConfig");
+const {
   buildAuthorizationUrl,
   buildSessionUserFromClaims,
   handleCallback
@@ -35,6 +40,53 @@ function renderOidcMessage(res, statusCode, title, message, details = "") {
           <a class="button" href="/oidc-readiness">OIDC readiness</a>
           <a class="button" href="/api/oidc/status">API: OIDC status</a>
         </nav>
+      </section>
+    </main>
+  `);
+}
+
+function renderSamlMessage(res, statusCode, title, message, details = "") {
+  return res.status(statusCode).send(`
+    <link rel="stylesheet" href="/styles.css">
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 8 SAML</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml(message)}</p>
+        ${details ? `<div class="notice">${escapeHtml(details)}</div>` : ""}
+        <nav class="actions">
+          <a class="button" href="/login">Back to local login</a>
+          <a class="button" href="/saml-readiness">SAML readiness</a>
+          <a class="button" href="/api/saml/status">API: SAML status</a>
+        </nav>
+      </section>
+    </main>
+  `);
+}
+
+function renderSamlSimulationForm(res) {
+  return res.send(`
+    <link rel="stylesheet" href="/styles.css">
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 8 Local SAML Simulation</p>
+        <h1>Simulated SAML Callback</h1>
+        <p>This local-only form posts safe sample SAML attributes to the callback route. It does not contact a real IdP and does not use a real SAML assertion.</p>
+        <form action="/auth/saml/callback" method="post" class="stack">
+          <label>
+            Name ID
+            <input name="nameId" value="saml.user@identitycore.local">
+          </label>
+          <label>
+            Email
+            <input name="email" value="saml.user@identitycore.local">
+          </label>
+          <label>
+            Display name
+            <input name="displayName" value="SAML Simulation User">
+          </label>
+          <button type="submit">Complete local SAML simulation</button>
+        </form>
       </section>
     </main>
   `);
@@ -151,6 +203,78 @@ router.get("/auth/oidc/callback", (req, res) => {
         "No raw tokens were stored or returned."
       );
     });
+});
+
+router.get("/auth/saml/login", (req, res) => {
+  const status = getSamlStatus();
+
+  if (status.localSimulationEnabled) {
+    return renderSamlSimulationForm(res);
+  }
+
+  if (!status.enabled) {
+    return renderSamlMessage(
+      res,
+      200,
+      "SAML is disabled",
+      "Local dummy login remains active. Set SAML_ENABLED=true only in a local uncommitted .env file when you are ready to configure SAML.",
+      "No external IdP redirect was started."
+    );
+  }
+
+  if (!status.canStartRealLogin) {
+    return renderSamlMessage(
+      res,
+      400,
+      "SAML configuration is incomplete",
+      "SAML is enabled, but required values are missing or still use placeholders.",
+      "No real SAML request was built and no external IdP was called."
+    );
+  }
+
+  return renderSamlMessage(
+    res,
+    501,
+    "Real SAML redirect is deferred",
+    "The app is ready for SAML configuration learning, but production SAML redirect handling is not implemented in this phase.",
+    "Use local simulation for learning, or defer real Entra/Okta setup to a later reviewed implementation."
+  );
+});
+
+router.post("/auth/saml/callback", (req, res) => {
+  const config = getSamlConfig();
+
+  if (!config.localSimulationEnabled) {
+    return renderSamlMessage(
+      res,
+      400,
+      "SAML callback simulation is disabled",
+      "The callback route accepts only local simulation posts when SAML_LOCAL_SIMULATION_ENABLED=true.",
+      "No real SAML assertion was accepted, parsed, stored, or returned."
+    );
+  }
+
+  req.session.user = buildSamlSessionUserFromAttributes({
+    nameId: req.body.nameId,
+    email: req.body.email,
+    displayName: req.body.displayName,
+    name: req.body.displayName,
+    issuer: "local-saml-simulation"
+  });
+  req.session.authTime = Math.floor(Date.now() / 1000);
+  return res.redirect("/dashboard");
+});
+
+router.get("/saml/metadata", (req, res) => {
+  const config = getSamlConfig();
+
+  res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
+<EntityDescriptor entityID="${escapeHtml(config.spEntityId)}" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+  <SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${escapeHtml(config.acsUrl)}" index="1" isDefault="true"/>
+  </SPSSODescriptor>
+  <!-- Local training metadata only. No certificates or private keys are embedded. -->
+</EntityDescriptor>`);
 });
 
 router.post("/logout", (req, res) => {
