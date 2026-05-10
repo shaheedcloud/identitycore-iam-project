@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-9-audit-logging`
+`feature/phase-10-docker-docs`
 
 Codex must never work directly on `main`.
 
@@ -97,26 +97,29 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 9 - Audit Logging and Troubleshooting Evidence
+Phase 10 - Docker and Final Portfolio Documentation
 
-Phase 9 adds safe local audit logging and troubleshooting evidence while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users and Groups, JML simulation, SAML readiness/local simulation, and all existing readiness/status routes available.
+Phase 10 adds safe local Docker runtime support and final portfolio documentation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users and Groups, JML simulation, SAML readiness/local simulation, audit logging/troubleshooting evidence, and all existing readiness/status routes available.
 
-Phase 9 may include:
+Phase 10 may include:
 
-- a local in-memory audit event store
-- safe redaction helpers for audit event details
-- audit status, events, and reset API routes
-- safe troubleshooting evidence API route
-- audit readiness page
-- dashboard links for audit readiness, audit status, audit events, and troubleshooting evidence
-- safe audit events for login success/failure, logout, JWT missing/malformed token, SCIM fail-closed requests, JML actions, and SAML disabled/simulation actions
-- README documentation for audit logging, troubleshooting evidence, endpoint tests, break/fix scenarios, security notes, and Phase 10 deferral
+- a local-only Dockerfile for `iam-practice-app`
+- an `iam-practice-app/.dockerignore` that excludes `.env`, dependencies, logs, Git files, screenshots, and sensitive local artifacts
+- a simple Docker Compose file for local portfolio runtime if useful
+- README documentation for npm and Docker run paths
+- Docker troubleshooting and local-only security notes
+- root README portfolio overview updates
+- final portfolio documentation under `12-final-portfolio-package/`
+- concise local runbook documentation
 
-Phase 9 audit events must stay local, in-memory, and redacted. They must not become production logs.
+Phase 10 Docker support must be local portfolio runtime only. It must not become cloud deployment or production infrastructure.
 
-Phase 9 must not include:
+Phase 10 must not include:
 
 - committed `.env`
+- `.env` copied into Docker images
+- secrets in Dockerfile
+- secrets in Docker Compose
 - real IdP certificates committed to GitHub
 - real SCIM bearer tokens committed to GitHub
 - Entra tokens committed to GitHub
@@ -145,6 +148,14 @@ Phase 9 must not include:
 - CloudTrail integration
 - production logging pipeline
 - real alerting
+- Kubernetes
+- AWS ECS
+- AWS App Runner
+- Azure App Service
+- cloud deployment
+- CI/CD deployment pipeline
+- Docker registry publishing
+- production secrets management
 - real external IdP calls while placeholder/default config is active
 - real Entra Lifecycle Workflows
 - real Okta Workflows
@@ -172,13 +183,15 @@ Phase 9 must not include:
 - JWT authorization mapping
 - SCIM changes
 - JML changes
+- new authentication protocol features
+- new IAM app features
 
-Phase 10 is Docker and final portfolio documentation. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
+OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
 
-Suggested Phase 9 commit message:
+Suggested Phase 10 commit message:
 
 ```bash
-git commit -m "phase-9: add local audit logging and troubleshooting evidence"
+git commit -m "phase-10: add local Docker runtime and portfolio docs"
 ```
 
 ---

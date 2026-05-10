@@ -1,2 +1,61 @@
-# identitycore-iam-lab
-A hands-on IAM Engineer to IAM Architect portfolio lab covering Entra ID, Okta, AWS IAM, SSO, MFA, SCIM, RBAC, JML, and Zero Trust identity architecture.
+# IdentityCore IAM Project
+
+IdentityCore is a unified IAM Engineer to IAM Architect portfolio project. It builds one practice application and a supporting documentation package to demonstrate identity architecture, federation, provisioning, lifecycle governance, protected APIs, troubleshooting evidence, and local runtime operations.
+
+## Portfolio Story
+
+The project shows how an IAM professional can move from application-level identity fundamentals to architecture-level thinking:
+
+- local authentication, sessions, and RBAC
+- simulated claims and token inspection
+- Entra ID OIDC login readiness and local login integration
+- protected API JWT validation
+- SCIM Users and Groups endpoint simulations
+- Joiner, Mover, Leaver lifecycle simulation
+- SAML readiness and local SAML session simulation
+- local audit logging and troubleshooting evidence
+- local Docker runtime support for portfolio review
+
+## Main Application
+
+The hands-on app lives in:
+
+```text
+iam-practice-app/
+```
+
+Run locally with npm:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+npm.cmd install
+npm.cmd start
+```
+
+Run locally with Docker:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+docker build -t identitycore-iam-practice-app:local .
+docker run --rm -p 3000:3000 --name identitycore-iam-practice-app identitycore-iam-practice-app:local
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+## Security Posture
+
+This repository is designed for safe local learning. It must not contain real `.env` files, tenant IDs, client secrets, access tokens, refresh tokens, ID tokens, raw JWTs, SAML assertions, SCIM bearer tokens, private keys, certificates, AWS keys, screenshots with secrets, databases, persistent logs, or production deployment configuration.
+
+Docker support is local portfolio runtime only. It does not add cloud deployment, production infrastructure, CI/CD deployment, registry publishing, production secrets management, external logging, or persistent storage.
+
+## Final Portfolio Package
+
+The final project summary and reviewer runbook live in:
+
+```text
+12-final-portfolio-package/
+```
