@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, and 9
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, and 10
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -106,7 +106,15 @@ Phase 8 does not add real Entra SAML production integration, real Okta SAML prod
 
 Phase 9 does not add external SIEM, Splunk, CloudTrail, AWS, Docker, database storage, file-based logs, raw request logging, alerting, background jobs, scheduled tasks, or production audit pipelines.
 
-Phase 10 is Docker and final portfolio documentation.
+## What Phase 10 Demonstrates
+
+- Local Docker image build for the IAM Practice App
+- `.dockerignore` controls that keep `.env`, dependencies, logs, screenshots, Git data, and sensitive local artifacts out of the image context
+- Optional Docker Compose runtime for local portfolio review
+- npm and Docker run paths documented side by side
+- Final portfolio documentation that summarizes the full IdentityCore build
+
+Phase 10 does not add cloud deployment, Kubernetes, AWS ECS, Azure App Service, Docker registry publishing, CI/CD deployment, production secrets management, database storage, persistent logging, or new IAM features.
 
 ## Install Dependencies
 
@@ -126,6 +134,56 @@ Open:
 ```text
 http://localhost:3000
 ```
+
+## Local Docker Runtime
+
+Docker support is local-only for portfolio review. The image is not a production deployment artifact and does not include `.env`, secrets, screenshots, logs, Git metadata, certificates, private keys, tokens, or local dependency folders.
+
+Build the image:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+docker build -t identitycore-iam-practice-app:local .
+```
+
+Run the container:
+
+```powershell
+docker run --rm -p 3000:3000 --name identitycore-iam-practice-app identitycore-iam-practice-app:local
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+Optional Docker Compose path:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+docker compose up --build
+```
+
+Stop Compose with:
+
+```powershell
+docker compose down
+```
+
+Do not pass real OIDC, JWT, SCIM, or SAML values into Docker unless you are doing a local private test with uncommitted environment values. Never bake secrets into the image or Compose file.
+
+### Docker Troubleshooting
+
+Port already in use: stop the local npm app or any existing container using port `3000`, then run Docker again.
+
+Docker cannot find the daemon: start Docker Desktop and rerun the command.
+
+Image build fails during `npm ci`: confirm `package-lock.json` exists and your machine can reach the npm registry.
+
+Login page does not load: confirm the container is running with `docker ps`, then open `http://localhost:3000`.
+
+Local identity integrations are disabled in Docker: expected. Compose defaults OIDC, JWT validation, SCIM, and SAML to disabled placeholders for safe local runtime.
 
 ## Route Map
 
@@ -1446,6 +1504,18 @@ Symptom: `/api/audit/events` does not include Authorization headers, cookies, ra
 
 Fix: this is expected. Phase 9 intentionally records only safe troubleshooting evidence.
 
+### Docker container cannot start
+
+Symptom: `docker run` exits or the app is not reachable.
+
+Fix: confirm Docker Desktop is running, port `3000` is not already in use, and the image was built from `iam-practice-app/`.
+
+### Docker image should not contain `.env`
+
+Symptom: a reviewer is concerned that local environment values may have been copied into the image.
+
+Fix: inspect `iam-practice-app/.dockerignore`. It excludes `.env`, `.env.*`, logs, screenshots, Git files, certificates, keys, token-like files, and local dependency folders. Use only `.env.example` for committed placeholders.
+
 ## Phase 1 Security Limitations
 
 - Authentication is local-only and not production-safe.
@@ -1465,5 +1535,6 @@ Fix: this is expected. Phase 9 intentionally records only safe troubleshooting e
 - SAML readiness and local simulation do not validate real assertions.
 - SAML-authenticated users are mapped to `standard_user` only.
 - Audit events are local, in-memory, redacted, and not production audit logs.
+- Docker support is local portfolio runtime only and does not add cloud deployment or production infrastructure.
 - There is no database, account lockout, local MFA enforcement, external SIEM, Splunk, CloudTrail, file-based logging, CSRF protection, production SAML integration, role/group authorization from Entra claims, real workflow automation, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.

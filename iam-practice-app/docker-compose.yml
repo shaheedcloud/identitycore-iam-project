@@ -1,0 +1,15 @@
+services:
+  iam-practice-app:
+    build:
+      context: .
+    image: identitycore-iam-practice-app:local
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      OIDC_ENABLED: "false"
+      JWT_VALIDATION_ENABLED: "false"
+      SCIM_ENABLED: "false"
+      SAML_ENABLED: "false"
+      SAML_LOCAL_SIMULATION_ENABLED: "false"
