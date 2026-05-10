@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-2-token-claims-simulation`
+`feature/phase-3-oidc-login`
 
 Codex must never work directly on `main`.
 
@@ -97,41 +97,54 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 2 - Token and Claims Simulation
+Phase 3 - OIDC Login Readiness and Placeholder Integration
 
-Phase 2 is still local-only. It builds on the Phase 1 IAM Practice App without connecting to any real identity provider or cloud environment.
+Phase 3A is OIDC readiness only.
 
-Phase 2 may include:
+Phase 3A must prepare the app for future OIDC without requiring a real identity provider yet. Any real OIDC values must be placed only in a local uncommitted .env file later, never in GitHub.
 
-- local simulated identity claims
-- local simulated unsigned token-like objects
-- claim inspection page
-- local role/claim mapping
-- claim-based authorization examples
-- local API routes that return simulated claim data
-- documentation explaining claims, tokens, roles, groups, and authorization decisions
+Phase 3A may include:
 
-Phase 2 must not include:
+- OIDC route placeholders
+- login-with-oidc button or disabled placeholder
+- callback route placeholder
+- OIDC configuration example values in .env.example only
+- documentation explaining OIDC authorization code flow
+- documentation explaining how Entra ID or Okta will later provide issuer, client ID, redirect URI, scopes, and claims
+- safe "not configured yet" behavior
+- clear comments showing where real OIDC logic will later be added
 
-- real OIDC
-- real SAML
-- real SCIM
+Phase 3A must not include:
+
+- real Entra ID tenant ID
+- real Okta domain
+- real client ID
+- real client secret
+- real issuer URL
+- real discovery metadata
+- real authorization endpoint
+- real token endpoint
+- real JWKS endpoint
+- real OIDC login execution
+- real token exchange
 - real JWT validation
-- real Entra ID tenant integration
-- real Okta tenant integration
-- AWS integration
-- client IDs
-- tenant IDs
-- client secrets
+- committed .env
 - access tokens
 - refresh tokens
+- ID tokens
 - private keys
+- AWS integration
+- SAML
+- SCIM
+- Docker
+- database
+- tenant IDs
 - .env files committed to Git
 
-Suggested Phase 2 commit message:
+Suggested Phase 3A commit message:
 
 ```bash
-git commit -m "phase-2: simulate local identity claims and token inspection"
+git commit -m "chore: update Codex guardrails for Phase 3 OIDC readiness"
 ```
 
 ---
