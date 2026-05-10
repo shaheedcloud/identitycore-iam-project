@@ -1,3 +1,5 @@
+require("dotenv").config({ quiet: true });
+
 const express = require("express");
 const session = require("express-session");
 const path = require("path");

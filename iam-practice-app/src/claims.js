@@ -28,12 +28,15 @@ function nowInSeconds() {
 
 function buildSimulatedClaims(user, authTime) {
   const issuedAt = nowInSeconds();
+  const oidcClaims = user.oidcClaims || {};
 
   return {
-    sub: user.futureClaimsPreview.subject,
+    sub: user.futureClaimsPreview ? user.futureClaimsPreview.subject : oidcClaims.sub || user.id,
     email: user.email,
     name: user.displayName,
-    preferred_username: user.futureClaimsPreview.preferredUsername,
+    preferred_username: user.futureClaimsPreview
+      ? user.futureClaimsPreview.preferredUsername
+      : oidcClaims.preferred_username || user.email,
     roles: [user.role],
     groups: user.groups,
     department: user.department,

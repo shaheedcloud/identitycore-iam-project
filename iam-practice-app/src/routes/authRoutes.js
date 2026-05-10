@@ -2,7 +2,12 @@ const express = require("express");
 const path = require("path");
 const { findUserByEmail, withoutPassword } = require("../users");
 const { redirectIfLoggedIn } = require("../middleware/auth");
-const { getSafeOidcStatus } = require("../oidcConfig");
+const { getOidcStatus } = require("../oidcConfig");
+const {
+  buildAuthorizationUrl,
+  buildSessionUserFromClaims,
+  handleCallback
+} = require("../oidcClient");
 
 const router = express.Router();
 const viewsPath = path.join(__dirname, "..", "views");
@@ -14,6 +19,25 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function renderOidcMessage(res, statusCode, title, message, details = "") {
+  return res.status(statusCode).send(`
+    <link rel="stylesheet" href="/styles.css">
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 3B Entra OIDC</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml(message)}</p>
+        ${details ? `<div class="notice">${escapeHtml(details)}</div>` : ""}
+        <nav class="actions">
+          <a class="button" href="/login">Back to local login</a>
+          <a class="button" href="/oidc-readiness">OIDC readiness</a>
+          <a class="button" href="/api/oidc/status">API: OIDC status</a>
+        </nav>
+      </section>
+    </main>
+  `);
 }
 
 router.get("/login", redirectIfLoggedIn, (req, res) => {
@@ -44,41 +68,89 @@ router.post("/login", (req, res) => {
 });
 
 router.get("/auth/oidc/start", (req, res) => {
-  const status = getSafeOidcStatus();
+  const status = getOidcStatus();
 
-  res.status(200).send(`
-    <link rel="stylesheet" href="/styles.css">
-    <main class="shell">
-      <section class="panel">
-        <p class="eyebrow">Phase 3A placeholder</p>
-        <h1>OIDC is not active yet</h1>
-        <p>Future real OIDC login will redirect to an identity provider authorization endpoint. Phase 3A only documents where that redirect will eventually happen.</p>
-        <p>Current provider label: <strong>${escapeHtml(status.providerName)}</strong></p>
-        <p>Current status: <strong>${escapeHtml(status.message)}</strong></p>
-        <div class="notice">No authorization URL was built, no redirect was started, and no real provider metadata or tokens were used.</div>
-        <nav class="actions">
-          <a class="button" href="/login">Back to local login</a>
-          <a class="button" href="/oidc-readiness">OIDC readiness</a>
-          <a class="button" href="/api/oidc/status">API: OIDC status</a>
-        </nav>
-      </section>
-    </main>
-  `);
+  if (!status.enabled) {
+    return renderOidcMessage(
+      res,
+      200,
+      "OIDC is disabled",
+      "Local dummy login is still active. Set OIDC_ENABLED=true in a local uncommitted .env file when you are ready to test Entra OIDC.",
+      "No authorization URL was built and no redirect was started."
+    );
+  }
+
+  if (!status.canStartLogin) {
+    return renderOidcMessage(
+      res,
+      400,
+      "OIDC configuration is incomplete",
+      "OIDC is enabled, but required values are missing or still use placeholders.",
+      "Check /api/oidc/status and configure real Entra values only in iam-practice-app/.env."
+    );
+  }
+
+  return buildAuthorizationUrl()
+    .then(({ authorizationUrl, state, nonce }) => {
+      req.session.oidcState = state;
+      req.session.oidcNonce = nonce;
+      req.session.oidcStartedAt = Math.floor(Date.now() / 1000);
+      res.redirect(authorizationUrl);
+    })
+    .catch((error) => {
+      console.error(`OIDC start failed: ${error.message}`);
+      return renderOidcMessage(
+        res,
+        500,
+        "OIDC login could not start",
+        "The app could not start Entra OIDC login. Check local OIDC configuration and try again.",
+        "No tokens were requested, stored, or returned."
+      );
+    });
 });
 
 router.get("/auth/oidc/callback", (req, res) => {
-  res.status(200).send(`
-    <link rel="stylesheet" href="/styles.css">
-    <main class="shell">
-      <section class="panel">
-        <p class="eyebrow">Phase 3A placeholder</p>
-        <h1>OIDC callback placeholder</h1>
-        <p>A future OIDC authorization-code callback will be handled here after Entra ID or Okta redirects back to the app.</p>
-        <p>Phase 3A does not exchange authorization codes, request tokens, validate JWTs, or store token data.</p>
-        <a class="button" href="/login">Back to local login</a>
-      </section>
-    </main>
-  `);
+  const status = getOidcStatus();
+
+  if (!status.canStartLogin) {
+    return renderOidcMessage(
+      res,
+      400,
+      "OIDC callback is not active",
+      "OIDC must be enabled and fully configured locally before callback handling can run.",
+      "No authorization code was exchanged."
+    );
+  }
+
+  if (!req.session.oidcState || !req.session.oidcNonce) {
+    return renderOidcMessage(
+      res,
+      400,
+      "OIDC state is missing",
+      "Start OIDC login again so the app can validate the callback state.",
+      "This protects the login flow from unexpected callback requests."
+    );
+  }
+
+  return handleCallback(req)
+    .then((claims) => {
+      req.session.user = buildSessionUserFromClaims(claims);
+      req.session.authTime = Math.floor(Date.now() / 1000);
+      delete req.session.oidcState;
+      delete req.session.oidcNonce;
+      delete req.session.oidcStartedAt;
+      res.redirect("/dashboard");
+    })
+    .catch((error) => {
+      console.error(`OIDC callback failed: ${error.message}`);
+      return renderOidcMessage(
+        res,
+        500,
+        "OIDC callback failed",
+        "The app could not complete Entra OIDC login. Check redirect URI, issuer, client settings, and try again.",
+        "No raw tokens were stored or returned."
+      );
+    });
 });
 
 router.post("/logout", (req, res) => {

@@ -1,8 +1,8 @@
-# IdentityCore IAM Practice App - Phases 1, 2, and 3A
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, and 3B
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders without enabling real OIDC login.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file.
 
-The app is still local-only. It does not use real OIDC, SAML, SCIM, JWT validation, AWS Cognito, databases, tenant IDs, client IDs, client secrets, access tokens, refresh tokens, or real credentials.
+The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SAML, SCIM, AWS, Docker, databases, or protected API JWT validation.
 
 ## What Phase 1 Demonstrates
 
@@ -24,15 +24,17 @@ The app is still local-only. It does not use real OIDC, SAML, SCIM, JWT validati
 
 Phase 2 does not add real token simulation libraries, token signing, token validation, OIDC metadata, SAML assertions, SCIM provisioning, Entra ID integration, Okta integration, or AWS integration.
 
-## What Phase 3A Demonstrates
+## What Phase 3B Demonstrates
 
-- Where future OIDC login routes will plug into the app
-- How a future authorization-code callback route will fit into the flow
-- What issuer, client ID, redirect URI, scopes, authorization endpoint, token endpoint, and JWKS URI mean
-- Why current local login remains active until a real provider is configured locally
-- Why secrets, tenant values, token values, and provider metadata must stay out of GitHub
+- Real OIDC authorization code flow support for Entra ID
+- Local `.env` loading with `dotenv`
+- OIDC client support with `openid-client@5`
+- Safe creation of an app session from ID token claims
+- OIDC-authenticated users defaulting to `standard_user`
+- Local dummy login remaining available
+- Safe status and troubleshooting routes that do not expose secrets or tokens
 
-Phase 3A does not perform real OIDC login, build a real authorization URL, exchange authorization codes, validate JWTs, store tokens, or connect to Entra ID or Okta.
+Phase 3B does not store raw tokens in the session, return tokens from APIs, map Entra roles/groups to privileged app roles, add Okta, add SAML, add SCIM, or validate JWTs for protected APIs.
 
 ## Install Dependencies
 
@@ -60,8 +62,8 @@ http://localhost:3000
 | `/` | `GET` | Redirects signed-in users to `/dashboard`, otherwise `/login` | Public redirect |
 | `/login` | `GET` | Shows the local login form | Public |
 | `/login` | `POST` | Checks local dummy credentials and creates a session | Public form post |
-| `/auth/oidc/start` | `GET` | OIDC start placeholder explaining not configured yet | Public placeholder |
-| `/auth/oidc/callback` | `GET` | OIDC callback placeholder explaining future code handling | Public placeholder |
+| `/auth/oidc/start` | `GET` | Starts Entra OIDC login only when local OIDC config is enabled and complete | Public |
+| `/auth/oidc/callback` | `GET` | Handles Entra OIDC callback and creates a safe local app session | Public callback |
 | `/logout` | `POST` | Destroys the local session | Session action |
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
@@ -182,24 +184,30 @@ JWT: Later phases can protect API routes with JWT validation middleware. The cur
 
 Claims: The current `futureClaimsPreview` field is only a fake local preview. It helps learners see how claim-like values may later support access decisions without using real tenant data.
 
-## Phase 3A OIDC Readiness
+## Phase 3B Entra OIDC Login
 
 OpenID Connect, usually shortened to OIDC, is an identity layer built on OAuth 2.0. It lets an application redirect a user to an identity provider, receive proof that the user authenticated, and use returned claims to create an application session.
 
-Current status: real OIDC is not configured. Local dummy login remains the working login method.
+Current status: Entra OIDC login is supported only when `OIDC_ENABLED=true` and complete real values are present in a local uncommitted `.env` file. Local dummy login remains available.
+
+Phase 3B uses:
+
+- `openid-client@5`
+- `dotenv`
 
 ### Authorization Code Flow Preview
 
-In a later phase, the app will use the authorization code flow:
+The app uses the authorization code flow:
 
 1. The user chooses OIDC login.
 2. The app redirects the browser to the identity provider authorization endpoint.
 3. Entra ID or Okta authenticates the user.
 4. The provider redirects back to `/auth/oidc/callback` with an authorization code.
-5. The server exchanges the code at the token endpoint.
-6. The server receives tokens and validates identity data before creating a local app session.
+5. The server exchanges the code at the token endpoint using `openid-client`.
+6. The server extracts safe ID token claims.
+7. The server creates a local app session without storing raw tokens.
 
-Phase 3A stops before step 2. It explains the future flow but does not perform it.
+Raw token values are not stored in the Express session and are not returned by any API.
 
 ### OIDC Terms
 
@@ -213,44 +221,79 @@ Phase 3A stops before step 2. It explains the future flow but does not perform i
 | Token endpoint | Provider URL where the server later exchanges an authorization code for tokens |
 | JWKS URI | Provider URL containing public keys used later for JWT signature validation |
 
-### Placeholder OIDC Routes
+### Entra OIDC Routes
 
 | Route | Current behavior |
 | --- | --- |
-| `/auth/oidc/start` | Shows a friendly "OIDC is not active yet" message and does not redirect to a provider |
-| `/auth/oidc/callback` | Shows a callback placeholder and does not exchange codes or store tokens |
-| `/oidc-readiness` | Shows readiness notes and loads safe status from `/api/oidc/status` |
-| `/api/oidc/status` | Returns safe OIDC readiness status, masks sensitive values, and never returns client secrets |
+| `/auth/oidc/start` | Redirects to Entra only when `OIDC_ENABLED=true` and config is complete |
+| `/auth/oidc/callback` | Validates callback state, exchanges the code, extracts safe claims, and creates the app session |
+| `/oidc-readiness` | Shows Entra OIDC notes and loads safe status from `/api/oidc/status` |
+| `/api/oidc/status` | Returns safe OIDC status, masks sensitive values, and never returns client secrets or tokens |
 
 ### OIDC Environment Variables
 
-The `.env.example` file contains placeholder-only values:
+The `.env.example` file contains placeholder-only values. Copy the names into a local `.env` file only when testing Entra OIDC. Do not commit `.env`.
 
 | Variable | Example value | Purpose |
 | --- | --- | --- |
 | `OIDC_ENABLED` | `false` | Keeps real OIDC disabled until a later phase |
-| `OIDC_PROVIDER_NAME` | `Example Identity Provider` | Display label for readiness messages |
-| `OIDC_ISSUER_URL` | `https://idp.example.local/identitycore` | Placeholder issuer URL |
-| `OIDC_CLIENT_ID` | `replace-with-local-client-id` | Placeholder client ID |
-| `OIDC_CLIENT_SECRET` | `replace-with-local-client-secret` | Placeholder client secret |
+| `OIDC_PROVIDER_NAME` | `Microsoft Entra ID` | Display label for status messages |
+| `OIDC_ISSUER_URL` | `https://login.microsoftonline.com/REPLACE_WITH_TENANT_ID/v2.0` | Placeholder issuer URL |
+| `OIDC_CLIENT_ID` | `replace-with-entra-app-client-id` | Placeholder client ID |
+| `OIDC_CLIENT_SECRET` | `replace-with-entra-client-secret` | Placeholder client secret |
 | `OIDC_REDIRECT_URI` | `http://localhost:3000/auth/oidc/callback` | Local callback URL |
 | `OIDC_SCOPES` | `openid profile email` | Example scopes |
 
-Real values must only be placed later in a local uncommitted `.env` file. Do not commit real tenant IDs, Okta domains, client IDs, client secrets, issuer URLs, discovery metadata, authorization endpoints, token endpoints, JWKS URIs, access tokens, refresh tokens, ID tokens, or private keys.
+Real values must only be placed in `iam-practice-app/.env`, which is ignored by Git. Do not commit real tenant IDs, client IDs, client secrets, issuer URLs, discovery metadata, authorization endpoints, token endpoints, JWKS URIs, access tokens, refresh tokens, ID tokens, or private keys.
 
-### Future Entra ID Notes
+### Entra ID App Registration
 
-In a later Entra ID phase, Entra will provide app registration settings such as issuer, client ID, redirect URI, scopes, and claims. Those values must come from a dedicated lab tenant and must stay out of GitHub.
+Use a dedicated lab tenant. Do not use an employer or production tenant.
 
-### Future Okta Notes
+1. Create or open an Entra app registration for the lab app.
+2. Add a web redirect URI exactly as:
 
-In a later Okta phase, Okta will provide an authorization server issuer, client ID, redirect URI, scopes, and claim mappings. Those values must come from a lab Okta org and must stay out of GitHub.
+```text
+http://localhost:3000/auth/oidc/callback
+```
+
+3. Create a client secret for local testing.
+4. Put the issuer URL, client ID, client secret, redirect URI, and scopes only in local `.env`.
+5. Keep scopes as:
+
+```text
+openid profile email
+```
+
+### Local `.env` Setup
+
+Create `iam-practice-app/.env` locally when you are ready to test Entra login:
+
+```text
+OIDC_ENABLED=true
+OIDC_PROVIDER_NAME=Microsoft Entra ID
+OIDC_ISSUER_URL=<your-lab-issuer-url>
+OIDC_CLIENT_ID=<your-lab-app-client-id>
+OIDC_CLIENT_SECRET=<your-local-client-secret>
+OIDC_REDIRECT_URI=http://localhost:3000/auth/oidc/callback
+OIDC_SCOPES=openid profile email
+```
+
+Never commit this file.
 
 ### Future Claims Mapping
 
-When real OIDC is added later, ID token claims can map to the app's local session shape. Roles and groups from the identity provider may eventually influence the same `/admin`, `/security`, and `/finance` authorization decisions shown in Phases 1 and 2.
+When Entra OIDC login succeeds, the app creates a local session from safe ID token claims. OIDC users default to `standard_user`:
 
-Phase 4 will later handle JWT validation for protected APIs. Phase 3A does not validate real JWTs.
+```text
+authSource=oidc
+role=standard_user
+userType=external_oidc
+```
+
+Role and group claim mapping is intentionally deferred. Entra groups or app roles do not grant admin, security, or finance access in Phase 3B.
+
+Phase 4 will later handle JWT validation for protected APIs.
 
 ## Phase 2 Claims Routes
 
@@ -261,27 +304,32 @@ Phase 4 will later handle JWT validation for protected APIs. Phase 3A does not v
 | `/api/token-simulation` | JSON response containing the simulated unsigned token-like object |
 | `/api/claims/authorization-check` | JSON explanation of route access based on simulated role and group claims |
 
-## Phase 3A Testing Checklist
+## Phase 3B Testing Checklist
 
 1. Start the app with `npm.cmd start`.
-2. Open `/login` and confirm local dummy login still appears.
-3. Click `Sign in with OIDC (Coming in Phase 3B)`.
-4. Confirm `/auth/oidc/start` explains that OIDC is not active and does not redirect.
-5. Sign in with a local dummy user.
-6. Open `/oidc-readiness`.
-7. Confirm the page explains the future authorization code flow.
-8. Open `/api/oidc/status`.
-9. Confirm the response does not expose a client secret and says real OIDC login is not active.
+2. Confirm local dummy login still works.
+3. Open `/api/oidc/status` while signed in locally.
+4. Confirm secrets and tokens are not returned.
+5. Configure local `.env` with lab Entra values.
+6. Restart the app.
+7. Click `Sign in with Entra OIDC`.
+8. Complete Entra sign-in.
+9. Confirm the app redirects to `/dashboard`.
+10. Confirm `/api/me` shows `authSource: "oidc"` and `role: "standard_user"`.
 
-## Phase 3A Break/Fix Scenario
+## Phase 3B Break/Fix Scenario
 
-Break: set `OIDC_ENABLED=true` without providing real provider configuration in a local uncommitted `.env` file.
+Break: use the wrong redirect URI in Entra app registration.
 
-Symptom: OIDC readiness/status reports incomplete configuration or placeholder behavior.
+Symptom: Entra OIDC login fails with a redirect URI mismatch or callback error.
 
-Fix: set `OIDC_ENABLED=false` until real Entra ID or Okta values are configured locally in an uncommitted `.env` file.
+Fix: set the Entra app registration redirect URI exactly to:
 
-Lesson: OIDC integrations depend on complete, correct provider metadata and careful secret handling.
+```text
+http://localhost:3000/auth/oidc/callback
+```
+
+Lesson: OIDC relies on exact redirect URI matching to prevent authorization responses from being sent to the wrong application.
 
 ## Phase 2 Testing Checklist
 
@@ -385,11 +433,35 @@ Symptom: `/claims` loads but the claim panels stay on loading text.
 
 Fix: confirm the app is still running, refresh the page, and verify that `/api/claims` returns JSON while signed in.
 
-### OIDC status shows placeholders
+### OIDC_ENABLED=false
 
-Symptom: `/api/oidc/status` shows `hasPlaceholderValues: true`.
+Symptom: clicking Entra OIDC sign-in shows that OIDC is disabled.
 
-Fix: for Phase 3A, this is expected. Keep `OIDC_ENABLED=false` until a later phase configures real provider values locally outside Git.
+Fix: set `OIDC_ENABLED=true` only in local `.env` when the rest of the Entra config is ready.
+
+### Missing client secret
+
+Symptom: `/api/oidc/status` reports missing fields or login cannot start.
+
+Fix: add the lab client secret to local `.env`. Do not commit it.
+
+### Wrong issuer URL
+
+Symptom: OIDC login cannot start or discovery fails.
+
+Fix: confirm the issuer URL from your lab Entra tenant and keep it only in local `.env`.
+
+### Wrong redirect URI
+
+Symptom: Entra reports redirect URI mismatch.
+
+Fix: use exactly `http://localhost:3000/auth/oidc/callback` in the Entra app registration and local `.env`.
+
+### Missing email claim
+
+Symptom: OIDC login succeeds but the app user email is `unknown@example.local`.
+
+Fix: confirm the provider returns `email` or `preferred_username`. The app safely falls back when email is absent.
 
 ## Phase 1 Security Limitations
 
@@ -399,7 +471,7 @@ Fix: for Phase 3A, this is expected. Keep `OIDC_ENABLED=false` until a later pha
 - The fallback session secret is only for local training.
 - `/api/debug/session` is for local troubleshooting only and must not be exposed in production.
 - Simulated tokens are not real JWTs and must not be trusted.
-- OIDC routes are placeholders only and must not be treated as real login.
-- Real OIDC values belong only in a local uncommitted `.env` file in a later phase.
-- There is no database, account lockout, MFA, audit logging, CSRF protection, OIDC, SAML, SCIM, JWT validation, or production identity provider integration.
+- Raw OIDC tokens are not stored in session and are not returned by APIs.
+- Real OIDC values belong only in local uncommitted `.env`.
+- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, SCIM, protected API JWT validation, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.
