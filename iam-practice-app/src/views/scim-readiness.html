@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SCIM Readiness</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 5</p>
+        <h1>SCIM Users Endpoint</h1>
+        <p>Phase 5 adds a local SCIM 2.0 Users endpoint simulation for learning how identity providers provision, update, and deactivate application users.</p>
+
+        <div class="notice">
+          SCIM user provisioning requires <code>Authorization: Bearer &lt;token&gt;</code>. The token is local-only, must stay in an uncommitted <code>.env</code> file, and is never returned by the app.
+        </div>
+
+        <h2>Current SCIM Status</h2>
+        <pre id="scim-status">Loading SCIM status...</pre>
+
+        <h2>SCIM Routes</h2>
+        <ul>
+          <li><code>GET /scim/v2/ServiceProviderConfig</code></li>
+          <li><code>GET /scim/v2/Schemas</code></li>
+          <li><code>GET /scim/v2/ResourceTypes</code></li>
+          <li><code>GET /scim/v2/Users</code></li>
+          <li><code>POST /scim/v2/Users</code></li>
+          <li><code>PUT /scim/v2/Users/:id</code></li>
+          <li><code>PATCH /scim/v2/Users/:id</code></li>
+          <li><code>DELETE /scim/v2/Users/:id</code></li>
+        </ul>
+
+        <p>SCIM Groups are deferred to Phase 6. JML lifecycle simulation is deferred to Phase 7. This phase uses in-memory users only, so data resets when the server restarts.</p>
+
+        <nav class="actions">
+          <a class="button" href="/api/scim/status">API: SCIM status</a>
+          <a class="button" href="/scim/v2/ServiceProviderConfig">SCIM config</a>
+          <a class="button" href="/dashboard">Back to dashboard</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      async function loadScimStatus() {
+        const response = await fetch("/api/scim/status");
+        const data = await response.json();
+        document.getElementById("scim-status").textContent = JSON.stringify(data, null, 2);
+      }
+
+      loadScimStatus();
+    </script>
+  </body>
+</html>

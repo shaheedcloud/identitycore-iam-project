@@ -1,8 +1,8 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, and 4
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, and 5
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation.
 
-The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SAML, SCIM, AWS, Docker, databases, or production deployment configuration.
+The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
 ## What Phase 1 Demonstrates
 
@@ -47,6 +47,19 @@ Phase 3B does not store raw tokens in the session, return tokens from APIs, map 
 
 Phase 4 does not store raw JWTs in the session, return raw JWTs from APIs, add refresh token handling, map Entra groups or roles to local admin authorization, add SAML, add SCIM, add AWS, add Docker, or add a database.
 
+## What Phase 5 Demonstrates
+
+- SCIM 2.0 metadata endpoints
+- Local SCIM Users list, get, create, replace, patch, and deactivate behavior
+- Bearer-token protection for SCIM Users endpoints
+- In-memory user provisioning for safe local testing
+- Fail-closed behavior when SCIM is disabled, incomplete, or placeholder-based
+- The difference between SCIM provisioning, OIDC login, and JWT API validation
+
+Phase 5 does not add SCIM Groups, JML lifecycle simulation, production provisioning, real Entra provisioning setup, real Okta provisioning setup, group push, role mapping, admin UI, persistent storage, SAML, AWS, Docker, or a database.
+
+SCIM Groups are deferred to Phase 6. JML lifecycle simulation is deferred to Phase 7.
+
 ## Install Dependencies
 
 ```bash
@@ -80,6 +93,7 @@ http://localhost:3000
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
 | `/oidc-readiness` | `GET` | Browser page explaining OIDC readiness and current safe status | Authenticated users |
 | `/jwt-readiness` | `GET` | Browser page explaining protected API JWT validation status | Authenticated users |
+| `/scim-readiness` | `GET` | Browser page explaining SCIM Users readiness and current safe status | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -91,10 +105,20 @@ http://localhost:3000
 | `/api/claims/authorization-check` | `GET` | Explains route access using role and group claims | Authenticated users |
 | `/api/oidc/status` | `GET` | Returns safe OIDC readiness status without secrets | Authenticated users |
 | `/api/jwt/status` | `GET` | Returns safe JWT validation status without tokens or secrets | Public safe status |
+| `/api/scim/status` | `GET` | Returns safe SCIM readiness status without bearer tokens | Public safe status |
 | `/api/protected/profile` | `GET` | Returns a safe profile after bearer JWT validation | Valid bearer JWT |
 | `/api/protected/claims` | `GET` | Returns safe decoded claims after bearer JWT validation | Valid bearer JWT |
 | `/api/protected/admin-check` | `GET` | Shows that admin authorization is deferred after JWT validation | Valid bearer JWT |
 | `/api/admin/users` | `GET` | Returns all local dummy users without passwords | `admin` |
+| `/scim/v2/ServiceProviderConfig` | `GET` | Returns SCIM service provider metadata | Public metadata |
+| `/scim/v2/Schemas` | `GET` | Returns basic SCIM User schema metadata | Public metadata |
+| `/scim/v2/ResourceTypes` | `GET` | Returns SCIM User resource type metadata | Public metadata |
+| `/scim/v2/Users` | `GET` | Lists in-memory SCIM users | Local SCIM bearer token |
+| `/scim/v2/Users/:id` | `GET` | Gets one in-memory SCIM user | Local SCIM bearer token |
+| `/scim/v2/Users` | `POST` | Creates an in-memory SCIM user | Local SCIM bearer token |
+| `/scim/v2/Users/:id` | `PUT` | Replaces an in-memory SCIM user | Local SCIM bearer token |
+| `/scim/v2/Users/:id` | `PATCH` | Updates supported fields such as `active` | Local SCIM bearer token |
+| `/scim/v2/Users/:id` | `DELETE` | Deactivates an in-memory SCIM user | Local SCIM bearer token |
 
 ## Role-To-Route Access Matrix
 
@@ -184,6 +208,14 @@ OIDC login is an interactive browser sign-in flow. The app redirects a user to E
 JWT API validation is different. A client calls an API with `Authorization: Bearer <token>`. The API validates the token issuer, audience, signature, and expiration before returning data. This does not create a browser session, and the app never stores or returns the raw token.
 
 Phase 4 protects only selected `/api/protected/*` routes with JWT validation. Existing browser routes still use the Express session created by local dummy login or OIDC login.
+
+## SCIM vs OIDC vs JWT
+
+OIDC authenticates a person in the browser and creates an app session.
+
+JWT validation protects API routes by checking a bearer token on each API request.
+
+SCIM provisions identity records into an application. A provider such as Entra ID or Okta can create, update, and deactivate users in a target app through SCIM endpoints. Phase 5 simulates those endpoints locally with an in-memory user store.
 
 ## Relying Party And Service Provider Readiness
 
@@ -425,6 +457,179 @@ Fix: set `JWT_AUDIENCE` to the exact audience value expected in the local lab ac
 
 Lesson: protected APIs trust tokens only when issuer, audience, signature, and expiration all validate.
 
+## Phase 5 SCIM Users Endpoint
+
+SCIM stands for System for Cross-domain Identity Management. It is commonly used by identity providers to push user lifecycle changes into applications.
+
+Phase 5 provides a local SCIM 2.0 Users simulation:
+
+- Metadata routes are available for learning and discovery.
+- Users routes require a local SCIM bearer token.
+- Users are stored only in memory and reset when the app restarts.
+- `DELETE /scim/v2/Users/:id` deactivates a user instead of permanently deleting data.
+- SCIM Groups are deferred to Phase 6.
+- JML lifecycle simulation is deferred to Phase 7.
+
+### SCIM Environment Variables
+
+The `.env.example` file contains placeholder-only values. Real local lab values belong only in an uncommitted `iam-practice-app/.env` file.
+
+| Variable | Example value | Purpose |
+| --- | --- | --- |
+| `SCIM_ENABLED` | `false` | Keeps SCIM Users endpoints fail-closed by default |
+| `SCIM_BEARER_TOKEN` | `replace-with-local-scim-bearer-token` | Placeholder bearer token for local SCIM requests |
+| `SCIM_BASE_URL` | `http://localhost:3000/scim/v2` | Base URL used in SCIM resource metadata |
+
+### Local SCIM Setup
+
+Create `iam-practice-app/.env` locally only when you are ready to test SCIM Users:
+
+```text
+SCIM_ENABLED=true
+SCIM_BEARER_TOKEN=<local-training-token-only>
+SCIM_BASE_URL=http://localhost:3000/scim/v2
+```
+
+Never commit this file. Never paste SCIM bearer tokens, Entra tokens, Okta tokens, client secrets, tenant IDs, or screenshots containing secrets into GitHub.
+
+### SCIM Endpoint List
+
+| Route | Behavior |
+| --- | --- |
+| `/scim/v2/ServiceProviderConfig` | Shows supported SCIM capabilities |
+| `/scim/v2/Schemas` | Shows basic User schema metadata |
+| `/scim/v2/ResourceTypes` | Shows the User resource type |
+| `/scim/v2/Users` | Lists or creates in-memory SCIM users |
+| `/scim/v2/Users/:id` | Gets, replaces, patches, or deactivates one SCIM user |
+| `/api/scim/status` | Shows safe SCIM status without returning the bearer token |
+| `/scim-readiness` | Browser page for SCIM learning and status |
+
+### Phase 5 PowerShell Tests
+
+Start the app:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+npm.cmd install
+npm.cmd start
+```
+
+Check safe SCIM status:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/scim/status
+```
+
+Confirm metadata routes load:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/scim/v2/ServiceProviderConfig
+Invoke-RestMethod http://localhost:3000/scim/v2/Schemas
+Invoke-RestMethod http://localhost:3000/scim/v2/ResourceTypes
+```
+
+Confirm Users fails closed by default:
+
+```powershell
+Invoke-WebRequest http://localhost:3000/scim/v2/Users
+```
+
+After local `.env` is configured with a local training SCIM token, create a user:
+
+```powershell
+$headers = @{ Authorization = "Bearer <local-training-token-only>" }
+$body = @{
+  userName = "new.user@identitycore.local"
+  name = @{
+    givenName = "New"
+    familyName = "User"
+  }
+  displayName = "New User"
+  active = $true
+  emails = @(@{
+    value = "new.user@identitycore.local"
+    type = "work"
+    primary = $true
+  })
+} | ConvertTo-Json -Depth 5
+
+$created = Invoke-RestMethod http://localhost:3000/scim/v2/Users -Method Post -Headers $headers -ContentType "application/scim+json" -Body $body
+$created.id
+```
+
+Retrieve the user:
+
+```powershell
+Invoke-RestMethod "http://localhost:3000/scim/v2/Users/$($created.id)" -Headers $headers
+```
+
+Replace the user:
+
+```powershell
+$replaceBody = @{
+  userName = "new.user@identitycore.local"
+  displayName = "New User Updated"
+  active = $true
+  emails = @(@{
+    value = "new.user@identitycore.local"
+    type = "work"
+    primary = $true
+  })
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod "http://localhost:3000/scim/v2/Users/$($created.id)" -Method Put -Headers $headers -ContentType "application/scim+json" -Body $replaceBody
+```
+
+Patch `active`:
+
+```powershell
+$patchBody = @{
+  schemas = @("urn:ietf:params:scim:api:messages:2.0:PatchOp")
+  Operations = @(@{
+    op = "replace"
+    path = "active"
+    value = $false
+  })
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod "http://localhost:3000/scim/v2/Users/$($created.id)" -Method Patch -Headers $headers -ContentType "application/scim+json" -Body $patchBody
+```
+
+Deactivate with DELETE:
+
+```powershell
+Invoke-RestMethod "http://localhost:3000/scim/v2/Users/$($created.id)" -Method Delete -Headers $headers
+```
+
+### Phase 5 curl Tests
+
+These examples use `curl.exe` from PowerShell so the command is not confused with PowerShell's `curl` alias.
+
+```powershell
+curl.exe http://localhost:3000/api/scim/status
+curl.exe http://localhost:3000/scim/v2/ServiceProviderConfig
+curl.exe http://localhost:3000/scim/v2/Schemas
+curl.exe http://localhost:3000/scim/v2/ResourceTypes
+curl.exe -i http://localhost:3000/scim/v2/Users
+```
+
+After local `.env` is configured:
+
+```powershell
+curl.exe -H "Authorization: Bearer <local-training-token-only>" http://localhost:3000/scim/v2/Users
+curl.exe -X POST http://localhost:3000/scim/v2/Users -H "Authorization: Bearer <local-training-token-only>" -H "Content-Type: application/scim+json" -d "{\"userName\":\"new.user@identitycore.local\",\"displayName\":\"New User\",\"active\":true}"
+```
+
+### Phase 5 Break/Fix Scenario
+
+Break: set `SCIM_ENABLED=true` but leave `SCIM_BEARER_TOKEN=replace-with-local-scim-bearer-token`.
+
+Symptom: `/scim/v2/Users` still fails closed with a SCIM error.
+
+Fix: set `SCIM_BEARER_TOKEN` to a local training value only in uncommitted `.env`, then send the same value in the `Authorization: Bearer <token>` header.
+
+Lesson: SCIM provisioning depends on both enabled configuration and a shared bearer token, and that token must never be committed.
+
 ## Phase 2 Claims Routes
 
 | Route | Purpose |
@@ -506,12 +711,14 @@ Browser-based API checks work after signing in because the browser already has t
 6. Open `/api/claims/authorization-check` and confirm admin access is allowed.
 7. Open `/api/oidc/status` and confirm no client secret is exposed.
 8. Open `/api/jwt/status` and confirm no raw token or secret is exposed.
-9. Confirm `/api/protected/profile` rejects a request without a bearer token.
-10. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
-11. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-12. Log out and sign in as `user@identitycore.local`.
-13. Open `/api/me` and confirm the standard user profile appears.
-14. Open `/api/admin/users` and confirm access is denied.
+9. Open `/api/scim/status` and confirm no SCIM bearer token is exposed.
+10. Confirm `/api/protected/profile` rejects a request without a bearer token.
+11. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
+12. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
+13. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+14. Log out and sign in as `user@identitycore.local`.
+15. Open `/api/me` and confirm the standard user profile appears.
+16. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -620,6 +827,24 @@ Symptom: JWT validation fails before claims are returned.
 
 Fix: confirm `JWT_JWKS_URI` points to the lab provider public keys endpoint and is reachable from your local machine.
 
+### SCIM disabled or placeholder-based
+
+Symptom: `/scim/v2/Users` returns a SCIM error that provisioning is disabled, incomplete, or placeholder-based.
+
+Fix: keep this behavior unless you are testing locally. For local testing, put `SCIM_ENABLED=true` and a local bearer token only in uncommitted `.env`.
+
+### Missing SCIM bearer token
+
+Symptom: `/scim/v2/Users` returns a missing bearer token error.
+
+Fix: send `Authorization: Bearer <local-training-token-only>` with the request.
+
+### SCIM user disappears after restart
+
+Symptom: a SCIM user created during testing is gone after restarting the app.
+
+Fix: this is expected. Phase 5 uses in-memory storage only. No database or persistent storage is included.
+
 ## Phase 1 Security Limitations
 
 - Authentication is local-only and not production-safe.
@@ -631,5 +856,8 @@ Fix: confirm `JWT_JWKS_URI` points to the lab provider public keys endpoint and 
 - Raw OIDC and JWT token values are not stored in session and are not returned by APIs.
 - Real OIDC values belong only in local uncommitted `.env`.
 - Real JWT validation values belong only in local uncommitted `.env`.
-- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, SCIM, role/group authorization from Entra claims, or production identity governance integration.
+- Real SCIM bearer tokens belong only in local uncommitted `.env`.
+- SCIM user data is in-memory only and resets on restart.
+- SCIM Groups and JML lifecycle simulation are intentionally deferred.
+- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, role/group authorization from Entra claims, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.
