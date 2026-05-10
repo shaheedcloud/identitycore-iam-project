@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-3b-entra-oidc-login`
+`feature/phase-4-protected-api-jwt`
 
 Codex must never work directly on `main`.
 
@@ -97,50 +97,52 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 3B - Entra ID OIDC Local Login
+Phase 4 - Protected APIs with JWT Validation
 
-Phase 3B adds real Entra ID OIDC local login behavior using values loaded only from a local uncommitted `iam-practice-app/.env` file.
+Phase 4 adds protected API JWT validation for bearer tokens while keeping local dummy login and Entra OIDC local login behavior available.
 
-Any real Entra ID values must be placed only in a local uncommitted `iam-practice-app/.env` file. The repository may contain only placeholder values in `.env.example` and documentation.
+Phase 4 may include:
 
-Phase 3B should default OIDC-authenticated users to the safest local role, `standard_user`, unless a later approved phase adds explicit role/group claim mapping.
+- placeholder-only JWT validation settings in `.env.example`
+- a JWT configuration helper that reads from process.env
+- JWT validation middleware using a well-maintained Node library
+- protected API routes that require `Authorization: Bearer <token>`
+- validation of issuer, audience, signature, and expiration
+- safe JWT readiness/status output
+- README documentation for OIDC login versus protected API JWT validation
+- troubleshooting notes for local JWT validation setup
 
-Phase 3B may include:
+Phase 4 must fail closed when JWT validation is disabled, incomplete, or placeholder-based.
 
-- real OIDC authorization code flow support using a Node OIDC library
-- Entra ID OIDC login using values loaded only from local uncommitted .env
-- OIDC start route that redirects to Entra ID only when OIDC_ENABLED=true and config is complete
-- OIDC callback route that exchanges authorization code for tokens
-- safe extraction of ID token claims
-- creation of local app session from safe OIDC claims
-- local dummy login remaining available
-- README documentation for Entra ID app registration
-- README documentation for local .env setup
-- safe OIDC troubleshooting notes
+Phase 4 must not include:
 
-Phase 3B must not include:
-
-- committed .env
+- committed `.env`
 - real tenant IDs committed to GitHub
 - real client IDs committed to GitHub
 - client secrets committed to GitHub
 - access tokens committed to GitHub
 - refresh tokens committed to GitHub
 - ID tokens committed to GitHub
+- raw JWT logging
+- raw JWT storage in session
+- raw JWTs returned from any API
 - private keys
-- screenshots showing tenant/client/secrets unredacted
-- Okta OIDC implementation
+- screenshots showing tenant/client/secrets/tokens unredacted
 - SAML
 - SCIM
 - AWS integration
 - Docker
 - database
-- protected API JWT validation beyond basic OIDC login session behavior
+- refresh token handling
+- Entra group-to-role authorization
+- admin authorization based on Entra groups
 
-Suggested Phase 3B commit message:
+Role and group authorization from Entra claims is deferred to a later approved phase. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
+
+Suggested Phase 4 commit message:
 
 ```bash
-git commit -m "chore: update Codex guardrails for Phase 3B Entra OIDC login"
+git commit -m "phase-4: add protected API JWT validation"
 ```
 
 ---

@@ -13,7 +13,7 @@
         <h1>OIDC readiness</h1>
         <p>Phase 3B supports Entra OIDC login when <code>OIDC_ENABLED=true</code> and complete Entra values are present in a local uncommitted <code>.env</code> file.</p>
         <p>Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role.</p>
-        <p>Role and group claim mapping is deferred to a later approved phase. Protected API JWT validation is deferred to Phase 4.</p>
+        <p>Role and group claim mapping is deferred to a later approved phase. Phase 4 adds separate protected API JWT validation without changing OIDC browser session behavior.</p>
 
         <div class="notice">
           Do not commit tenant IDs, client IDs, client secrets, token values, or unredacted screenshots. Raw tokens are not stored in the app session or returned by APIs.

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JWT Readiness</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 4</p>
+        <h1>Protected API JWT Validation</h1>
+        <p>Phase 4 protects selected API routes with bearer-token validation. Browser login still uses either local dummy login or Entra OIDC session login.</p>
+
+        <div class="notice">
+          Protected API calls must send <code>Authorization: Bearer &lt;token&gt;</code>. The app validates issuer, audience, signature, and expiration before returning protected API data.
+        </div>
+
+        <h2>Current JWT Status</h2>
+        <pre id="jwt-status">Loading JWT status...</pre>
+
+        <h2>Protected API Routes</h2>
+        <ul>
+          <li><code>GET /api/protected/profile</code></li>
+          <li><code>GET /api/protected/claims</code></li>
+          <li><code>GET /api/protected/admin-check</code></li>
+        </ul>
+
+        <p>Role and group authorization from Entra claims is intentionally deferred. A valid JWT proves the token passed validation, but it does not grant local admin access in this phase.</p>
+
+        <nav class="actions">
+          <a class="button" href="/api/jwt/status">API: JWT status</a>
+          <a class="button" href="/dashboard">Back to dashboard</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      async function loadJwtStatus() {
+        const response = await fetch("/api/jwt/status");
+        const data = await response.json();
+        document.getElementById("jwt-status").textContent = JSON.stringify(data, null, 2);
+      }
+
+      loadJwtStatus();
+    </script>
+  </body>
+</html>
