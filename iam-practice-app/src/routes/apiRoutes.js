@@ -10,6 +10,7 @@ const {
 const { getOidcStatus } = require("../oidcConfig");
 const { getJwtStatus } = require("../jwtConfig");
 const { getScimStatus } = require("../scimConfig");
+const { getSamlStatus } = require("../samlConfig");
 const { requireJwt } = require("../middleware/jwtAuth");
 const {
   getEvents,
@@ -71,6 +72,10 @@ router.get("/jwt/status", (req, res) => {
 
 router.get("/scim/status", (req, res) => {
   res.json(getScimStatus());
+});
+
+router.get("/saml/status", (req, res) => {
+  res.json(getSamlStatus());
 });
 
 router.get("/jml/status", requireAuth, (req, res) => {

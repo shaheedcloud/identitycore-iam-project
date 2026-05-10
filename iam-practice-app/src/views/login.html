@@ -28,8 +28,14 @@
         <div class="notice">
           <strong>Entra OIDC:</strong> works only when a local uncommitted <code>.env</code> has complete Entra settings. Local dummy login remains available.
         </div>
+        <div class="notice">
+          <strong>SAML:</strong> Phase 8 is readiness and local simulation only. Real IdP setup is deferred and SAML users map to <code>standard_user</code>.
+        </div>
 
         <a class="button secondary-link" href="/auth/oidc/start">Sign in with Entra OIDC</a>
+        <a class="button secondary-link" href="/auth/saml/login">Sign in with SAML</a>
+        <a class="button secondary-link" href="/saml-readiness">SAML readiness</a>
+        <a class="button secondary-link" href="/api/saml/status">SAML status</a>
 
         <div class="hint">
           <strong>Dummy users:</strong>

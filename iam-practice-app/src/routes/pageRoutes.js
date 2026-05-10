@@ -38,6 +38,10 @@ router.get("/jml-readiness", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "jml-readiness.html"));
 });
 
+router.get("/saml-readiness", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "saml-readiness.html"));
+});
+
 router.get("/admin", requireRole(["admin"]), (req, res) => {
   res.sendFile(path.join(viewsPath, "admin.html"));
 });

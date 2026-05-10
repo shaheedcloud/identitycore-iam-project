@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, and 7
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, and 8
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -83,7 +83,19 @@ JML lifecycle simulation is introduced in Phase 7 below.
 
 Phase 7 does not add real Entra Lifecycle Workflows, real Okta Workflows, real HR integration, real SCIM provisioning from Entra or Okta, SAML login, AWS IAM, Docker, database storage, persistent storage, email notifications, background jobs, scheduled automation, approval workflow engine, admin UI, real session revocation, or production identity governance.
 
-SAML login remains Phase 8.
+## What Phase 8 Demonstrates
+
+- SAML identity provider versus service provider concepts
+- Safe placeholder-only SAML configuration
+- Assertion Consumer Service URL and service provider Entity ID
+- Safe SAML status output without certificate values
+- Local-only simulated SAML callback/session mapping
+- SAML-authenticated users mapping to `standard_user`
+- SAML versus OIDC versus JWT learning boundaries
+
+Phase 8 does not add real Entra SAML production integration, real Okta SAML production integration, production certificate handling, SAML group-to-role authorization, admin role mapping from SAML attributes, SCIM changes, JML changes, AWS IAM, Docker, database storage, persistent storage, audit logging engine, or production identity governance.
+
+Phase 9 is audit logging and troubleshooting evidence.
 
 ## Install Dependencies
 
@@ -120,6 +132,7 @@ http://localhost:3000
 | `/jwt-readiness` | `GET` | Browser page explaining protected API JWT validation status | Authenticated users |
 | `/scim-readiness` | `GET` | Browser page explaining SCIM Users and Groups readiness and current safe status | Authenticated users |
 | `/jml-readiness` | `GET` | Browser page explaining Joiner, Mover, Leaver simulation status | Authenticated users |
+| `/saml-readiness` | `GET` | Browser page explaining SAML readiness and local simulation status | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -133,6 +146,7 @@ http://localhost:3000
 | `/api/jwt/status` | `GET` | Returns safe JWT validation status without tokens or secrets | Public safe status |
 | `/api/scim/status` | `GET` | Returns safe SCIM readiness status without bearer tokens | Public safe status |
 | `/api/jml/status` | `GET` | Returns safe local-only JML simulation status | Authenticated users |
+| `/api/saml/status` | `GET` | Returns safe SAML readiness status without certificates or assertions | Public safe status |
 | `/api/jml/events` | `GET` | Returns local JML event history | Authenticated users |
 | `/api/jml/joiner` | `POST` | Simulates onboarding a user and assigning access | Authenticated users |
 | `/api/jml/mover` | `POST` | Simulates department/job changes and access movement | Authenticated users |
@@ -157,6 +171,9 @@ http://localhost:3000
 | `/scim/v2/Groups/:id` | `PUT` | Replaces an in-memory SCIM group | Local SCIM bearer token |
 | `/scim/v2/Groups/:id` | `PATCH` | Adds, replaces, or removes group members | Local SCIM bearer token |
 | `/scim/v2/Groups/:id` | `DELETE` | Removes an in-memory SCIM group | Local SCIM bearer token |
+| `/auth/saml/login` | `GET` | Shows safe SAML disabled/configuration behavior or local simulation form | Public |
+| `/auth/saml/callback` | `POST` | Accepts only local simulated SAML callback data when simulation is enabled | Public local simulation |
+| `/saml/metadata` | `GET` | Returns safe local SP metadata without certificates or private keys | Public metadata |
 
 ## Role-To-Route Access Matrix
 
@@ -255,6 +272,16 @@ JWT validation protects API routes by checking a bearer token on each API reques
 
 SCIM provisions identity records into an application. A provider such as Entra ID or Okta can create, update, and deactivate users and groups in a target app through SCIM endpoints. Phases 5 and 6 simulate those endpoints locally with in-memory stores.
 
+## SAML vs OIDC vs JWT
+
+SAML is a browser SSO protocol that exchanges XML-based identity assertions between an identity provider and a service provider. In this app, the future service provider would expose an assertion consumer service URL at `/auth/saml/callback` and metadata at `/saml/metadata`.
+
+OIDC is a browser login protocol that uses OAuth 2.0 and JSON-based tokens. The app already supports Entra OIDC login when local uncommitted `.env` values are configured.
+
+JWT validation is API protection. A client sends `Authorization: Bearer <token>`, and the API validates issuer, audience, signature, and expiration before returning data.
+
+Phase 8 keeps SAML local and safe. It does not add production SAML certificate handling, real Entra or Okta SAML integration, or SAML group-to-role authorization.
+
 ## Joiner, Mover, Leaver
 
 Joiner, Mover, Leaver, usually shortened to JML, describes identity lifecycle management:
@@ -280,7 +307,7 @@ Phases 1 and 2 prepare the app shape for those flows without implementing them y
 
 OIDC: Later phases can replace the local login form with an OIDC sign-in redirect and callback route. The app would map OIDC claims such as subject, email, name, groups, or roles into the session.
 
-SAML: Later phases can add assertion consumer service handling and map SAML assertion attributes into the same local session shape used now.
+SAML: Phase 8 adds readiness pages, safe status output, safe local metadata, and a local-only simulation path. Real Entra or Okta production SAML setup remains deferred.
 
 SCIM: Later phases can replace the static local user list with local provisioning logic that creates, updates, and deactivates dummy users from SCIM requests.
 
@@ -643,7 +670,135 @@ Lesson: lifecycle workflows depend on stable identity correlation. In real syste
 
 Real Entra Lifecycle Workflows and real Okta Workflows are deferred. Real HR integration, real SCIM provisioning from Entra or Okta, background jobs, scheduled automation, email notifications, approval workflow engines, production identity governance, and real session revocation are not included.
 
-SAML login remains Phase 8.
+Production SAML setup remains deferred. Phase 8 adds only safe SAML readiness and local simulation support.
+
+## Phase 8 SAML Login Readiness
+
+Security Assertion Markup Language, usually shortened to SAML, is a browser SSO protocol. A SAML identity provider authenticates the user and sends a SAML assertion to a service provider. In this project, the IAM Practice App is the service provider.
+
+Key SAML terms:
+
+- Identity Provider, or IdP: the system that authenticates the user, such as Entra ID or Okta in a future production lab.
+- Service Provider, or SP: the application that receives and trusts the assertion.
+- ACS URL: the assertion consumer service URL where the IdP posts the SAML response. This app uses `/auth/saml/callback`.
+- Entity ID: the service provider identifier exposed in metadata.
+- Certificate: the IdP signing certificate used by real SAML implementations to verify assertions. Phase 8 does not commit or return real certificate values.
+
+Phase 8 adds:
+
+- Safe placeholder-only SAML configuration in `.env.example`.
+- Safe SAML readiness status at `/api/saml/status`.
+- A SAML readiness page at `/saml-readiness`.
+- Safe local SP metadata at `/saml/metadata`.
+- Safe SAML login and callback placeholders.
+- Optional local-only SAML callback simulation for learning session mapping.
+
+Phase 8 does not add production Entra SAML, production Okta SAML, production certificate handling, real SAML assertion validation, SAML group-to-role mapping, or admin authorization from SAML attributes.
+
+### SAML Environment Variables
+
+The `.env.example` file contains placeholder-only values. Real local lab values belong only in an uncommitted `iam-practice-app/.env` file.
+
+| Variable | Example value | Purpose |
+| --- | --- | --- |
+| `SAML_ENABLED` | `false` | Keeps real SAML login disabled by default |
+| `SAML_LOCAL_SIMULATION_ENABLED` | `false` | Enables only the local training callback form when set locally |
+| `SAML_PROVIDER_NAME` | `Example SAML Identity Provider` | Display name for readiness/status output |
+| `SAML_IDP_SSO_URL` | `https://idp.example.local/saml/sso` | Placeholder IdP sign-in URL |
+| `SAML_IDP_ENTITY_ID` | `https://idp.example.local/saml/entity` | Placeholder IdP entity ID |
+| `SAML_SP_ENTITY_ID` | `http://localhost:3000/saml/metadata` | Local service provider entity ID |
+| `SAML_ACS_URL` | `http://localhost:3000/auth/saml/callback` | Local assertion consumer service URL |
+| `SAML_IDP_CERTIFICATE` | `replace-with-local-saml-idp-certificate` | Placeholder only; never commit a real certificate |
+
+### SAML Endpoint List
+
+| Route | Behavior |
+| --- | --- |
+| `/saml-readiness` | Browser page for SAML learning and safe status |
+| `/api/saml/status` | Safe status without certificate values, assertions, or secrets |
+| `/auth/saml/login` | Safe disabled/configuration behavior, or local simulation form when explicitly enabled |
+| `/auth/saml/callback` | Local simulated callback only when `SAML_LOCAL_SIMULATION_ENABLED=true` |
+| `/saml/metadata` | Safe local SP metadata without certificates or private keys |
+
+### Local SAML Simulation
+
+The local simulation is optional and exists only to show how SAML attributes can become an Express session. It does not call a real IdP and does not validate real assertions.
+
+Create `iam-practice-app/.env` locally only when you want to test simulation:
+
+```text
+SAML_LOCAL_SIMULATION_ENABLED=true
+```
+
+Then open `/auth/saml/login` and submit the sample form. The app creates a local session user with:
+
+- `authSource: "saml"`
+- `role: "standard_user"`
+- `userType: "external_saml"`
+
+SAML groups or roles are not mapped to admin, security, or finance access in Phase 8.
+
+### Phase 8 PowerShell Tests
+
+Start the app:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+npm.cmd install
+npm.cmd start
+```
+
+Check safe SAML status:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/saml/status
+```
+
+Check safe metadata:
+
+```powershell
+Invoke-WebRequest http://localhost:3000/saml/metadata -UseBasicParsing
+```
+
+Confirm default SAML login fails safely:
+
+```powershell
+Invoke-WebRequest http://localhost:3000/auth/saml/login -UseBasicParsing
+```
+
+To test local simulation, set `SAML_LOCAL_SIMULATION_ENABLED=true` only in local uncommitted `.env`, restart the app, and open:
+
+```text
+http://localhost:3000/auth/saml/login
+```
+
+### Phase 8 Troubleshooting
+
+SAML login says disabled: `SAML_ENABLED=false` is expected for safe default behavior.
+
+SAML login says configuration is incomplete: one or more required SAML values are missing or placeholder-based.
+
+SAML callback says simulation is disabled: set `SAML_LOCAL_SIMULATION_ENABLED=true` only in local uncommitted `.env`, then restart the app.
+
+SAML user cannot access admin routes: expected. SAML-authenticated users always map to `standard_user` in Phase 8.
+
+Certificate value appears in status output: stop and fix the app before committing. `/api/saml/status` must never return full certificate values.
+
+### Phase 8 Break/Fix Scenario
+
+Break: enable local SAML simulation and expect the simulated SAML user to become an admin.
+
+Symptom: the user signs in through the simulation but still receives access denied on `/admin`.
+
+Fix: keep the user as `standard_user`. Admin role mapping from SAML attributes is intentionally deferred.
+
+Lesson: SAML authentication proves who the user is, but authorization mapping must be explicitly designed and reviewed before granting privileged access.
+
+### Phase 8 Deferrals
+
+Real Entra SAML production setup, real Okta SAML production setup, production certificate handling, SAML assertion validation, SAML group-to-role authorization, admin role mapping from SAML attributes, audit logging, production governance, AWS IAM, Docker, database storage, and persistent storage are not included.
+
+Phase 9 is audit logging and troubleshooting evidence.
 
 ### SCIM Environment Variables
 
@@ -1169,6 +1324,8 @@ Fix: use the `identity.id` returned by the Joiner event. Stable identity correla
 - SCIM user and group data is in-memory only and resets on restart.
 - JML identity and event data is in-memory only and resets on restart.
 - JML is a local simulation only and does not call external identity systems.
-- SAML login remains Phase 8.
-- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, role/group authorization from Entra claims, real workflow automation, or production identity governance integration.
+- Real SAML certificates and production SAML values belong only in local uncommitted `.env`.
+- SAML readiness and local simulation do not validate real assertions.
+- SAML-authenticated users are mapped to `standard_user` only.
+- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, production SAML integration, role/group authorization from Entra claims, real workflow automation, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.

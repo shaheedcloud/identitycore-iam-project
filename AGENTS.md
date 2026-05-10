@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-7-jml-simulation`
+`feature/phase-8-saml-login`
 
 Codex must never work directly on `main`.
 
@@ -97,26 +97,27 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 7 - JML Lifecycle Simulation
+Phase 8 - SAML Login Integration Readiness and Local Simulation
 
-Phase 7 adds a safe local Joiner, Mover, Leaver lifecycle simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users and Groups, and all existing readiness/status routes available.
+Phase 8 adds safe SAML login readiness and local-only SAML callback simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users and Groups, JML simulation, and all existing readiness/status routes available.
 
-Phase 7 may include:
+Phase 8 may include:
 
-- in-memory JML lifecycle simulation storage
-- local Joiner simulation with simulated identity creation, department/job title assignment, SCIM-style user action evidence, group assignment, and evidence records
-- local Mover simulation with department/job title updates, old access removal, new access assignment, and evidence records
-- local Leaver simulation with account deactivation, access removal, simulated session/access revocation evidence, and evidence records
-- safe JML status and event history API routes
-- a JML readiness page
-- README documentation for Joiner, Mover, and Leaver flows
-- troubleshooting notes for local JML simulation testing
+- placeholder-only SAML settings in `.env.example`
+- a SAML configuration helper that reads from process.env
+- safe SAML status output that never returns certificate values
+- SAML readiness page
+- safe SAML placeholder login and callback routes
+- safe local SAML callback/session mapping for learning only
+- local SAML service provider metadata description
+- README documentation for IdP, SP, ACS URL, Entity ID, certificate handling, and SAML versus OIDC versus JWT
 
-Phase 7 must remain local-only and in-memory only.
+Phase 8 SAML-authenticated users must map to `standard_user` only. SAML groups or roles must not grant admin, security, or finance access.
 
-Phase 7 must not include:
+Phase 8 must not include:
 
 - committed `.env`
+- real IdP certificates committed to GitHub
 - real SCIM bearer tokens committed to GitHub
 - Entra tokens committed to GitHub
 - Okta tokens committed to GitHub
@@ -129,17 +130,23 @@ Phase 7 must not include:
 - SCIM bearer tokens returned from any API
 - raw JWT logging or storage
 - private keys
+- real SAML assertions committed to GitHub
+- full certificate values returned from status APIs
 - screenshots showing tenant/client/secrets/tokens unredacted
-- external API calls
+- real external IdP calls while placeholder/default config is active
 - real Entra Lifecycle Workflows
 - real Okta Workflows
 - real HR integration
 - real SCIM provisioning from Entra or Okta
+- real Entra SAML production integration
+- real Okta SAML production integration
+- production SAML certificate handling
+- SAML group-to-role authorization
+- admin authorization from SAML attributes
 - background jobs
 - scheduled tasks
 - real automation
 - real session revocation
-- SAML
 - AWS integration
 - Docker
 - database
@@ -150,13 +157,15 @@ Phase 7 must not include:
 - role mapping
 - admin UI
 - JWT authorization mapping
+- SCIM changes
+- JML changes
 
-SAML login remains Phase 8. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
+Phase 9 is audit logging and troubleshooting evidence. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
 
-Suggested Phase 7 commit message:
+Suggested Phase 8 commit message:
 
 ```bash
-git commit -m "phase-7: add local JML lifecycle simulation"
+git commit -m "phase-8: add SAML readiness and local simulation"
 ```
 
 ---
