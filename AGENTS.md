@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-4-protected-api-jwt`
+`feature/phase-5-scim-users`
 
 Codex must never work directly on `main`.
 
@@ -97,52 +97,58 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 4 - Protected APIs with JWT Validation
+Phase 5 - SCIM Users Endpoint
 
-Phase 4 adds protected API JWT validation for bearer tokens while keeping local dummy login and Entra OIDC local login behavior available.
+Phase 5 adds a safe local SCIM 2.0 Users endpoint simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, and all existing readiness/status routes available.
 
-Phase 4 may include:
+Phase 5 may include:
 
-- placeholder-only JWT validation settings in `.env.example`
-- a JWT configuration helper that reads from process.env
-- JWT validation middleware using a well-maintained Node library
-- protected API routes that require `Authorization: Bearer <token>`
-- validation of issuer, audience, signature, and expiration
-- safe JWT readiness/status output
-- README documentation for OIDC login versus protected API JWT validation
-- troubleshooting notes for local JWT validation setup
+- placeholder-only SCIM settings in `.env.example`
+- a SCIM configuration helper that reads from process.env
+- SCIM bearer-token middleware for local testing only
+- in-memory SCIM user storage
+- SCIM 2.0 metadata routes for service provider config, schemas, and resource types
+- SCIM 2.0 Users routes for list, get, create, replace, patch, and deactivate
+- safe SCIM readiness/status output
+- README documentation for SCIM versus OIDC versus JWT
+- troubleshooting notes for local SCIM endpoint testing
 
-Phase 4 must fail closed when JWT validation is disabled, incomplete, or placeholder-based.
+Phase 5 write-provisioning and Users endpoints must fail closed when SCIM is disabled, incomplete, or placeholder-based.
 
-Phase 4 must not include:
+Phase 5 must not include:
 
 - committed `.env`
-- real tenant IDs committed to GitHub
-- real client IDs committed to GitHub
+- real SCIM bearer tokens committed to GitHub
+- Entra tokens committed to GitHub
+- Okta tokens committed to GitHub
 - client secrets committed to GitHub
 - access tokens committed to GitHub
 - refresh tokens committed to GitHub
 - ID tokens committed to GitHub
-- raw JWT logging
-- raw JWT storage in session
-- raw JWTs returned from any API
+- SCIM bearer token logging
+- SCIM bearer tokens returned from any API
 - private keys
 - screenshots showing tenant/client/secrets/tokens unredacted
 - SAML
-- SCIM
 - AWS integration
 - Docker
 - database
-- refresh token handling
-- Entra group-to-role authorization
-- admin authorization based on Entra groups
+- persistent storage
+- SCIM Groups
+- JML lifecycle simulation
+- production provisioning
+- real Entra provisioning setup
+- real Okta provisioning setup
+- group push
+- role mapping
+- admin UI for SCIM users
 
-Role and group authorization from Entra claims is deferred to a later approved phase. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
+SCIM Groups are deferred to Phase 6. JML lifecycle simulation is deferred to Phase 7. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
 
-Suggested Phase 4 commit message:
+Suggested Phase 5 commit message:
 
 ```bash
-git commit -m "phase-4: add protected API JWT validation"
+git commit -m "phase-5: add SCIM users endpoint simulation"
 ```
 
 ---

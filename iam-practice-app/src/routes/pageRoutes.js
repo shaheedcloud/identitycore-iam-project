@@ -30,6 +30,10 @@ router.get("/jwt-readiness", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "jwt-readiness.html"));
 });
 
+router.get("/scim-readiness", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "scim-readiness.html"));
+});
+
 router.get("/admin", requireRole(["admin"]), (req, res) => {
   res.sendFile(path.join(viewsPath, "admin.html"));
 });

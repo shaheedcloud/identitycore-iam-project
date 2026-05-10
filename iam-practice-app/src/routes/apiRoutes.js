@@ -9,6 +9,7 @@ const {
 } = require("../claims");
 const { getOidcStatus } = require("../oidcConfig");
 const { getJwtStatus } = require("../jwtConfig");
+const { getScimStatus } = require("../scimConfig");
 const { requireJwt } = require("../middleware/jwtAuth");
 
 const router = express.Router();
@@ -58,6 +59,10 @@ router.get("/oidc/status", requireAuth, (req, res) => {
 
 router.get("/jwt/status", (req, res) => {
   res.json(getJwtStatus());
+});
+
+router.get("/scim/status", (req, res) => {
+  res.json(getScimStatus());
 });
 
 router.get("/protected/profile", requireJwt, (req, res) => {
