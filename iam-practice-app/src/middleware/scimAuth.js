@@ -31,7 +31,7 @@ function requireScimBearer(req, res, next) {
     return scimError(
       res,
       503,
-      "SCIM is disabled, incomplete, or still using placeholders. Users endpoints fail closed.",
+      "SCIM is disabled, incomplete, or still using placeholders. SCIM endpoints fail closed.",
       "serviceProviderConfig"
     );
   }

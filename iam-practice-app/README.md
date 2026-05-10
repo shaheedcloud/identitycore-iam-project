@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, and 5
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, and 6
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -58,7 +58,18 @@ Phase 4 does not store raw JWTs in the session, return raw JWTs from APIs, add r
 
 Phase 5 does not add SCIM Groups, JML lifecycle simulation, production provisioning, real Entra provisioning setup, real Okta provisioning setup, group push, role mapping, admin UI, persistent storage, SAML, AWS, Docker, or a database.
 
-SCIM Groups are deferred to Phase 6. JML lifecycle simulation is deferred to Phase 7.
+## What Phase 6 Demonstrates
+
+- Local SCIM Groups list, get, create, replace, patch, and delete behavior
+- Group membership updates with SCIM PATCH `add`, `replace`, and `remove`
+- User and Group metadata in `/scim/v2/Schemas`
+- User and Group resource types in `/scim/v2/ResourceTypes`
+- Reuse of the same safe SCIM bearer-token middleware
+- In-memory group provisioning for safe local testing
+
+Phase 6 does not add JML lifecycle simulation, production provisioning, real Entra provisioning setup, real Okta provisioning setup, admin UI, role mapping, JWT authorization mapping, persistent storage, SAML, AWS, Docker, or a database.
+
+JML lifecycle simulation is deferred to Phase 7.
 
 ## Install Dependencies
 
@@ -93,7 +104,7 @@ http://localhost:3000
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
 | `/oidc-readiness` | `GET` | Browser page explaining OIDC readiness and current safe status | Authenticated users |
 | `/jwt-readiness` | `GET` | Browser page explaining protected API JWT validation status | Authenticated users |
-| `/scim-readiness` | `GET` | Browser page explaining SCIM Users readiness and current safe status | Authenticated users |
+| `/scim-readiness` | `GET` | Browser page explaining SCIM Users and Groups readiness and current safe status | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -119,6 +130,12 @@ http://localhost:3000
 | `/scim/v2/Users/:id` | `PUT` | Replaces an in-memory SCIM user | Local SCIM bearer token |
 | `/scim/v2/Users/:id` | `PATCH` | Updates supported fields such as `active` | Local SCIM bearer token |
 | `/scim/v2/Users/:id` | `DELETE` | Deactivates an in-memory SCIM user | Local SCIM bearer token |
+| `/scim/v2/Groups` | `GET` | Lists in-memory SCIM groups | Local SCIM bearer token |
+| `/scim/v2/Groups/:id` | `GET` | Gets one in-memory SCIM group | Local SCIM bearer token |
+| `/scim/v2/Groups` | `POST` | Creates an in-memory SCIM group | Local SCIM bearer token |
+| `/scim/v2/Groups/:id` | `PUT` | Replaces an in-memory SCIM group | Local SCIM bearer token |
+| `/scim/v2/Groups/:id` | `PATCH` | Adds, replaces, or removes group members | Local SCIM bearer token |
+| `/scim/v2/Groups/:id` | `DELETE` | Removes an in-memory SCIM group | Local SCIM bearer token |
 
 ## Role-To-Route Access Matrix
 
@@ -215,7 +232,7 @@ OIDC authenticates a person in the browser and creates an app session.
 
 JWT validation protects API routes by checking a bearer token on each API request.
 
-SCIM provisions identity records into an application. A provider such as Entra ID or Okta can create, update, and deactivate users in a target app through SCIM endpoints. Phase 5 simulates those endpoints locally with an in-memory user store.
+SCIM provisions identity records into an application. A provider such as Entra ID or Okta can create, update, and deactivate users and groups in a target app through SCIM endpoints. Phases 5 and 6 simulate those endpoints locally with in-memory stores.
 
 ## Relying Party And Service Provider Readiness
 
@@ -467,8 +484,20 @@ Phase 5 provides a local SCIM 2.0 Users simulation:
 - Users routes require a local SCIM bearer token.
 - Users are stored only in memory and reset when the app restarts.
 - `DELETE /scim/v2/Users/:id` deactivates a user instead of permanently deleting data.
-- SCIM Groups are deferred to Phase 6.
 - JML lifecycle simulation is deferred to Phase 7.
+
+## Phase 6 SCIM Groups Endpoint
+
+Phase 6 adds a local SCIM 2.0 Groups simulation:
+
+- Groups routes require the same local SCIM bearer token as Users.
+- Groups are stored only in memory and reset when the app restarts.
+- Group members are represented as SCIM member objects with `value`, `display`, and `type`.
+- `PATCH /scim/v2/Groups/:id` supports `add`, `replace`, and `remove` operations for members.
+- `DELETE /scim/v2/Groups/:id` removes the group from the in-memory store.
+- JML lifecycle simulation is deferred to Phase 7.
+
+SCIM Users represent provisioned application accounts. SCIM Groups represent collections of users that an identity provider can push for access organization, assignment context, or later lifecycle workflows. Phase 6 stores group membership data for learning only; it does not map groups to local app roles or JWT authorization.
 
 ### SCIM Environment Variables
 
@@ -476,7 +505,7 @@ The `.env.example` file contains placeholder-only values. Real local lab values 
 
 | Variable | Example value | Purpose |
 | --- | --- | --- |
-| `SCIM_ENABLED` | `false` | Keeps SCIM Users endpoints fail-closed by default |
+| `SCIM_ENABLED` | `false` | Keeps SCIM Users and Groups endpoints fail-closed by default |
 | `SCIM_BEARER_TOKEN` | `replace-with-local-scim-bearer-token` | Placeholder bearer token for local SCIM requests |
 | `SCIM_BASE_URL` | `http://localhost:3000/scim/v2` | Base URL used in SCIM resource metadata |
 
@@ -497,10 +526,12 @@ Never commit this file. Never paste SCIM bearer tokens, Entra tokens, Okta token
 | Route | Behavior |
 | --- | --- |
 | `/scim/v2/ServiceProviderConfig` | Shows supported SCIM capabilities |
-| `/scim/v2/Schemas` | Shows basic User schema metadata |
-| `/scim/v2/ResourceTypes` | Shows the User resource type |
+| `/scim/v2/Schemas` | Shows basic User and Group schema metadata |
+| `/scim/v2/ResourceTypes` | Shows User and Group resource types |
 | `/scim/v2/Users` | Lists or creates in-memory SCIM users |
 | `/scim/v2/Users/:id` | Gets, replaces, patches, or deactivates one SCIM user |
+| `/scim/v2/Groups` | Lists or creates in-memory SCIM groups |
+| `/scim/v2/Groups/:id` | Gets, replaces, patches, or removes one SCIM group |
 | `/api/scim/status` | Shows safe SCIM status without returning the bearer token |
 | `/scim-readiness` | Browser page for SCIM learning and status |
 
@@ -601,7 +632,99 @@ Deactivate with DELETE:
 Invoke-RestMethod "http://localhost:3000/scim/v2/Users/$($created.id)" -Method Delete -Headers $headers
 ```
 
-### Phase 5 curl Tests
+### Phase 6 PowerShell Tests
+
+With the same local SCIM `.env` configuration and `$headers` from the Phase 5 examples, create a group:
+
+```powershell
+$groupBody = @{
+  displayName = "IdentityCore SCIM Test Group"
+  members = @(@{
+    value = $created.id
+    display = "new.user@identitycore.local"
+    type = "User"
+  })
+} | ConvertTo-Json -Depth 5
+
+$group = Invoke-RestMethod http://localhost:3000/scim/v2/Groups -Method Post -Headers $headers -ContentType "application/scim+json" -Body $groupBody
+$group.id
+```
+
+Retrieve the group:
+
+```powershell
+Invoke-RestMethod "http://localhost:3000/scim/v2/Groups/$($group.id)" -Headers $headers
+```
+
+Replace the group:
+
+```powershell
+$replaceGroupBody = @{
+  displayName = "IdentityCore SCIM Test Group Updated"
+  members = @()
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod "http://localhost:3000/scim/v2/Groups/$($group.id)" -Method Put -Headers $headers -ContentType "application/scim+json" -Body $replaceGroupBody
+```
+
+Patch group members with `add`:
+
+```powershell
+$addMemberBody = @{
+  schemas = @("urn:ietf:params:scim:api:messages:2.0:PatchOp")
+  Operations = @(@{
+    op = "add"
+    path = "members"
+    value = @(@{
+      value = $created.id
+      display = "new.user@identitycore.local"
+      type = "User"
+    })
+  })
+} | ConvertTo-Json -Depth 6
+
+Invoke-RestMethod "http://localhost:3000/scim/v2/Groups/$($group.id)" -Method Patch -Headers $headers -ContentType "application/scim+json" -Body $addMemberBody
+```
+
+Patch group members with `replace`:
+
+```powershell
+$replaceMembersBody = @{
+  schemas = @("urn:ietf:params:scim:api:messages:2.0:PatchOp")
+  Operations = @(@{
+    op = "replace"
+    path = "members"
+    value = @()
+  })
+} | ConvertTo-Json -Depth 6
+
+Invoke-RestMethod "http://localhost:3000/scim/v2/Groups/$($group.id)" -Method Patch -Headers $headers -ContentType "application/scim+json" -Body $replaceMembersBody
+```
+
+Patch group members with `remove`:
+
+```powershell
+$removeMemberBody = @{
+  schemas = @("urn:ietf:params:scim:api:messages:2.0:PatchOp")
+  Operations = @(@{
+    op = "remove"
+    path = "members"
+    value = @(@{
+      value = $created.id
+    })
+  })
+} | ConvertTo-Json -Depth 6
+
+Invoke-RestMethod "http://localhost:3000/scim/v2/Groups/$($group.id)" -Method Patch -Headers $headers -ContentType "application/scim+json" -Body $removeMemberBody
+```
+
+Delete the group:
+
+```powershell
+Invoke-RestMethod "http://localhost:3000/scim/v2/Groups/$($group.id)" -Method Delete -Headers $headers
+```
+
+### Phase 5 And 6 curl Tests
 
 These examples use `curl.exe` from PowerShell so the command is not confused with PowerShell's `curl` alias.
 
@@ -611,6 +734,7 @@ curl.exe http://localhost:3000/scim/v2/ServiceProviderConfig
 curl.exe http://localhost:3000/scim/v2/Schemas
 curl.exe http://localhost:3000/scim/v2/ResourceTypes
 curl.exe -i http://localhost:3000/scim/v2/Users
+curl.exe -i http://localhost:3000/scim/v2/Groups
 ```
 
 After local `.env` is configured:
@@ -618,7 +742,19 @@ After local `.env` is configured:
 ```powershell
 curl.exe -H "Authorization: Bearer <local-training-token-only>" http://localhost:3000/scim/v2/Users
 curl.exe -X POST http://localhost:3000/scim/v2/Users -H "Authorization: Bearer <local-training-token-only>" -H "Content-Type: application/scim+json" -d "{\"userName\":\"new.user@identitycore.local\",\"displayName\":\"New User\",\"active\":true}"
+curl.exe -H "Authorization: Bearer <local-training-token-only>" http://localhost:3000/scim/v2/Groups
+curl.exe -X POST http://localhost:3000/scim/v2/Groups -H "Authorization: Bearer <local-training-token-only>" -H "Content-Type: application/scim+json" -d "{\"displayName\":\"IdentityCore SCIM Test Group\",\"members\":[]}"
 ```
+
+### Phase 6 Break/Fix Scenario
+
+Break: send a PATCH request with `op` misspelled or without a supported `members` operation.
+
+Symptom: the group is returned, but membership does not change.
+
+Fix: send `op` as `add`, `replace`, or `remove`, set `path` to `members`, and include member objects with a `value`.
+
+Lesson: SCIM PATCH behavior depends on exact operation names and attribute paths.
 
 ### Phase 5 Break/Fix Scenario
 
@@ -715,10 +851,11 @@ Browser-based API checks work after signing in because the browser already has t
 10. Confirm `/api/protected/profile` rejects a request without a bearer token.
 11. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
 12. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
-13. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-14. Log out and sign in as `user@identitycore.local`.
-15. Open `/api/me` and confirm the standard user profile appears.
-16. Open `/api/admin/users` and confirm access is denied.
+13. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
+14. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+15. Log out and sign in as `user@identitycore.local`.
+16. Open `/api/me` and confirm the standard user profile appears.
+17. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -829,13 +966,13 @@ Fix: confirm `JWT_JWKS_URI` points to the lab provider public keys endpoint and 
 
 ### SCIM disabled or placeholder-based
 
-Symptom: `/scim/v2/Users` returns a SCIM error that provisioning is disabled, incomplete, or placeholder-based.
+Symptom: `/scim/v2/Users` or `/scim/v2/Groups` returns a SCIM error that provisioning is disabled, incomplete, or placeholder-based.
 
 Fix: keep this behavior unless you are testing locally. For local testing, put `SCIM_ENABLED=true` and a local bearer token only in uncommitted `.env`.
 
 ### Missing SCIM bearer token
 
-Symptom: `/scim/v2/Users` returns a missing bearer token error.
+Symptom: `/scim/v2/Users` or `/scim/v2/Groups` returns a missing bearer token error.
 
 Fix: send `Authorization: Bearer <local-training-token-only>` with the request.
 
@@ -844,6 +981,18 @@ Fix: send `Authorization: Bearer <local-training-token-only>` with the request.
 Symptom: a SCIM user created during testing is gone after restarting the app.
 
 Fix: this is expected. Phase 5 uses in-memory storage only. No database or persistent storage is included.
+
+### SCIM group disappears after restart
+
+Symptom: a SCIM group created during testing is gone after restarting the app.
+
+Fix: this is expected. Phase 6 uses in-memory storage only. No database or persistent storage is included.
+
+### SCIM group membership patch does not change members
+
+Symptom: PATCH returns the group, but the `members` array is unchanged.
+
+Fix: confirm the operation uses `op` as `add`, `replace`, or `remove`, uses `path` as `members`, and sends member objects with a `value`.
 
 ## Phase 1 Security Limitations
 
@@ -857,7 +1006,7 @@ Fix: this is expected. Phase 5 uses in-memory storage only. No database or persi
 - Real OIDC values belong only in local uncommitted `.env`.
 - Real JWT validation values belong only in local uncommitted `.env`.
 - Real SCIM bearer tokens belong only in local uncommitted `.env`.
-- SCIM user data is in-memory only and resets on restart.
-- SCIM Groups and JML lifecycle simulation are intentionally deferred.
+- SCIM user and group data is in-memory only and resets on restart.
+- JML lifecycle simulation is intentionally deferred.
 - There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, role/group authorization from Entra claims, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.
