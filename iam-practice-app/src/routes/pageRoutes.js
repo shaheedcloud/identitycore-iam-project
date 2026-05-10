@@ -26,6 +26,10 @@ router.get("/oidc-readiness", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "oidc-readiness.html"));
 });
 
+router.get("/jwt-readiness", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "jwt-readiness.html"));
+});
+
 router.get("/admin", requireRole(["admin"]), (req, res) => {
   res.sendFile(path.join(viewsPath, "admin.html"));
 });

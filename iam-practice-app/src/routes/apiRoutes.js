@@ -8,6 +8,8 @@ const {
   buildSimulatedToken
 } = require("../claims");
 const { getOidcStatus } = require("../oidcConfig");
+const { getJwtStatus } = require("../jwtConfig");
+const { requireJwt } = require("../middleware/jwtAuth");
 
 const router = express.Router();
 
@@ -54,7 +56,48 @@ router.get("/oidc/status", requireAuth, (req, res) => {
   res.json(getOidcStatus());
 });
 
-// Later JWT phases can add token validation middleware before protected API handlers.
+router.get("/jwt/status", (req, res) => {
+  res.json(getJwtStatus());
+});
+
+router.get("/protected/profile", requireJwt, (req, res) => {
+  res.json({
+    authenticatedBy: "validated_bearer_jwt",
+    tokenValidated: true,
+    profile: {
+      sub: req.jwtUser.sub,
+      name: req.jwtUser.name,
+      preferred_username: req.jwtUser.preferred_username,
+      email: req.jwtUser.email,
+      scopes: req.jwtUser.scopes
+    },
+    message: "JWT issuer, audience, signature, and expiration were validated before returning this profile."
+  });
+});
+
+router.get("/protected/claims", requireJwt, (req, res) => {
+  res.json({
+    tokenValidated: true,
+    warning: "Safe decoded claims only. The raw JWT is never returned.",
+    header: req.jwtHeader,
+    claims: req.jwtUser
+  });
+});
+
+router.get("/protected/admin-check", requireJwt, (req, res) => {
+  res.json({
+    tokenValidated: true,
+    adminAuthorized: false,
+    authorizationDeferred: true,
+    message: "JWT validation succeeded, but Entra group and role claim mapping to admin access is deferred to a later approved phase.",
+    observedClaims: {
+      roles: req.jwtUser.roles,
+      groups: req.jwtUser.groups,
+      scopes: req.jwtUser.scopes
+    }
+  });
+});
+
 router.get("/admin/users", requireRole(["admin"]), (req, res) => {
   res.json({
     users: listUsersWithoutPasswords()

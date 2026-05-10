@@ -1,8 +1,8 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, and 3B
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, and 4
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens.
 
-The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SAML, SCIM, AWS, Docker, databases, or protected API JWT validation.
+The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SAML, SCIM, AWS, Docker, databases, or production deployment configuration.
 
 ## What Phase 1 Demonstrates
 
@@ -36,6 +36,17 @@ Phase 2 does not add real token simulation libraries, token signing, token valid
 
 Phase 3B does not store raw tokens in the session, return tokens from APIs, map Entra roles/groups to privileged app roles, add Okta, add SAML, add SCIM, or validate JWTs for protected APIs.
 
+## What Phase 4 Demonstrates
+
+- Protected API routes that require `Authorization: Bearer <token>`
+- JWT validation with `jose`
+- Issuer, audience, signature, and expiration checks
+- Safe decoded claim output after validation
+- Fail-closed behavior when JWT validation is disabled, incomplete, or placeholder-based
+- A clear difference between browser OIDC login and API bearer-token validation
+
+Phase 4 does not store raw JWTs in the session, return raw JWTs from APIs, add refresh token handling, map Entra groups or roles to local admin authorization, add SAML, add SCIM, add AWS, add Docker, or add a database.
+
 ## Install Dependencies
 
 ```bash
@@ -68,6 +79,7 @@ http://localhost:3000
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
 | `/oidc-readiness` | `GET` | Browser page explaining OIDC readiness and current safe status | Authenticated users |
+| `/jwt-readiness` | `GET` | Browser page explaining protected API JWT validation status | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -78,6 +90,10 @@ http://localhost:3000
 | `/api/token-simulation` | `GET` | Returns a local unsigned token-like object | Authenticated users |
 | `/api/claims/authorization-check` | `GET` | Explains route access using role and group claims | Authenticated users |
 | `/api/oidc/status` | `GET` | Returns safe OIDC readiness status without secrets | Authenticated users |
+| `/api/jwt/status` | `GET` | Returns safe JWT validation status without tokens or secrets | Public safe status |
+| `/api/protected/profile` | `GET` | Returns a safe profile after bearer JWT validation | Valid bearer JWT |
+| `/api/protected/claims` | `GET` | Returns safe decoded claims after bearer JWT validation | Valid bearer JWT |
+| `/api/protected/admin-check` | `GET` | Shows that admin authorization is deferred after JWT validation | Valid bearer JWT |
 | `/api/admin/users` | `GET` | Returns all local dummy users without passwords | `admin` |
 
 ## Role-To-Route Access Matrix
@@ -160,6 +176,14 @@ The session stores the safe local profile only. It does not store passwords, tok
 ## How RBAC Middleware Works
 
 The RBAC middleware lives in `src/middleware/rbac.js`. A protected route calls `requireRole()` with a list of allowed roles. If the signed-in user's role appears in the allowed list, the request continues. If not, the user is redirected to `/access-denied`.
+
+## OIDC Login vs JWT API Validation
+
+OIDC login is an interactive browser sign-in flow. The app redirects a user to Entra ID, receives an authorization-code callback, extracts safe ID token claims, and creates an Express session for browser pages.
+
+JWT API validation is different. A client calls an API with `Authorization: Bearer <token>`. The API validates the token issuer, audience, signature, and expiration before returning data. This does not create a browser session, and the app never stores or returns the raw token.
+
+Phase 4 protects only selected `/api/protected/*` routes with JWT validation. Existing browser routes still use the Express session created by local dummy login or OIDC login.
 
 ## Relying Party And Service Provider Readiness
 
@@ -293,7 +317,113 @@ userType=external_oidc
 
 Role and group claim mapping is intentionally deferred. Entra groups or app roles do not grant admin, security, or finance access in Phase 3B.
 
-Phase 4 will later handle JWT validation for protected APIs.
+Phase 4 handles JWT validation for protected APIs. Role and group claim mapping is intentionally deferred.
+
+## Phase 4 Protected API JWT Validation
+
+Phase 4 uses:
+
+- `jose`
+- placeholder-only JWT settings in `.env.example`
+- `src/jwtConfig.js` for safe configuration status
+- `src/middleware/jwtAuth.js` for bearer-token validation
+
+The protected APIs fail closed unless all of these are true:
+
+1. `JWT_VALIDATION_ENABLED=true`
+2. `JWT_ISSUER_URL` is configured and not a placeholder
+3. `JWT_AUDIENCE` is configured and not a placeholder
+4. `JWT_JWKS_URI` is configured and not a placeholder
+
+When enabled and complete, the middleware validates:
+
+- issuer
+- audience
+- signature using the remote JWKS
+- expiration
+
+Raw JWTs are not logged, stored in session, or returned from any API.
+
+### JWT Environment Variables
+
+The `.env.example` file contains placeholder-only values. Real values belong only in a local uncommitted `.env` file.
+
+| Variable | Example value | Purpose |
+| --- | --- | --- |
+| `JWT_VALIDATION_ENABLED` | `false` | Keeps protected API JWT validation disabled until local config is ready |
+| `JWT_ISSUER_URL` | `https://login.microsoftonline.com/REPLACE_WITH_TENANT_ID/v2.0` | Placeholder issuer expected in the access token |
+| `JWT_AUDIENCE` | `api://replace-with-api-client-id` | Placeholder audience expected in the access token |
+| `JWT_JWKS_URI` | `https://login.microsoftonline.com/REPLACE_WITH_TENANT_ID/discovery/v2.0/keys` | Placeholder public-key endpoint used for signature validation |
+| `JWT_CLOCK_TOLERANCE_SECONDS` | `60` | Small clock skew allowance for token time checks |
+
+### JWT Protected API Routes
+
+| Route | Behavior |
+| --- | --- |
+| `/api/jwt/status` | Returns safe readiness status and never returns tokens or secrets |
+| `/api/protected/profile` | Requires a valid bearer JWT and returns a safe profile subset |
+| `/api/protected/claims` | Requires a valid bearer JWT and returns safe decoded claims only |
+| `/api/protected/admin-check` | Requires a valid bearer JWT and explains that admin authorization mapping is deferred |
+
+### Local JWT Setup
+
+Create `iam-practice-app/.env` locally only when you are ready to validate a lab Entra access token:
+
+```text
+JWT_VALIDATION_ENABLED=true
+JWT_ISSUER_URL=<your-lab-token-issuer-url>
+JWT_AUDIENCE=<your-lab-api-audience>
+JWT_JWKS_URI=<your-lab-jwks-uri>
+JWT_CLOCK_TOLERANCE_SECONDS=60
+```
+
+Never commit this file. Never paste access tokens, refresh tokens, ID tokens, tenant IDs, client secrets, or private keys into source code, documentation commits, screenshots, issues, or pull requests.
+
+### Phase 4 Testing Checklist
+
+Start the app:
+
+```powershell
+cd D:\identitycore\iam-practice-app
+npm.cmd install
+npm.cmd start
+```
+
+Check safe JWT status:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/jwt/status
+```
+
+Confirm missing token is rejected:
+
+```powershell
+Invoke-WebRequest http://localhost:3000/api/protected/profile
+```
+
+Confirm malformed token is rejected:
+
+```powershell
+Invoke-WebRequest http://localhost:3000/api/protected/profile -Headers @{ Authorization = "Bearer not-a-jwt" }
+```
+
+After local `.env` is configured and you have a valid lab Entra access token, test safe decoded claims:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/protected/claims -Headers @{ Authorization = "Bearer <access-token-from-local-lab>" }
+```
+
+Do not save the token in source files or terminal transcripts you plan to commit.
+
+### Phase 4 Break/Fix Scenario
+
+Break: set `JWT_AUDIENCE` to the wrong value in local `.env`.
+
+Symptom: `/api/protected/profile` rejects an otherwise valid access token with a JWT validation failure.
+
+Fix: set `JWT_AUDIENCE` to the exact audience value expected in the local lab access token.
+
+Lesson: protected APIs trust tokens only when issuer, audience, signature, and expiration all validate.
 
 ## Phase 2 Claims Routes
 
@@ -375,10 +505,13 @@ Browser-based API checks work after signing in because the browser already has t
 5. Open `/api/token-simulation` and confirm the response is clearly marked as not a real JWT.
 6. Open `/api/claims/authorization-check` and confirm admin access is allowed.
 7. Open `/api/oidc/status` and confirm no client secret is exposed.
-8. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-9. Log out and sign in as `user@identitycore.local`.
-10. Open `/api/me` and confirm the standard user profile appears.
-11. Open `/api/admin/users` and confirm access is denied.
+8. Open `/api/jwt/status` and confirm no raw token or secret is exposed.
+9. Confirm `/api/protected/profile` rejects a request without a bearer token.
+10. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
+11. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+12. Log out and sign in as `user@identitycore.local`.
+13. Open `/api/me` and confirm the standard user profile appears.
+14. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -463,6 +596,30 @@ Symptom: OIDC login succeeds but the app user email is `unknown@example.local`.
 
 Fix: confirm the provider returns `email` or `preferred_username`. The app safely falls back when email is absent.
 
+### JWT validation disabled
+
+Symptom: `/api/protected/profile` returns `jwt_validation_not_ready`.
+
+Fix: keep this behavior unless you are intentionally testing with a local lab access token. Protected APIs fail closed when validation is disabled.
+
+### Malformed bearer token
+
+Symptom: `/api/protected/profile` returns `malformed_token`.
+
+Fix: send a real three-part JWT access token in the `Authorization: Bearer <token>` header during local testing.
+
+### Wrong JWT issuer or audience
+
+Symptom: a token-shaped value is rejected after validation.
+
+Fix: confirm `JWT_ISSUER_URL` and `JWT_AUDIENCE` match the local lab access token. Keep real values only in local `.env`.
+
+### JWKS discovery failure
+
+Symptom: JWT validation fails before claims are returned.
+
+Fix: confirm `JWT_JWKS_URI` points to the lab provider public keys endpoint and is reachable from your local machine.
+
 ## Phase 1 Security Limitations
 
 - Authentication is local-only and not production-safe.
@@ -471,7 +628,8 @@ Fix: confirm the provider returns `email` or `preferred_username`. The app safel
 - The fallback session secret is only for local training.
 - `/api/debug/session` is for local troubleshooting only and must not be exposed in production.
 - Simulated tokens are not real JWTs and must not be trusted.
-- Raw OIDC tokens are not stored in session and are not returned by APIs.
+- Raw OIDC and JWT token values are not stored in session and are not returned by APIs.
 - Real OIDC values belong only in local uncommitted `.env`.
-- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, SCIM, protected API JWT validation, or production identity governance integration.
+- Real JWT validation values belong only in local uncommitted `.env`.
+- There is no database, account lockout, local MFA enforcement, audit logging, CSRF protection, SAML, SCIM, role/group authorization from Entra claims, or production identity governance integration.
 - Do not use these credentials, configuration values, or patterns in production.
