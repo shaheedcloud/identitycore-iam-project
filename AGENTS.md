@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-3-oidc-login`
+`feature/phase-3b-entra-oidc-login`
 
 Codex must never work directly on `main`.
 
@@ -97,54 +97,50 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 3 - OIDC Login Readiness and Placeholder Integration
+Phase 3B - Entra ID OIDC Local Login
 
-Phase 3A is OIDC readiness only.
+Phase 3B adds real Entra ID OIDC local login behavior using values loaded only from a local uncommitted `iam-practice-app/.env` file.
 
-Phase 3A must prepare the app for future OIDC without requiring a real identity provider yet. Any real OIDC values must be placed only in a local uncommitted .env file later, never in GitHub.
+Any real Entra ID values must be placed only in a local uncommitted `iam-practice-app/.env` file. The repository may contain only placeholder values in `.env.example` and documentation.
 
-Phase 3A may include:
+Phase 3B should default OIDC-authenticated users to the safest local role, `standard_user`, unless a later approved phase adds explicit role/group claim mapping.
 
-- OIDC route placeholders
-- login-with-oidc button or disabled placeholder
-- callback route placeholder
-- OIDC configuration example values in .env.example only
-- documentation explaining OIDC authorization code flow
-- documentation explaining how Entra ID or Okta will later provide issuer, client ID, redirect URI, scopes, and claims
-- safe "not configured yet" behavior
-- clear comments showing where real OIDC logic will later be added
+Phase 3B may include:
 
-Phase 3A must not include:
+- real OIDC authorization code flow support using a Node OIDC library
+- Entra ID OIDC login using values loaded only from local uncommitted .env
+- OIDC start route that redirects to Entra ID only when OIDC_ENABLED=true and config is complete
+- OIDC callback route that exchanges authorization code for tokens
+- safe extraction of ID token claims
+- creation of local app session from safe OIDC claims
+- local dummy login remaining available
+- README documentation for Entra ID app registration
+- README documentation for local .env setup
+- safe OIDC troubleshooting notes
 
-- real Entra ID tenant ID
-- real Okta domain
-- real client ID
-- real client secret
-- real issuer URL
-- real discovery metadata
-- real authorization endpoint
-- real token endpoint
-- real JWKS endpoint
-- real OIDC login execution
-- real token exchange
-- real JWT validation
+Phase 3B must not include:
+
 - committed .env
-- access tokens
-- refresh tokens
-- ID tokens
+- real tenant IDs committed to GitHub
+- real client IDs committed to GitHub
+- client secrets committed to GitHub
+- access tokens committed to GitHub
+- refresh tokens committed to GitHub
+- ID tokens committed to GitHub
 - private keys
-- AWS integration
+- screenshots showing tenant/client/secrets unredacted
+- Okta OIDC implementation
 - SAML
 - SCIM
+- AWS integration
 - Docker
 - database
-- tenant IDs
-- .env files committed to Git
+- protected API JWT validation beyond basic OIDC login session behavior
 
-Suggested Phase 3A commit message:
+Suggested Phase 3B commit message:
 
 ```bash
-git commit -m "chore: update Codex guardrails for Phase 3 OIDC readiness"
+git commit -m "chore: update Codex guardrails for Phase 3B Entra OIDC login"
 ```
 
 ---
