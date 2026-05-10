@@ -46,8 +46,8 @@ function getScimStatus() {
     localOnly: true,
     activeScimProvisioning: config.canProvisionUsers,
     message: config.enabled
-      ? "SCIM is enabled. User endpoints accept provisioning requests only when the bearer token is configured and not a placeholder."
-      : "SCIM is disabled. User provisioning endpoints fail closed.",
+      ? "SCIM is enabled. Endpoints accept provisioning requests only when the bearer token is configured and not a placeholder."
+      : "SCIM is disabled. Provisioning endpoints fail closed.",
     enabled: config.enabled,
     baseUrl: config.baseUrl,
     bearerTokenConfigured: Boolean(config.bearerToken),

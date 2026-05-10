@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-5-scim-users`
+`feature/phase-6-scim-groups`
 
 Codex must never work directly on `main`.
 
@@ -97,25 +97,24 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 5 - SCIM Users Endpoint
+Phase 6 - SCIM Groups Endpoint
 
-Phase 5 adds a safe local SCIM 2.0 Users endpoint simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, and all existing readiness/status routes available.
+Phase 6 adds a safe local SCIM 2.0 Groups endpoint simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users, and all existing readiness/status routes available.
 
-Phase 5 may include:
+Phase 6 may include:
 
-- placeholder-only SCIM settings in `.env.example`
-- a SCIM configuration helper that reads from process.env
-- SCIM bearer-token middleware for local testing only
-- in-memory SCIM user storage
-- SCIM 2.0 metadata routes for service provider config, schemas, and resource types
-- SCIM 2.0 Users routes for list, get, create, replace, patch, and deactivate
+- reuse of the existing placeholder-only SCIM settings
+- reuse of the existing SCIM configuration helper and bearer-token middleware
+- in-memory SCIM group storage
+- SCIM 2.0 metadata updates for Group schemas and resource types
+- SCIM 2.0 Groups routes for list, get, create, replace, patch members, and remove/deactivate
 - safe SCIM readiness/status output
-- README documentation for SCIM versus OIDC versus JWT
-- troubleshooting notes for local SCIM endpoint testing
+- README documentation for SCIM Users versus SCIM Groups
+- troubleshooting notes for local SCIM Groups testing
 
-Phase 5 write-provisioning and Users endpoints must fail closed when SCIM is disabled, incomplete, or placeholder-based.
+Phase 6 Groups endpoints must fail closed when SCIM is disabled, incomplete, or placeholder-based.
 
-Phase 5 must not include:
+Phase 6 must not include:
 
 - committed `.env`
 - real SCIM bearer tokens committed to GitHub
@@ -134,21 +133,21 @@ Phase 5 must not include:
 - Docker
 - database
 - persistent storage
-- SCIM Groups
 - JML lifecycle simulation
 - production provisioning
 - real Entra provisioning setup
 - real Okta provisioning setup
-- group push
 - role mapping
 - admin UI for SCIM users
+- admin UI
+- JWT authorization mapping
 
-SCIM Groups are deferred to Phase 6. JML lifecycle simulation is deferred to Phase 7. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
+JML lifecycle simulation is deferred to Phase 7. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
 
-Suggested Phase 5 commit message:
+Suggested Phase 6 commit message:
 
 ```bash
-git commit -m "phase-5: add SCIM users endpoint simulation"
+git commit -m "phase-6: add SCIM groups endpoint simulation"
 ```
 
 ---
