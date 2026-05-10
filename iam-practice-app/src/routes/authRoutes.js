@@ -13,6 +13,7 @@ const {
   buildSessionUserFromClaims,
   handleCallback
 } = require("../oidcClient");
+const { recordAuditEvent } = require("../auditStore");
 
 const router = express.Router();
 const viewsPath = path.join(__dirname, "..", "views");
@@ -102,6 +103,16 @@ router.post("/login", (req, res) => {
 
   // Later OIDC or SAML phases can replace this local password check with an IdP callback.
   if (!user || user.password !== password) {
+    recordAuditEvent(
+      "local_login_failure",
+      "failure",
+      {
+        email: email || "not-provided",
+        reason: "local_dummy_credentials_not_matched"
+      },
+      req
+    );
+
     return res.status(401).send(`
       <link rel="stylesheet" href="/styles.css">
       <main class="shell">
@@ -116,6 +127,15 @@ router.post("/login", (req, res) => {
 
   req.session.user = withoutPassword(user);
   req.session.authTime = Math.floor(Date.now() / 1000);
+  recordAuditEvent(
+    "local_login_success",
+    "success",
+    {
+      email: req.session.user.email,
+      role: req.session.user.role
+    },
+    req
+  );
   return res.redirect("/dashboard");
 });
 
@@ -213,6 +233,16 @@ router.get("/auth/saml/login", (req, res) => {
   }
 
   if (!status.enabled) {
+    recordAuditEvent(
+      "saml_disabled_login_attempt",
+      "blocked",
+      {
+        reason: "saml_disabled",
+        localSimulationEnabled: status.localSimulationEnabled
+      },
+      req
+    );
+
     return renderSamlMessage(
       res,
       200,
@@ -262,6 +292,16 @@ router.post("/auth/saml/callback", (req, res) => {
     issuer: "local-saml-simulation"
   });
   req.session.authTime = Math.floor(Date.now() / 1000);
+  recordAuditEvent(
+    "saml_local_simulation_success",
+    "success",
+    {
+      email: req.session.user.email,
+      role: req.session.user.role,
+      authSource: req.session.user.authSource
+    },
+    req
+  );
   return res.redirect("/dashboard");
 });
 
@@ -278,6 +318,16 @@ router.get("/saml/metadata", (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
+  recordAuditEvent(
+    "logout",
+    "success",
+    {
+      email: req.session.user ? req.session.user.email : "unknown",
+      authSource: req.session.user ? req.session.user.authSource || "local" : "unknown"
+    },
+    req
+  );
+
   req.session.destroy(() => {
     res.clearCookie("connect.sid");
     res.redirect("/login");

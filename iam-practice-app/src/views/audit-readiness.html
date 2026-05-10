@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Audit Readiness</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <p class="eyebrow">Phase 9</p>
+        <h1>Audit logging and troubleshooting evidence</h1>
+        <p>
+          This page shows local in-memory audit events for learning and troubleshooting. It does not write files, call a SIEM, store tokens, store cookies, or capture raw request headers.
+        </p>
+
+        <div class="notice">
+          Audit evidence is redacted and local-only. It resets when the app restarts or when you press reset.
+        </div>
+
+        <nav class="actions">
+          <a class="button" href="/api/audit/status">API: Audit status</a>
+          <a class="button" href="/api/audit/events">API: Audit events</a>
+          <a class="button" href="/api/troubleshooting/evidence">API: Troubleshooting evidence</a>
+          <a class="button" href="/dashboard">Dashboard</a>
+        </nav>
+
+        <button type="button" class="secondary" id="reset-audit">Reset audit events</button>
+        <div class="notice" id="reset-status" role="status" aria-live="polite">
+          Ready to reset local audit events.
+        </div>
+
+        <h2>Audit Status</h2>
+        <pre id="audit-status">Loading audit status...</pre>
+
+        <h2>Recent Events</h2>
+        <pre id="audit-events">Loading recent events...</pre>
+
+        <h2>Troubleshooting Evidence</h2>
+        <pre id="troubleshooting-evidence">Loading troubleshooting evidence...</pre>
+      </section>
+    </main>
+
+    <script>
+      async function loadJson(url) {
+        const response = await fetch(url);
+        return response.json();
+      }
+
+      async function refreshAuditData() {
+        const [status, events, evidence] = await Promise.all([
+          loadJson("/api/audit/status"),
+          loadJson("/api/audit/events"),
+          loadJson("/api/troubleshooting/evidence")
+        ]);
+
+        document.getElementById("audit-status").textContent = JSON.stringify(status, null, 2);
+        document.getElementById("audit-events").textContent = JSON.stringify(events, null, 2);
+        document.getElementById("troubleshooting-evidence").textContent = JSON.stringify(evidence, null, 2);
+      }
+
+      document.getElementById("reset-audit").addEventListener("click", async () => {
+        const resetStatus = document.getElementById("reset-status");
+        resetStatus.textContent = "Resetting audit events...";
+
+        try {
+          const response = await fetch("/api/audit/reset", { method: "POST" });
+
+          if (!response.ok) {
+            resetStatus.textContent = "Audit reset failed. Please confirm you are signed in and try again.";
+            return;
+          }
+
+          const result = await response.json();
+          resetStatus.textContent = `Audit events reset. Cleared ${result.clearedCount || 0} event(s).`;
+          await refreshAuditData();
+        } catch (error) {
+          resetStatus.textContent = "Audit reset failed. Please try again without including sensitive data in troubleshooting notes.";
+        }
+      });
+
+      refreshAuditData();
+    </script>
+  </body>
+</html>

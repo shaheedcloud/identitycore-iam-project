@@ -80,7 +80,7 @@ The stable branch is:
 
 The active working branch for the current phase is:
 
-`feature/phase-8-saml-login`
+`feature/phase-9-audit-logging`
 
 Codex must never work directly on `main`.
 
@@ -97,24 +97,24 @@ git branch --show-current
 
 ## Current Phase
 
-Phase 8 - SAML Login Integration Readiness and Local Simulation
+Phase 9 - Audit Logging and Troubleshooting Evidence
 
-Phase 8 adds safe SAML login readiness and local-only SAML callback simulation while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users and Groups, JML simulation, and all existing readiness/status routes available.
+Phase 9 adds safe local audit logging and troubleshooting evidence while keeping local dummy login, Entra OIDC local login, protected API JWT validation, SCIM Users and Groups, JML simulation, SAML readiness/local simulation, and all existing readiness/status routes available.
 
-Phase 8 may include:
+Phase 9 may include:
 
-- placeholder-only SAML settings in `.env.example`
-- a SAML configuration helper that reads from process.env
-- safe SAML status output that never returns certificate values
-- SAML readiness page
-- safe SAML placeholder login and callback routes
-- safe local SAML callback/session mapping for learning only
-- local SAML service provider metadata description
-- README documentation for IdP, SP, ACS URL, Entity ID, certificate handling, and SAML versus OIDC versus JWT
+- a local in-memory audit event store
+- safe redaction helpers for audit event details
+- audit status, events, and reset API routes
+- safe troubleshooting evidence API route
+- audit readiness page
+- dashboard links for audit readiness, audit status, audit events, and troubleshooting evidence
+- safe audit events for login success/failure, logout, JWT missing/malformed token, SCIM fail-closed requests, JML actions, and SAML disabled/simulation actions
+- README documentation for audit logging, troubleshooting evidence, endpoint tests, break/fix scenarios, security notes, and Phase 10 deferral
 
-Phase 8 SAML-authenticated users must map to `standard_user` only. SAML groups or roles must not grant admin, security, or finance access.
+Phase 9 audit events must stay local, in-memory, and redacted. They must not become production logs.
 
-Phase 8 must not include:
+Phase 9 must not include:
 
 - committed `.env`
 - real IdP certificates committed to GitHub
@@ -133,6 +133,18 @@ Phase 8 must not include:
 - real SAML assertions committed to GitHub
 - full certificate values returned from status APIs
 - screenshots showing tenant/client/secrets/tokens unredacted
+- session cookie logging
+- Authorization header logging
+- password logging
+- raw request logging
+- raw token capture
+- raw SAML assertion capture
+- file-based log persistence
+- external SIEM integration
+- Splunk integration
+- CloudTrail integration
+- production logging pipeline
+- real alerting
 - real external IdP calls while placeholder/default config is active
 - real Entra Lifecycle Workflows
 - real Okta Workflows
@@ -154,18 +166,19 @@ Phase 8 must not include:
 - production provisioning
 - email notifications
 - approval workflow engine
+- logging API calls
 - role mapping
 - admin UI
 - JWT authorization mapping
 - SCIM changes
 - JML changes
 
-Phase 9 is audit logging and troubleshooting evidence. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
+Phase 10 is Docker and final portfolio documentation. OIDC-authenticated users must remain mapped to the safest local role behavior already established by Phase 3B.
 
-Suggested Phase 8 commit message:
+Suggested Phase 9 commit message:
 
 ```bash
-git commit -m "phase-8: add SAML readiness and local simulation"
+git commit -m "phase-9: add local audit logging and troubleshooting evidence"
 ```
 
 ---
