@@ -7,12 +7,27 @@
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <main class="shell">
+    <main class="shell narrow">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/claims">Claims</a><a href="/audit-readiness">Audit</a></nav>
+      </header>
       <section class="panel">
-        <p class="eyebrow">Finance access</p>
-        <h1>Finance page</h1>
-        <p>The local <code>admin</code> and <code>finance_user</code> roles can view this page.</p>
-        <a class="button" href="/dashboard">Back to dashboard</a>
+        <div class="badge-row">
+          <span class="badge finance">Finance Role</span>
+          <span class="badge protected">Access Granted</span>
+          <span class="badge local">Local RBAC</span>
+        </div>
+        <p class="eyebrow">Business application area</p>
+        <h1>Finance access</h1>
+        <p>The local <code>admin</code> and <code>finance_user</code> roles can view this page. It models business-app access controlled by least privilege.</p>
+        <div class="learning-panel">
+          <strong>IAM concept:</strong> Business permissions are often separate from security and platform administration permissions.
+        </div>
+        <nav class="actions">
+          <a class="button" href="/claims">Inspect role claims</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
+        </nav>
       </section>
     </main>
   </body>

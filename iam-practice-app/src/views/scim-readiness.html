@@ -8,41 +8,40 @@
   </head>
   <body>
     <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/jml-readiness">JML</a><a href="/audit-readiness">Audit</a></nav>
+      </header>
       <section class="panel">
-        <p class="eyebrow">Phase 6</p>
-        <h1>SCIM Users and Groups Endpoints</h1>
-        <p>Phase 6 adds a local SCIM 2.0 Groups endpoint simulation alongside the existing Users endpoint for learning how identity providers provision application identities and memberships.</p>
-
-        <div class="notice">
-          SCIM provisioning requires <code>Authorization: Bearer &lt;token&gt;</code>. The token is local-only, must stay in an uncommitted <code>.env</code> file, and is never returned by the app.
+        <div class="badge-row">
+          <span class="badge simulated">SCIM Simulation</span>
+          <span class="badge protected">Bearer Protected</span>
+          <span class="badge local">In Memory</span>
         </div>
-
-        <h2>Current SCIM Status</h2>
-        <pre id="scim-status">Loading SCIM status...</pre>
-
-        <h2>SCIM Routes</h2>
-        <ul>
-          <li><code>GET /scim/v2/ServiceProviderConfig</code></li>
-          <li><code>GET /scim/v2/Schemas</code></li>
-          <li><code>GET /scim/v2/ResourceTypes</code></li>
-          <li><code>GET /scim/v2/Users</code></li>
-          <li><code>POST /scim/v2/Users</code></li>
-          <li><code>PUT /scim/v2/Users/:id</code></li>
-          <li><code>PATCH /scim/v2/Users/:id</code></li>
-          <li><code>DELETE /scim/v2/Users/:id</code></li>
-          <li><code>GET /scim/v2/Groups</code></li>
-          <li><code>POST /scim/v2/Groups</code></li>
-          <li><code>PUT /scim/v2/Groups/:id</code></li>
-          <li><code>PATCH /scim/v2/Groups/:id</code></li>
-          <li><code>DELETE /scim/v2/Groups/:id</code></li>
-        </ul>
-
-        <p>Phase 7 adds the local JML lifecycle simulation. This SCIM view uses in-memory users and groups only, so data resets when the server restarts.</p>
-
+        <p class="eyebrow">Phase 6</p>
+        <h1>SCIM users and groups</h1>
+        <p>Local SCIM 2.0 endpoints model how identity providers provision application identities and memberships.</p>
+        <div class="notice warning">
+          SCIM bearer tokens belong only in an uncommitted local <code>.env</code> file and are never returned by the app.
+        </div>
+        <section class="status-grid">
+          <aside class="learning-panel">
+            <strong>IAM concept:</strong> Provisioning creates and updates accounts. Authentication still happens separately through local login, OIDC, or SAML.
+            <ul class="list-clean">
+              <li>Users endpoint: create, replace, patch, deactivate</li>
+              <li>Groups endpoint: create, replace, patch membership, delete</li>
+              <li>Data resets when the server restarts</li>
+            </ul>
+          </aside>
+          <div>
+            <h2>Current SCIM Status</h2>
+            <pre id="scim-status">Loading SCIM status...</pre>
+          </div>
+        </section>
         <nav class="actions">
           <a class="button" href="/api/scim/status">API: SCIM status</a>
-          <a class="button" href="/scim/v2/ServiceProviderConfig">SCIM config</a>
-          <a class="button" href="/dashboard">Back to dashboard</a>
+          <a class="button secondary" href="/scim/v2/ServiceProviderConfig">SCIM config</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </nav>
       </section>
     </main>

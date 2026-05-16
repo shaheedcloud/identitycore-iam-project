@@ -8,26 +8,37 @@
   </head>
   <body>
     <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/oidc-readiness">OIDC</a><a href="/jwt-readiness">JWT</a></nav>
+      </header>
       <section class="panel">
+        <div class="badge-row">
+          <span class="badge simulated">Simulated Claims</span>
+          <span class="badge local">Local Only</span>
+          <span class="badge protected">Authenticated</span>
+        </div>
         <p class="eyebrow">Phase 2 local simulation</p>
         <h1>Claims inspection</h1>
         <p>Claims are identity facts about the signed-in user, such as email, name, roles, groups, and department. Applications use those facts to decide what the user can access.</p>
-        <p>Roles and groups often appear in identity data because they are compact ways to describe authorization. In this app, route access is still local, but the examples show how future identity provider claims could influence the same decisions.</p>
-        <p>This page prepares for later OIDC and JWT work by showing token-like claim payloads before any real token validation exists.</p>
-
-        <div class="notice">
-          This is not a real JWT. The simulated token uses <code>alg: none</code>, is not signed, and is only a local learning object.
+        <div class="learning-panel">
+          <strong>IAM concept:</strong> Claims help connect authentication to authorization, but these examples are local training payloads and not trusted JWTs.
         </div>
 
-        <h2>Current Simulated Claims</h2>
-        <pre id="claims-output">Loading claims...</pre>
-
-        <h2>Authorization Check</h2>
-        <pre id="authorization-output">Loading authorization decisions...</pre>
+        <section class="json-grid">
+          <div>
+            <h2>Current Simulated Claims</h2>
+            <pre id="claims-output">Loading claims...</pre>
+          </div>
+          <div>
+            <h2>Authorization Check</h2>
+            <pre id="authorization-output">Loading authorization decisions...</pre>
+          </div>
+        </section>
 
         <nav class="actions">
           <a class="button" href="/dashboard">Back to dashboard</a>
-          <a class="button" href="/api/token-simulation">API: token simulation</a>
+          <a class="button secondary" href="/api/token-simulation">API: token simulation</a>
         </nav>
       </section>
     </main>

@@ -7,12 +7,27 @@
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <main class="shell">
+    <main class="shell narrow">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/jwt-readiness">JWT</a><a href="/audit-readiness">Audit</a></nav>
+      </header>
       <section class="panel">
-        <p class="eyebrow">Security access</p>
-        <h1>Security analyst page</h1>
-        <p>The local <code>admin</code> and <code>security_analyst</code> roles can view this page.</p>
-        <a class="button" href="/dashboard">Back to dashboard</a>
+        <div class="badge-row">
+          <span class="badge security">Security Role</span>
+          <span class="badge protected">Access Granted</span>
+          <span class="badge local">Local RBAC</span>
+        </div>
+        <p class="eyebrow">Security workspace</p>
+        <h1>Security analyst area</h1>
+        <p>The local <code>admin</code> and <code>security_analyst</code> roles can view this page. Finance and standard users are blocked by RBAC.</p>
+        <div class="learning-panel">
+          <strong>IAM concept:</strong> Security analysts often need evidence and monitoring access without broad administrative privilege.
+        </div>
+        <nav class="actions">
+          <a class="button" href="/audit-readiness">Review audit evidence</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
+        </nav>
       </section>
     </main>
   </body>

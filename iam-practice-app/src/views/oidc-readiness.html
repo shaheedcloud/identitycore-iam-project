@@ -8,24 +8,35 @@
   </head>
   <body>
     <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/claims">Claims</a><a href="/jwt-readiness">JWT</a></nav>
+      </header>
       <section class="panel">
+        <div class="badge-row">
+          <span class="badge future">Future Entra Practice</span>
+          <span class="badge local">Local .env Only</span>
+          <span class="badge protected">No Raw Tokens</span>
+        </div>
         <p class="eyebrow">Phase 3B Entra OIDC</p>
         <h1>OIDC readiness</h1>
-        <p>Phase 3B supports Entra OIDC login when <code>OIDC_ENABLED=true</code> and complete Entra values are present in a local uncommitted <code>.env</code> file.</p>
-        <p>Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role.</p>
-        <p>Role and group claim mapping is deferred to a later approved phase. Phase 4 adds separate protected API JWT validation without changing OIDC browser session behavior.</p>
-
-        <div class="notice">
-          Do not commit tenant IDs, client IDs, client secrets, token values, or unredacted screenshots. Raw tokens are not stored in the app session or returned by APIs.
+        <p>Entra OIDC login can run only when <code>OIDC_ENABLED=true</code> and complete values are present in a local uncommitted <code>.env</code> file.</p>
+        <div class="notice warning">
+          Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role.
         </div>
-
-        <h2>OIDC Status</h2>
-        <pre id="oidc-status">Loading OIDC readiness status...</pre>
-
+        <div class="status-grid">
+          <aside class="learning-panel">
+            <strong>IAM concept:</strong> OIDC authenticates the browser user. Local app authorization remains separate, and privileged role mapping is deferred.
+          </aside>
+          <div>
+            <h2>OIDC Status</h2>
+            <pre id="oidc-status">Loading OIDC readiness status...</pre>
+          </div>
+        </div>
         <nav class="actions">
-          <a class="button" href="/dashboard">Back to dashboard</a>
           <a class="button" href="/auth/oidc/start">Try OIDC placeholder</a>
-          <a class="button" href="/api/oidc/status">API: OIDC status</a>
+          <a class="button secondary" href="/api/oidc/status">API: OIDC status</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </nav>
       </section>
     </main>

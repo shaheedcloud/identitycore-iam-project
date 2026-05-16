@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, and 10
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, and 11
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -115,6 +115,17 @@ Phase 9 does not add external SIEM, Splunk, CloudTrail, AWS, Docker, database st
 - Final portfolio documentation that summarizes the full IdentityCore build
 
 Phase 10 does not add cloud deployment, Kubernetes, AWS ECS, Azure App Service, Docker registry publishing, CI/CD deployment, production secrets management, database storage, persistent logging, or new IAM features.
+
+## What Phase 11 Demonstrates
+
+- Enterprise-style login and dashboard presentation for portfolio review
+- Role and status badges for local simulator, protected routes, least privilege, and future practice areas
+- A dashboard organized by IAM learning modules: authentication, claims, RBAC, JWT, OIDC, SCIM, JML, SAML, and audit evidence
+- Short IAM explanation panels that make each route easier to discuss in interviews or reviews
+- Clearer access denied messaging that shows current role, required role, and the least-privilege lesson
+- Future Entra ID and Okta practice cards that remain placeholder-only and do not add real integrations
+
+Phase 11 does not add real Entra ID, Okta, AWS IAM, SCIM target, SAML identity provider, database persistence, cloud deployment, external API calls, secrets, CI/CD, SIEM integration, or new IAM protocol behavior.
 
 ## Install Dependencies
 

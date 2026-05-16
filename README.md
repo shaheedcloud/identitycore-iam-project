@@ -15,6 +15,7 @@ The project shows how an IAM professional can move from application-level identi
 - SAML readiness and local SAML session simulation
 - local audit logging and troubleshooting evidence
 - local Docker runtime support for portfolio review
+- enterprise-style UI foundation for a professional IAM learning portal
 
 ## Main Application
 
