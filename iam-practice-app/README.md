@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, and 11
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, and 13
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -127,6 +127,19 @@ Phase 10 does not add cloud deployment, Kubernetes, AWS ECS, Azure App Service, 
 
 Phase 11 does not add real Entra ID, Okta, AWS IAM, SCIM target, SAML identity provider, database persistence, cloud deployment, external API calls, secrets, CI/CD, SIEM integration, or new IAM protocol behavior.
 
+## What Phase 13 Demonstrates
+
+- Microsoft Entra ID OIDC authorization code login for local lab practice when configured only through an uncommitted `.env`
+- Safe disabled behavior when OIDC is not configured or still placeholder-based
+- Callback state and nonce validation through `openid-client`
+- Conservative local session creation for Entra-authenticated users
+- Entra-authenticated users mapped to `standard_user`
+- Dashboard provider context showing the local Entra lab provider name
+- Claims page provider context showing presence-only safe claim indicators
+- No raw access tokens, refresh tokens, ID tokens, authorization codes, tenant IDs, client secrets, group IDs, or raw external claims displayed or stored in the session
+
+Phase 13 does not add Okta, AWS IAM, real SCIM provisioning, a real SAML IdP, database persistence, cloud deployment, CI/CD, SIEM integration, webhook/email integration, scheduled jobs, background jobs, or external-claim-to-admin role mapping.
+
 ## Install Dependencies
 
 ```bash
@@ -145,6 +158,42 @@ Open:
 ```text
 http://localhost:3000
 ```
+
+## Entra OIDC Local Practice
+
+IdentityCore starts safely without Entra configuration. Local dummy login remains the default path, and clicking the Entra OIDC login option shows a safe disabled or incomplete-configuration message until local values are ready.
+
+To test with a private Entra lab, create `iam-practice-app/.env` locally. Do not commit it.
+
+```text
+OIDC_ENABLED=true
+OIDC_ISSUER_URL=https://login.microsoftonline.com/YOUR-LAB-TENANT-ID/v2.0
+OIDC_CLIENT_ID=YOUR-LAB-CLIENT-ID
+OIDC_CLIENT_SECRET=YOUR-LOCAL-CLIENT-SECRET
+OIDC_REDIRECT_URI=http://localhost:3000/auth/oidc/callback
+OIDC_PROVIDER_NAME=Microsoft Entra ID Lab
+```
+
+The committed `.env.example` must stay placeholder-only:
+
+```text
+OIDC_ENABLED=false
+OIDC_ISSUER_URL=https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0
+OIDC_CLIENT_ID=YOUR_CLIENT_ID
+OIDC_CLIENT_SECRET=YOUR_CLIENT_SECRET
+OIDC_REDIRECT_URI=http://localhost:3000/auth/oidc/callback
+OIDC_PROVIDER_NAME=Microsoft Entra ID Lab
+```
+
+After Entra authentication succeeds, IdentityCore creates a local app session with:
+
+- `authSource: "oidc"`
+- provider name from `OIDC_PROVIDER_NAME`
+- local role `standard_user`
+- no privileged authorization mapping from Entra claims
+- a safe claim summary showing only whether expected claims were present
+
+Raw access tokens, refresh tokens, ID tokens, authorization codes, client secrets, tenant IDs, group IDs, and raw external claims are not shown on pages, returned from browser session APIs, stored in files, or written to logs.
 
 ## Local Docker Runtime
 
@@ -1283,6 +1332,30 @@ Lesson: SCIM provisioning depends on both enabled configuration and a shared bea
 9. Confirm the app redirects to `/dashboard`.
 10. Confirm `/api/me` shows `authSource: "oidc"` and `role: "standard_user"`.
 
+## Phase 13 Entra OIDC Local Practice Checklist
+
+Without local Entra config:
+
+1. Start the app with `npm.cmd start`.
+2. Open `/login`.
+3. Confirm local dummy login works.
+4. Open `/oidc-readiness` after signing in locally.
+5. Confirm `/api/oidc/status` reports disabled or placeholder-based readiness without returning secrets.
+6. Click `Sign in with Entra OIDC` and confirm no real provider redirect starts while config is incomplete.
+
+With local uncommitted `.env` configured:
+
+1. Set only local private Entra values in `iam-practice-app/.env`.
+2. Restart the app.
+3. Click `Sign in with Entra OIDC`.
+4. Complete Microsoft Entra lab sign-in.
+5. Confirm the callback returns to `/dashboard`.
+6. Confirm the dashboard shows the configured provider context.
+7. Confirm `/api/me` shows `authSource: "oidc"` and `role: "standard_user"`.
+8. Open `/claims` and confirm the provider context contains safe presence-only indicators.
+9. Confirm admin access is still blocked for the OIDC-authenticated user.
+10. Confirm raw tokens are not visible in pages, APIs, console output, or files.
+
 ## Phase 3B Break/Fix Scenario
 
 Break: use the wrong redirect URI in Entra app registration.
@@ -1431,6 +1504,24 @@ Symptom: Entra reports redirect URI mismatch.
 
 Fix: use exactly `http://localhost:3000/auth/oidc/callback` in the Entra app registration and local `.env`.
 
+### Entra login does not redirect to Microsoft
+
+Symptom: clicking `Sign in with Entra OIDC` shows that OIDC is disabled, incomplete, or placeholder-based.
+
+Fix: confirm `OIDC_ENABLED=true` and all OIDC values are set only in local `iam-practice-app/.env`. Restart the app after changing `.env`.
+
+### Entra login succeeds but user is not admin
+
+Symptom: the dashboard loads after Entra authentication, but `/admin` is still denied.
+
+Fix: this is expected. Phase 13 treats Entra authentication and local authorization separately. Entra-authenticated users map to `standard_user`; privileged role mapping requires a later approved phase.
+
+### Claims page does not show raw Entra claims
+
+Symptom: `/claims` shows simulated local claims and a safe provider summary instead of raw Entra claim values.
+
+Fix: this is expected. Phase 13 stores only presence indicators for learning and does not expose raw external claim values, tokens, group IDs, tenant IDs, or user identifiers.
+
 ### Missing email claim
 
 Symptom: OIDC login succeeds but the app user email is `unknown@example.local`.
@@ -1536,6 +1627,8 @@ Fix: inspect `iam-practice-app/.dockerignore`. It excludes `.env`, `.env.*`, log
 - `/api/debug/session` is for local troubleshooting only and must not be exposed in production.
 - Simulated tokens are not real JWTs and must not be trusted.
 - Raw OIDC and JWT token values are not stored in session and are not returned by APIs.
+- OIDC session data stores only a conservative local user profile and safe claim-presence summary.
+- Entra-authenticated users map to `standard_user`; Entra claims do not grant admin access in Phase 13.
 - Real OIDC values belong only in local uncommitted `.env`.
 - Real JWT validation values belong only in local uncommitted `.env`.
 - Real SCIM bearer tokens belong only in local uncommitted `.env`.

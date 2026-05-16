@@ -2,10 +2,13 @@ const placeholderValues = [
   "",
   "https://idp.example.local/identitycore",
   "https://login.microsoftonline.com/REPLACE_WITH_TENANT_ID/v2.0",
+  "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0",
   "replace-with-local-client-id",
   "replace-with-local-client-secret",
   "replace-with-entra-app-client-id",
-  "replace-with-entra-client-secret"
+  "replace-with-entra-client-secret",
+  "YOUR_CLIENT_ID",
+  "YOUR_CLIENT_SECRET"
 ];
 
 function getEnvValue(name, fallback = "") {
@@ -19,7 +22,10 @@ function isPlaceholder(value) {
     placeholderValues.includes(value) ||
     lowerValue.includes("example.local") ||
     lowerValue.includes("replace-with") ||
-    lowerValue.includes("replace_with")
+    lowerValue.includes("replace_with") ||
+    lowerValue.includes("your_tenant_id") ||
+    lowerValue.includes("your_client_id") ||
+    lowerValue.includes("your_client_secret")
   );
 }
 
@@ -41,10 +47,10 @@ function maskValue(value) {
 
 function getOidcConfig() {
   const enabled = getEnvValue("OIDC_ENABLED", "false").toLowerCase() === "true";
-  const providerName = getEnvValue("OIDC_PROVIDER_NAME", "Microsoft Entra ID");
-  const issuerUrl = getEnvValue("OIDC_ISSUER_URL", "https://login.microsoftonline.com/REPLACE_WITH_TENANT_ID/v2.0");
-  const clientId = getEnvValue("OIDC_CLIENT_ID", "replace-with-entra-app-client-id");
-  const clientSecret = getEnvValue("OIDC_CLIENT_SECRET", "replace-with-entra-client-secret");
+  const providerName = getEnvValue("OIDC_PROVIDER_NAME", "Microsoft Entra ID Lab");
+  const issuerUrl = getEnvValue("OIDC_ISSUER_URL", "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0");
+  const clientId = getEnvValue("OIDC_CLIENT_ID", "YOUR_CLIENT_ID");
+  const clientSecret = getEnvValue("OIDC_CLIENT_SECRET", "YOUR_CLIENT_SECRET");
   const redirectUri = getEnvValue("OIDC_REDIRECT_URI", "http://localhost:3000/auth/oidc/callback");
   const scopes = getEnvValue("OIDC_SCOPES", "openid profile email");
 

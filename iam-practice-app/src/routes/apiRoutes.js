@@ -5,7 +5,8 @@ const { listUsersWithoutPasswords } = require("../users");
 const {
   buildAuthorizationCheck,
   buildSimulatedClaims,
-  buildSimulatedToken
+  buildSimulatedToken,
+  getProviderContext
 } = require("../claims");
 const { getOidcStatus } = require("../oidcConfig");
 const { getJwtStatus } = require("../jwtConfig");
@@ -57,6 +58,7 @@ router.get("/claims", requireAuth, (req, res) => {
   res.json({
     localOnly: true,
     warning: "Simulated claims only. These are not from a real identity provider.",
+    providerContext: getProviderContext(req.session.user),
     claims: buildSimulatedClaims(req.session.user, req.session.authTime)
   });
 });

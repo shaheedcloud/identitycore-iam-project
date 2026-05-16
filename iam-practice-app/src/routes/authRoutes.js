@@ -46,6 +46,19 @@ function renderOidcMessage(res, statusCode, title, message, details = "") {
   `);
 }
 
+function safeOidcErrorMessage(error) {
+  if (!error || !error.message) {
+    return "OIDC operation failed.";
+  }
+
+  return error.message
+    .replace(/code=[^&\s]+/gi, "code=[redacted]")
+    .replace(/id_token=[^&\s]+/gi, "id_token=[redacted]")
+    .replace(/access_token=[^&\s]+/gi, "access_token=[redacted]")
+    .replace(/refresh_token=[^&\s]+/gi, "refresh_token=[redacted]")
+    .replace(/client_secret=[^&\s]+/gi, "client_secret=[redacted]");
+}
+
 function renderSamlMessage(res, statusCode, title, message, details = "") {
   return res.status(statusCode).send(`
     <link rel="stylesheet" href="/styles.css">
@@ -170,7 +183,7 @@ router.get("/auth/oidc/start", (req, res) => {
       res.redirect(authorizationUrl);
     })
     .catch((error) => {
-      console.error(`OIDC start failed: ${error.message}`);
+      console.error(`OIDC start failed: ${safeOidcErrorMessage(error)}`);
       return renderOidcMessage(
         res,
         500,
@@ -211,10 +224,24 @@ router.get("/auth/oidc/callback", (req, res) => {
       delete req.session.oidcState;
       delete req.session.oidcNonce;
       delete req.session.oidcStartedAt;
+      recordAuditEvent(
+        "oidc_login_success",
+        "success",
+        {
+          authSource: req.session.user.authSource,
+          providerName: req.session.user.authProvider,
+          role: req.session.user.role,
+          subjectPresent: req.session.user.oidcSafeClaimSummary.subjectPresent,
+          preferredUsernamePresent: req.session.user.oidcSafeClaimSummary.preferredUsernamePresent,
+          displayNamePresent: req.session.user.oidcSafeClaimSummary.displayNamePresent,
+          emailPresent: req.session.user.oidcSafeClaimSummary.emailPresent
+        },
+        req
+      );
       res.redirect("/dashboard");
     })
     .catch((error) => {
-      console.error(`OIDC callback failed: ${error.message}`);
+      console.error(`OIDC callback failed: ${safeOidcErrorMessage(error)}`);
       return renderOidcMessage(
         res,
         500,

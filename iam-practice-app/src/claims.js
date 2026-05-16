@@ -28,15 +28,14 @@ function nowInSeconds() {
 
 function buildSimulatedClaims(user, authTime) {
   const issuedAt = nowInSeconds();
-  const oidcClaims = user.oidcClaims || {};
 
   return {
-    sub: user.futureClaimsPreview ? user.futureClaimsPreview.subject : oidcClaims.sub || user.id,
+    sub: user.futureClaimsPreview ? user.futureClaimsPreview.subject : user.id,
     email: user.email,
     name: user.displayName,
     preferred_username: user.futureClaimsPreview
       ? user.futureClaimsPreview.preferredUsername
-      : oidcClaims.preferred_username || user.email,
+      : user.email,
     roles: [user.role],
     groups: user.groups,
     department: user.department,
@@ -96,8 +95,27 @@ function buildAuthorizationCheck(user, authTime) {
   };
 }
 
+function getProviderContext(user) {
+  if (!user || user.authSource !== "oidc") {
+    return {
+      authSource: user && user.authSource ? user.authSource : "local",
+      providerName: "Local dummy login",
+      externalClaimsMappedToAdmin: false
+    };
+  }
+
+  return {
+    authSource: "oidc",
+    providerName: user.authProvider || "Microsoft Entra ID Lab",
+    externalClaimsMappedToAdmin: false,
+    localRole: user.role,
+    safeClaimSummary: user.oidcSafeClaimSummary || {}
+  };
+}
+
 module.exports = {
   buildSimulatedClaims,
   buildSimulatedToken,
-  buildAuthorizationCheck
+  buildAuthorizationCheck,
+  getProviderContext
 };

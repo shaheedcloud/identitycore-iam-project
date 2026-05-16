@@ -31,6 +31,10 @@
             <pre id="claims-output">Loading claims...</pre>
           </div>
           <div>
+            <h2>Safe Provider Context</h2>
+            <pre id="provider-output">Loading provider context...</pre>
+          </div>
+          <div>
             <h2>Authorization Check</h2>
             <pre id="authorization-output">Loading authorization decisions...</pre>
           </div>
@@ -47,7 +51,11 @@
       async function loadJson(route, elementId) {
         const response = await fetch(route);
         const data = await response.json();
-        document.getElementById(elementId).textContent = JSON.stringify(data, null, 2);
+        const output = elementId === "claims-output" ? data.claims : data;
+        document.getElementById(elementId).textContent = JSON.stringify(output, null, 2);
+        if (route === "/api/claims") {
+          document.getElementById("provider-output").textContent = JSON.stringify(data.providerContext, null, 2);
+        }
       }
 
       loadJson("/api/claims", "claims-output");

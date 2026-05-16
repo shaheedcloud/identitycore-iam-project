@@ -53,8 +53,8 @@
           <span class="summary-value" id="summary-source">Loading...</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Mode</span>
-          <span class="summary-value">Local practice</span>
+          <span class="summary-label">Provider</span>
+          <span class="summary-value" id="summary-provider">Loading...</span>
         </div>
       </section>
 
@@ -134,6 +134,9 @@
           <div class="notice warning">
             Local simulator warning: no tenant IDs, client secrets, access tokens, refresh tokens, private keys, SAML assertions, or SCIM bearer tokens are shown or stored in this dashboard.
           </div>
+          <div class="notice success" id="provider-context">
+            Loading safe provider context...
+          </div>
           <h2>Safe API shortcuts</h2>
           <nav class="actions">
             <a class="button secondary" href="/api/me">Me</a>
@@ -165,6 +168,14 @@
         document.getElementById("summary-user").textContent = user.displayName || user.email || "Unknown";
         document.getElementById("summary-role").textContent = roleLabel(user.role);
         document.getElementById("summary-source").textContent = user.authSource || "local";
+        document.getElementById("summary-provider").textContent = user.authProvider || "Local dummy login";
+
+        const providerContext = document.getElementById("provider-context");
+        if (user.authSource === "oidc") {
+          providerContext.textContent = `${user.authProvider || "Microsoft Entra ID Lab"} authenticated this session. IdentityCore mapped the session to standard_user and did not store or display raw tokens.`;
+        } else {
+          providerContext.textContent = "Local dummy login is active. Entra OIDC practice remains optional and uses only local uncommitted configuration.";
+        }
       }
 
       loadSessionSummary();

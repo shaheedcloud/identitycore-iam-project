@@ -16,6 +16,7 @@ The project shows how an IAM professional can move from application-level identi
 - local audit logging and troubleshooting evidence
 - local Docker runtime support for portfolio review
 - enterprise-style UI foundation for a professional IAM learning portal
+- safe Microsoft Entra ID OIDC local practice without committing real tenant configuration
 
 ## Main Application
 
@@ -52,6 +53,8 @@ http://localhost:3000
 This repository is designed for safe local learning. It must not contain real `.env` files, tenant IDs, client secrets, access tokens, refresh tokens, ID tokens, raw JWTs, SAML assertions, SCIM bearer tokens, private keys, certificates, AWS keys, screenshots with secrets, databases, persistent logs, or production deployment configuration.
 
 Docker support is local portfolio runtime only. It does not add cloud deployment, production infrastructure, CI/CD deployment, registry publishing, production secrets management, external logging, or persistent storage.
+
+Entra OIDC practice uses only local uncommitted `.env` values. The app must never commit real tenant IDs, client IDs tied to a real lab tenant, client secrets, access tokens, refresh tokens, ID tokens, private keys, certificates, or screenshots containing unredacted identity data.
 
 ## Final Portfolio Package
 
