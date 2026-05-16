@@ -8,39 +8,90 @@
   </head>
   <body>
     <main class="shell">
-      <section class="panel">
-        <p class="eyebrow">IdentityCore IAM Practice App</p>
-        <h1>Local training login</h1>
-        <p>Use one of the dummy Phase 1 users to create a local session and test RBAC.</p>
-
-        <form action="/login" method="post" class="stack">
-          <label>
-            Email
-            <input type="email" name="email" placeholder="admin@identitycore.local" required>
-          </label>
-          <label>
-            Password
-            <input type="password" name="password" placeholder="Training password" required>
-          </label>
-          <button type="submit">Sign in</button>
-        </form>
-
-        <div class="notice">
-          <strong>Entra OIDC:</strong> works only when a local uncommitted <code>.env</code> has complete Entra settings. Local dummy login remains available.
+      <section class="login-layout">
+        <div class="hero">
+          <p class="eyebrow">IdentityCore IAM Practice App</p>
+          <h1>Enterprise identity learning portal</h1>
+          <p>
+            Practice authentication, RBAC, claims, SSO readiness, provisioning, lifecycle, and audit evidence in a safe local simulator.
+          </p>
+          <div class="badge-row">
+            <span class="badge local">Local Only</span>
+            <span class="badge simulated">Simulator</span>
+            <span class="badge protected">No Secrets</span>
+            <span class="badge future">Portfolio Ready</span>
+          </div>
+          <div class="notice warning">
+            IdentityCore is a learning app, not a production IAM system. Real IdP values belong only in a local uncommitted <code>.env</code> file.
+          </div>
+          <div class="card-grid two">
+            <article class="card">
+              <h3>What you can practice</h3>
+              <p>Local login, least privilege, protected routes, simulated claims, SCIM, JML, SAML, OIDC readiness, and audit evidence.</p>
+            </article>
+            <article class="card">
+              <h3>What stays off limits</h3>
+              <p>No production tenants, no cloud deployment, no real secrets, no raw tokens, and no external identity calls by default.</p>
+            </article>
+          </div>
         </div>
-        <div class="notice">
-          <strong>SAML:</strong> Phase 8 is readiness and local simulation only. Real IdP setup is deferred and SAML users map to <code>standard_user</code>.
-        </div>
 
-        <a class="button secondary-link" href="/auth/oidc/start">Sign in with Entra OIDC</a>
-        <a class="button secondary-link" href="/auth/saml/login">Sign in with SAML</a>
-        <a class="button secondary-link" href="/saml-readiness">SAML readiness</a>
-        <a class="button secondary-link" href="/api/saml/status">SAML status</a>
+        <aside class="login-card">
+          <div>
+            <p class="eyebrow">Training sign-in</p>
+            <h2>Use a demo identity</h2>
+            <p class="muted">Dummy credentials create a local Express session so you can test IAM behavior by role.</p>
+          </div>
 
-        <div class="hint">
-          <strong>Dummy users:</strong>
-          admin@identitycore.local, analyst@identitycore.local, finance@identitycore.local, user@identitycore.local
-        </div>
+          <form action="/login" method="post" class="stack">
+            <label>
+              Email
+              <input type="email" name="email" placeholder="admin@identitycore.local" required>
+            </label>
+            <label>
+              Password
+              <input type="password" name="password" placeholder="Training password" required>
+            </label>
+            <button type="submit">Sign in locally</button>
+          </form>
+
+          <div class="notice">
+            <strong>Demo roles:</strong> Admin manages privileged areas, Security reviews security pages, Finance tests business access, and Standard User demonstrates least privilege.
+          </div>
+
+          <table class="mini-table" aria-label="Demo login options">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>admin@identitycore.local</code></td>
+                <td><span class="badge admin">Admin</span></td>
+              </tr>
+              <tr>
+                <td><code>analyst@identitycore.local</code></td>
+                <td><span class="badge security">Security</span></td>
+              </tr>
+              <tr>
+                <td><code>finance@identitycore.local</code></td>
+                <td><span class="badge finance">Finance</span></td>
+              </tr>
+              <tr>
+                <td><code>user@identitycore.local</code></td>
+                <td><span class="badge user">User</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="actions">
+            <a class="button secondary" href="/auth/oidc/start">Entra OIDC readiness</a>
+            <a class="button secondary" href="/auth/saml/login">SAML simulation</a>
+            <a class="button secondary" href="/saml-readiness">SAML readiness</a>
+          </div>
+        </aside>
       </section>
     </main>
   </body>

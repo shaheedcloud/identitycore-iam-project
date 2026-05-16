@@ -7,13 +7,65 @@
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <main class="shell">
+    <main class="shell narrow">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/claims">Claims</a></nav>
+      </header>
       <section class="panel warning">
+        <div class="badge-row">
+          <span class="badge denied">Access Denied</span>
+          <span class="badge protected">Protected Route</span>
+          <span class="badge local">Local RBAC</span>
+        </div>
         <p class="eyebrow">RBAC decision</p>
-        <h1>Access denied</h1>
-        <p>Your current local role is not allowed to access that resource.</p>
-        <a class="button" href="/dashboard">Back to dashboard</a>
+        <h1>Least privilege blocked this request</h1>
+        <p>Your current local role is not allowed to access that protected resource.</p>
+
+        <table class="mini-table" aria-label="Access decision details">
+          <tbody>
+            <tr>
+              <th>Current role</th>
+              <td id="current-role">Loading...</td>
+            </tr>
+            <tr>
+              <th>Required role</th>
+              <td id="required-role">Loading...</td>
+            </tr>
+            <tr>
+              <th>Decision</th>
+              <td><span class="badge denied">Deny</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="learning-panel">
+          <strong>IAM concept:</strong> Authentication proves who signed in. Authorization decides whether that identity has the right role for a specific action.
+        </div>
+        <nav class="actions">
+          <a class="button" href="/dashboard">Back to dashboard</a>
+          <a class="button secondary" href="/claims">Inspect claims</a>
+        </nav>
       </section>
     </main>
+
+    <script>
+      function readableRole(role) {
+        const labels = {
+          admin: "admin",
+          security_analyst: "security_analyst",
+          finance_user: "finance_user",
+          standard_user: "standard_user"
+        };
+        return labels[role] || role || "unknown";
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const current = params.get("current") || "unknown";
+      const required = params.get("required") || "admin, security_analyst, or finance_user depending on the page";
+
+      document.getElementById("current-role").textContent = readableRole(current);
+      document.getElementById("required-role").textContent = required.split(",").map(readableRole).join(" or ");
+    </script>
   </body>
 </html>

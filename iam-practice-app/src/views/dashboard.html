@@ -8,54 +8,166 @@
   </head>
   <body>
     <main class="shell">
-      <section class="panel">
-        <p class="eyebrow">Protected</p>
-        <h1>Dashboard</h1>
-        <p>This page is available to any authenticated local training user.</p>
-        <div class="notice" id="auth-source">Checking sign-in source...</div>
-
-        <nav class="actions">
-          <a class="button" href="/admin">Admin</a>
-          <a class="button" href="/security">Security</a>
-          <a class="button" href="/finance">Finance</a>
-          <a class="button" href="/claims">Claims</a>
-          <a class="button" href="/oidc-readiness">OIDC readiness</a>
-          <a class="button" href="/jwt-readiness">JWT readiness</a>
-          <a class="button" href="/scim-readiness">SCIM readiness</a>
-          <a class="button" href="/jml-readiness">JML readiness</a>
-          <a class="button" href="/saml-readiness">SAML readiness</a>
-          <a class="button" href="/audit-readiness">Audit readiness</a>
-          <a class="button" href="/api/me">API: me</a>
-          <a class="button" href="/api/claims">API: claims</a>
-          <a class="button" href="/api/token-simulation">API: token</a>
-          <a class="button" href="/api/oidc/status">API: OIDC</a>
-          <a class="button" href="/api/jwt/status">API: JWT</a>
-          <a class="button" href="/api/scim/status">API: SCIM</a>
-          <a class="button" href="/api/jml/status">API: JML status</a>
-          <a class="button" href="/api/jml/events">API: JML events</a>
-          <a class="button" href="/api/saml/status">API: SAML</a>
-          <a class="button" href="/api/audit/status">API: Audit status</a>
-          <a class="button" href="/api/audit/events">API: Audit events</a>
-          <a class="button" href="/api/troubleshooting/evidence">API: Troubleshooting evidence</a>
-          <a class="button" href="/api/admin/users">API: users</a>
+      <header class="topbar">
+        <a class="brand" href="/dashboard" aria-label="IdentityCore dashboard">
+          <span class="brand-mark">IC</span>
+          <span>IdentityCore</span>
+        </a>
+        <nav class="navlinks" aria-label="Primary navigation">
+          <a href="/claims">Claims</a>
+          <a href="/oidc-readiness">OIDC</a>
+          <a href="/scim-readiness">SCIM</a>
+          <a href="/jml-readiness">JML</a>
+          <a href="/audit-readiness">Audit</a>
         </nav>
-
-        <form action="/logout" method="post">
+        <form action="/logout" method="post" class="logout-form">
           <button type="submit" class="secondary">Log out</button>
         </form>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">Protected learning workspace</p>
+        <h1>IAM operations dashboard</h1>
+        <p>
+          Explore authentication, authorization, federation readiness, provisioning, lifecycle, and troubleshooting evidence from one local-first portal.
+        </p>
+        <div class="badge-row">
+          <span class="badge protected">Authenticated</span>
+          <span class="badge local">Local Simulator</span>
+          <span class="badge simulated">No Production IdP</span>
+          <span class="badge future">Entra and Okta Practice Ready</span>
+        </div>
+      </section>
+
+      <section class="summary-strip" aria-label="Current session summary">
+        <div class="summary-item">
+          <span class="summary-label">Signed-in user</span>
+          <span class="summary-value" id="summary-user">Loading...</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Current role</span>
+          <span class="summary-value" id="summary-role">Loading...</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Auth source</span>
+          <span class="summary-value" id="summary-source">Loading...</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Mode</span>
+          <span class="summary-value">Local practice</span>
+        </div>
+      </section>
+
+      <section class="layout">
+        <div>
+          <div class="card-grid">
+            <article class="card">
+              <span class="badge protected">Protected</span>
+              <h3>Claims & Token Simulation</h3>
+              <p>Inspect local claims and authorization decisions before working with real token validation.</p>
+              <a class="button" href="/claims">Open claims</a>
+            </article>
+            <article class="card">
+              <span class="badge admin">Admin Only</span>
+              <h3>Role-Based Access Control</h3>
+              <p>Test least privilege by opening pages that require admin, security, or finance roles.</p>
+              <div class="actions">
+                <a class="button" href="/admin">Admin</a>
+                <a class="button secondary" href="/security">Security</a>
+                <a class="button secondary" href="/finance">Finance</a>
+              </div>
+            </article>
+            <article class="card">
+              <span class="badge simulated">Bearer API</span>
+              <h3>Protected API JWT Validation</h3>
+              <p>Review fail-closed API protection, issuer/audience validation, and safe decoded claims output.</p>
+              <a class="button" href="/jwt-readiness">Open JWT readiness</a>
+            </article>
+            <article class="card">
+              <span class="badge future">Future Entra</span>
+              <h3>OIDC Readiness</h3>
+              <p>Prepare for Entra OIDC login using only local uncommitted configuration when ready.</p>
+              <a class="button" href="/oidc-readiness">Open OIDC</a>
+            </article>
+            <article class="card">
+              <span class="badge simulated">Provisioning</span>
+              <h3>SCIM Users & Groups</h3>
+              <p>Study local SCIM users, groups, bearer protection, and identity-provider provisioning patterns.</p>
+              <a class="button" href="/scim-readiness">Open SCIM</a>
+            </article>
+            <article class="card">
+              <span class="badge simulated">Lifecycle</span>
+              <h3>JML Lifecycle</h3>
+              <p>Run Joiner, Mover, and Leaver simulations with evidence for access changes and deactivation.</p>
+              <a class="button" href="/jml-readiness">Open JML</a>
+            </article>
+            <article class="card">
+              <span class="badge simulated">SSO</span>
+              <h3>SAML Simulation</h3>
+              <p>Explore service provider concepts, ACS URL, metadata, and safe standard-user mapping.</p>
+              <a class="button" href="/saml-readiness">Open SAML</a>
+            </article>
+            <article class="card">
+              <span class="badge protected">Evidence</span>
+              <h3>Audit & Troubleshooting</h3>
+              <p>Review redacted in-memory events that explain login, logout, JML, SCIM, and JWT decisions.</p>
+              <a class="button" href="/audit-readiness">Open audit</a>
+            </article>
+            <article class="card">
+              <span class="badge future">Future Okta</span>
+              <h3>Okta Practice Path</h3>
+              <p>Reserved for later reviewed Okta workforce identity practice. No external Okta calls are made now.</p>
+              <a class="button secondary" href="/saml-readiness">Review SSO concepts</a>
+            </article>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <p class="eyebrow">Access decision guide</p>
+          <h2>Try this next</h2>
+          <ul class="list-clean">
+            <li>Sign in as <code>user@identitycore.local</code>, then try the admin page to see least privilege.</li>
+            <li>Sign in as <code>analyst@identitycore.local</code> and compare Security access with Finance access.</li>
+            <li>Run a JML Joiner event, then check audit evidence for the local event trail.</li>
+            <li>Open SCIM readiness and confirm protected SCIM routes fail closed without a local bearer token.</li>
+          </ul>
+          <div class="notice warning">
+            Local simulator warning: no tenant IDs, client secrets, access tokens, refresh tokens, private keys, SAML assertions, or SCIM bearer tokens are shown or stored in this dashboard.
+          </div>
+          <h2>Safe API shortcuts</h2>
+          <nav class="actions">
+            <a class="button secondary" href="/api/me">Me</a>
+            <a class="button secondary" href="/api/claims">Claims</a>
+            <a class="button secondary" href="/api/token-simulation">Token</a>
+            <a class="button secondary" href="/api/oidc/status">OIDC</a>
+            <a class="button secondary" href="/api/scim/status">SCIM</a>
+            <a class="button secondary" href="/api/audit/status">Audit</a>
+          </nav>
+        </aside>
       </section>
     </main>
 
     <script>
-      async function loadAuthSource() {
-        const response = await fetch("/api/me");
-        const data = await response.json();
-        const source = data.user.authSource || "local";
-        const role = data.user.role || "unknown";
-        document.getElementById("auth-source").textContent = `Signed in with ${source}. Current local role: ${role}.`;
+      function roleLabel(role) {
+        const labels = {
+          admin: "Admin",
+          security_analyst: "Security Analyst",
+          finance_user: "Finance User",
+          standard_user: "Standard User"
+        };
+        return labels[role] || role || "Unknown";
       }
 
-      loadAuthSource();
+      async function loadSessionSummary() {
+        const response = await fetch("/api/me");
+        const data = await response.json();
+        const user = data.user || {};
+        document.getElementById("summary-user").textContent = user.displayName || user.email || "Unknown";
+        document.getElementById("summary-role").textContent = roleLabel(user.role);
+        document.getElementById("summary-source").textContent = user.authSource || "local";
+      }
+
+      loadSessionSummary();
     </script>
   </body>
 </html>

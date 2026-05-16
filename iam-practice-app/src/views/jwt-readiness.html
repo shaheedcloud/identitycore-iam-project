@@ -8,30 +8,36 @@
   </head>
   <body>
     <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/claims">Claims</a><a href="/oidc-readiness">OIDC</a></nav>
+      </header>
       <section class="panel">
-        <p class="eyebrow">Phase 4</p>
-        <h1>Protected API JWT Validation</h1>
-        <p>Phase 4 protects selected API routes with bearer-token validation. Browser login still uses either local dummy login or Entra OIDC session login.</p>
-
-        <div class="notice">
-          Protected API calls must send <code>Authorization: Bearer &lt;token&gt;</code>. The app validates issuer, audience, signature, and expiration before returning protected API data.
+        <div class="badge-row">
+          <span class="badge protected">Protected API</span>
+          <span class="badge simulated">Fail Closed</span>
+          <span class="badge local">No Token Storage</span>
         </div>
-
-        <h2>Current JWT Status</h2>
-        <pre id="jwt-status">Loading JWT status...</pre>
-
-        <h2>Protected API Routes</h2>
-        <ul>
-          <li><code>GET /api/protected/profile</code></li>
-          <li><code>GET /api/protected/claims</code></li>
-          <li><code>GET /api/protected/admin-check</code></li>
-        </ul>
-
-        <p>Role and group authorization from Entra claims is intentionally deferred. A valid JWT proves the token passed validation, but it does not grant local admin access in this phase.</p>
-
+        <p class="eyebrow">Phase 4</p>
+        <h1>Protected API JWT validation</h1>
+        <p>Selected API routes require bearer-token validation. Browser login remains separate from API token validation.</p>
+        <div class="status-grid">
+          <aside class="learning-panel">
+            <strong>IAM concept:</strong> A valid token proves issuer, audience, signature, and expiration checks passed. It does not automatically grant local admin authorization.
+            <ul class="list-clean">
+              <li><code>GET /api/protected/profile</code></li>
+              <li><code>GET /api/protected/claims</code></li>
+              <li><code>GET /api/protected/admin-check</code></li>
+            </ul>
+          </aside>
+          <div>
+            <h2>Current JWT Status</h2>
+            <pre id="jwt-status">Loading JWT status...</pre>
+          </div>
+        </div>
         <nav class="actions">
           <a class="button" href="/api/jwt/status">API: JWT status</a>
-          <a class="button" href="/dashboard">Back to dashboard</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </nav>
       </section>
     </main>

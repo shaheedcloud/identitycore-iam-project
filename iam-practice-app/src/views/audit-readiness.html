@@ -8,35 +8,38 @@
   </head>
   <body>
     <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/jml-readiness">JML</a><a href="/scim-readiness">SCIM</a></nav>
+      </header>
       <section class="panel">
+        <div class="badge-row">
+          <span class="badge protected">Audit Evidence</span>
+          <span class="badge local">In Memory</span>
+          <span class="badge simulated">Redacted</span>
+        </div>
         <p class="eyebrow">Phase 9</p>
         <h1>Audit logging and troubleshooting evidence</h1>
-        <p>
-          This page shows local in-memory audit events for learning and troubleshooting. It does not write files, call a SIEM, store tokens, store cookies, or capture raw request headers.
-        </p>
-
-        <div class="notice">
+        <p>This page shows local in-memory audit events for learning and troubleshooting. It does not write files, call a SIEM, store tokens, store cookies, or capture raw request headers.</p>
+        <div class="notice warning" id="reset-status" role="status" aria-live="polite">
           Audit evidence is redacted and local-only. It resets when the app restarts or when you press reset.
         </div>
-
         <nav class="actions">
           <a class="button" href="/api/audit/status">API: Audit status</a>
-          <a class="button" href="/api/audit/events">API: Audit events</a>
-          <a class="button" href="/api/troubleshooting/evidence">API: Troubleshooting evidence</a>
-          <a class="button" href="/dashboard">Dashboard</a>
+          <a class="button secondary" href="/api/audit/events">API: Audit events</a>
+          <a class="button secondary" href="/api/troubleshooting/evidence">API: Troubleshooting evidence</a>
+          <button type="button" class="secondary" id="reset-audit">Reset audit events</button>
         </nav>
-
-        <button type="button" class="secondary" id="reset-audit">Reset audit events</button>
-        <div class="notice" id="reset-status" role="status" aria-live="polite">
-          Ready to reset local audit events.
-        </div>
-
-        <h2>Audit Status</h2>
-        <pre id="audit-status">Loading audit status...</pre>
-
-        <h2>Recent Events</h2>
-        <pre id="audit-events">Loading recent events...</pre>
-
+        <section class="json-grid">
+          <div>
+            <h2>Audit Status</h2>
+            <pre id="audit-status">Loading audit status...</pre>
+          </div>
+          <div>
+            <h2>Recent Events</h2>
+            <pre id="audit-events">Loading recent events...</pre>
+          </div>
+        </section>
         <h2>Troubleshooting Evidence</h2>
         <pre id="troubleshooting-evidence">Loading troubleshooting evidence...</pre>
       </section>

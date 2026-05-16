@@ -7,7 +7,9 @@ function requireRole(allowedRoles) {
     }
 
     if (!allowedRoles.includes(user.role)) {
-      return res.redirect("/access-denied");
+      const required = encodeURIComponent(allowedRoles.join(","));
+      const current = encodeURIComponent(user.role || "unknown");
+      return res.redirect(`/access-denied?required=${required}&current=${current}`);
     }
 
     return next();

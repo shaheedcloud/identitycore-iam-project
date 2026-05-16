@@ -8,46 +8,60 @@
   </head>
   <body>
     <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks"><a href="/dashboard">Dashboard</a><a href="/scim-readiness">SCIM</a><a href="/audit-readiness">Audit</a></nav>
+      </header>
       <section class="panel">
+        <div class="badge-row">
+          <span class="badge simulated">Lifecycle Simulation</span>
+          <span class="badge local">Local Only</span>
+          <span class="badge protected">Evidence Trail</span>
+        </div>
         <p class="eyebrow">Phase 7</p>
-        <h1>JML Lifecycle Simulation</h1>
-        <p>Phase 7 simulates Joiner, Mover, and Leaver lifecycle events locally. It records evidence for identity creation, access changes, deactivation, and simulated revocation without calling external systems.</p>
-
-        <div class="notice">
-          This is local-only IAM learning data. No real Entra, Okta, AWS, HR, email, SCIM provider, scheduled job, or production workflow is called.
+        <h1>JML lifecycle simulation</h1>
+        <p>Run Joiner, Mover, and Leaver events locally to see identity creation, access changes, deactivation, and simulated revocation evidence.</p>
+        <div class="notice warning">
+          No real Entra, Okta, AWS, HR, email, SCIM provider, scheduled job, or production workflow is called.
         </div>
 
-        <h2>Current JML Status</h2>
-        <pre id="jml-status">Loading JML status...</pre>
+        <section class="card-grid">
+          <article class="card">
+            <span class="badge ready">Joiner</span>
+            <h3>Onboard identity</h3>
+            <p>Create a local simulated identity and assign starter access.</p>
+            <button type="button" onclick="runJoinerSimulation()">Run Joiner</button>
+          </article>
+          <article class="card">
+            <span class="badge simulated">Mover</span>
+            <h3>Change access</h3>
+            <p>Move the same identity into a new department and record access movement.</p>
+            <button type="button" onclick="runMoverSimulation()">Run Mover</button>
+          </article>
+          <article class="card">
+            <span class="badge denied">Leaver</span>
+            <h3>Remove access</h3>
+            <p>Deactivate the identity and record simulated revocation evidence.</p>
+            <button type="button" onclick="runLeaverSimulation()">Run Leaver</button>
+          </article>
+        </section>
 
-        <h2>Recent JML Events</h2>
-        <pre id="jml-events">Loading JML events...</pre>
-
-        <h2>Run Simulation</h2>
         <div class="actions">
-          <button type="button" onclick="runJoinerSimulation()">Run Joiner simulation</button>
-          <button type="button" onclick="runMoverSimulation()">Run Mover simulation</button>
-          <button type="button" onclick="runLeaverSimulation()">Run Leaver simulation</button>
-          <button type="button" class="secondary-link" onclick="resetJmlSimulation()">Reset JML simulation</button>
+          <button type="button" class="secondary" onclick="resetJmlSimulation()">Reset JML simulation</button>
+          <a class="button secondary" href="/api/jml/status">API: JML status</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </div>
 
-        <h2>JML API Routes</h2>
-        <ul>
-          <li><code>GET /api/jml/status</code></li>
-          <li><code>GET /api/jml/events</code></li>
-          <li><code>POST /api/jml/joiner</code></li>
-          <li><code>POST /api/jml/mover</code></li>
-          <li><code>POST /api/jml/leaver</code></li>
-          <li><code>POST /api/jml/reset</code></li>
-        </ul>
-
-        <p>SAML login remains Phase 8. This page does not perform real lifecycle automation or production identity governance.</p>
-
-        <nav class="actions">
-          <a class="button" href="/api/jml/status">API: JML status</a>
-          <a class="button" href="/api/jml/events">API: JML events</a>
-          <a class="button" href="/dashboard">Back to dashboard</a>
-        </nav>
+        <section class="json-grid">
+          <div>
+            <h2>Current JML Status</h2>
+            <pre id="jml-status">Loading JML status...</pre>
+          </div>
+          <div>
+            <h2>Recent JML Events</h2>
+            <pre id="jml-events">Loading JML events...</pre>
+          </div>
+        </section>
       </section>
     </main>
 
