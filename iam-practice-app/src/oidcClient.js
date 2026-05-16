@@ -54,44 +54,63 @@ async function handleCallback(req) {
   return oidcResponse.claims();
 }
 
-function normalizeArray(value) {
-  if (Array.isArray(value)) {
-    return value;
+function hasValue(value) {
+  return Array.isArray(value) ? value.length > 0 : Boolean(value);
+}
+
+function describeIssuer(value) {
+  if (!value) {
+    return "not present";
   }
 
-  if (typeof value === "string" && value.length > 0) {
-    return [value];
+  try {
+    const issuerUrl = new URL(value);
+    return `${issuerUrl.hostname}/...`;
+  } catch (error) {
+    return "present";
   }
+}
 
-  return [];
+function buildSafeClaimSummary(claims, providerName) {
+  return {
+    providerName,
+    subjectPresent: hasValue(claims.sub),
+    preferredUsernamePresent: hasValue(claims.preferred_username),
+    displayNamePresent: hasValue(claims.name),
+    emailPresent: hasValue(claims.email),
+    issuer: describeIssuer(claims.iss),
+    audiencePresent: hasValue(claims.aud),
+    authenticationMethodReferencePresent: hasValue(claims.amr),
+    rolesClaimPresent: hasValue(claims.roles),
+    groupsClaimPresent: hasValue(claims.groups),
+    rawTokensStored: false,
+    rawClaimsStored: false,
+    authorizationMapping: "External Entra claims are not mapped to privileged local roles in Phase 13."
+  };
 }
 
 function buildSessionUserFromClaims(claims) {
+  const config = getOidcConfig();
+  const safeClaimSummary = buildSafeClaimSummary(claims, config.providerName);
+
   return {
-    id: claims.sub,
-    email: claims.email || claims.preferred_username || "unknown@example.local",
-    displayName: claims.name || claims.preferred_username || "OIDC User",
+    id: "oidc-local-practice-user",
+    email: "oidc-user@identitycore.local",
+    displayName: "OIDC Authenticated User",
     role: "standard_user",
     department: "OIDC Authenticated",
-    jobTitle: "OIDC User",
+    jobTitle: "Entra OIDC Local Practice User",
     userType: "external_oidc",
     authSource: "oidc",
-    groups: normalizeArray(claims.groups),
-    oidcClaims: {
-      sub: claims.sub,
-      name: claims.name,
-      preferred_username: claims.preferred_username,
-      email: claims.email,
-      roles: normalizeArray(claims.roles),
-      groups: normalizeArray(claims.groups),
-      iss: claims.iss,
-      aud: claims.aud
-    }
+    authProvider: config.providerName,
+    groups: [],
+    oidcSafeClaimSummary: safeClaimSummary
   };
 }
 
 module.exports = {
   buildAuthorizationUrl,
+  buildSafeClaimSummary,
   buildSessionUserFromClaims,
   handleCallback
 };

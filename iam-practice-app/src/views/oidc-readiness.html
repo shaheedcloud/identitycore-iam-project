@@ -19,22 +19,39 @@
           <span class="badge protected">No Raw Tokens</span>
         </div>
         <p class="eyebrow">Phase 3B Entra OIDC</p>
-        <h1>OIDC readiness</h1>
-        <p>Entra OIDC login can run only when <code>OIDC_ENABLED=true</code> and complete values are present in a local uncommitted <code>.env</code> file.</p>
+        <h1>Entra OIDC local practice</h1>
+        <p>Microsoft Entra ID OIDC login can run only when <code>OIDC_ENABLED=true</code> and complete values are present in a local uncommitted <code>.env</code> file.</p>
         <div class="notice warning">
-          Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role.
+          Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role and external claims do not grant admin access.
         </div>
         <div class="status-grid">
           <aside class="learning-panel">
-            <strong>IAM concept:</strong> OIDC authenticates the browser user. Local app authorization remains separate, and privileged role mapping is deferred.
+            <strong>IAM concept:</strong> OIDC authenticates the browser user. IdentityCore stores only a conservative local profile and a presence-only claim summary. Raw tokens are not stored, logged, displayed, or returned by APIs.
+            <ul class="list-clean">
+              <li>Configured values belong only in <code>iam-practice-app/.env</code>.</li>
+              <li><code>.env.example</code> must stay placeholder-only.</li>
+              <li>Dashboard provider context should show the Entra lab name after login.</li>
+            </ul>
           </aside>
           <div>
             <h2>OIDC Status</h2>
             <pre id="oidc-status">Loading OIDC readiness status...</pre>
           </div>
         </div>
+        <section class="card-grid two">
+          <article class="card">
+            <span class="badge local">Without Entra config</span>
+            <h3>Safe disabled state</h3>
+            <p>The app starts, local login works, and the Entra login button shows a safe not-configured message without contacting Microsoft.</p>
+          </article>
+          <article class="card">
+            <span class="badge future">With local .env</span>
+            <h3>Lab sign-in path</h3>
+            <p>The app redirects to Microsoft, validates the callback state and nonce, creates a local session, then maps the user to <code>standard_user</code>.</p>
+          </article>
+        </section>
         <nav class="actions">
-          <a class="button" href="/auth/oidc/start">Try OIDC placeholder</a>
+          <a class="button" href="/auth/oidc/start">Start Entra OIDC login</a>
           <a class="button secondary" href="/api/oidc/status">API: OIDC status</a>
           <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </nav>
