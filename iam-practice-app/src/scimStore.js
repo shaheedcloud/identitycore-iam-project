@@ -140,11 +140,64 @@ function deactivateUser(id, baseUrl) {
   return user;
 }
 
+function getUserLifecycleSummary() {
+  const allUsers = Array.from(users.values());
+  const activeUsers = allUsers.filter((user) => user.active);
+  const inactiveUsers = allUsers.filter((user) => !user.active);
+
+  return {
+    localOnly: true,
+    resourceType: "SCIM User",
+    totalUsers: allUsers.length,
+    activeUsers: activeUsers.length,
+    inactiveUsers: inactiveUsers.length,
+    lifecycleMeaning: {
+      active: "Provisioned application identity record is enabled in the local simulator.",
+      inactive: "Provisioned application identity record is deactivated but retained for evidence."
+    },
+    provisioningBoundaries: {
+      scimCreatesBrowserSession: false,
+      scimGrantsAdminAccess: false,
+      rbacStillEnforced: true,
+      storage: "in-memory only"
+    },
+    sampleUsers: allUsers.slice(0, 5).map((user) => ({
+      id: user.id,
+      userName: user.userName,
+      displayName: user.displayName,
+      active: user.active,
+      created: user.meta.created,
+      lastModified: user.meta.lastModified
+    })),
+    safeDummyExamples: [
+      {
+        lifecycleStage: "joiner",
+        userName: "user.scim.joiner@identitycore.local",
+        active: true,
+        lesson: "SCIM can create an application identity record, but login still happens elsewhere."
+      },
+      {
+        lifecycleStage: "mover",
+        userName: "user.scim.mover@identitycore.local",
+        active: true,
+        lesson: "SCIM can update attributes; access changes still need explicit authorization controls."
+      },
+      {
+        lifecycleStage: "leaver",
+        userName: "user.scim.leaver@identitycore.local",
+        active: false,
+        lesson: "Deactivation preserves evidence while preventing continued use of the record."
+      }
+    ]
+  };
+}
+
 module.exports = {
   listUsers,
   getUser,
   createUser,
   replaceUser,
   patchUser,
-  deactivateUser
+  deactivateUser,
+  getUserLifecycleSummary
 };

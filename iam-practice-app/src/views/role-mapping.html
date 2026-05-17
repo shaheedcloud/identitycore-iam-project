@@ -15,6 +15,7 @@
           <a href="/provider-comparison">Providers</a>
           <a href="/claims">Claims</a>
           <a href="/oidc-readiness">OIDC</a>
+          <a href="/scim-readiness">SCIM</a>
         </nav>
       </header>
 
@@ -32,7 +33,7 @@
         </p>
 
         <div class="notice warning">
-          External authentication proves identity. Local authorization decides access. Entra and Okta claims or groups do not automatically grant privileged access.
+          External authentication proves identity. SCIM provisions records. Local authorization decides access. Entra, Okta, and SCIM groups do not automatically grant privileged access.
         </div>
 
         <section class="summary-strip" aria-label="Current role mapping summary">
@@ -112,6 +113,7 @@
         <nav class="actions">
           <a class="button" href="/provider-comparison">Compare providers</a>
           <a class="button secondary" href="/claims">Inspect claims</a>
+          <a class="button secondary" href="/scim-readiness">Review SCIM boundaries</a>
           <a class="button secondary" href="/dashboard">Back to dashboard</a>
           <a class="button secondary" href="/api/role-mapping">API: role mapping</a>
         </nav>

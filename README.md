@@ -20,6 +20,7 @@ The project shows how an IAM professional can move from application-level identi
 - safe Okta OIDC local practice without committing a real Okta domain or application credentials
 - provider comparison and claims mapping guardrails across local, Entra, and Okta identity sources
 - role mapping and authorization practice showing deny-by-default mapping and local RBAC as the final control
+- SCIM simulator and JML evidence improvements that explain provisioning, lifecycle, and RBAC separation
 
 ## Main Application
 
@@ -62,6 +63,8 @@ Entra OIDC practice uses only local uncommitted `.env` values. The app must neve
 Okta OIDC practice also uses only local uncommitted `.env` values. The app must never commit real Okta domains, Okta client IDs, Okta client secrets, tokens, private keys, certificates, or screenshots containing unredacted identity data.
 
 Role mapping practice is local-only. External Entra or Okta authentication does not automatically grant admin access, and external claims or groups are not blindly trusted for privileged authorization.
+
+SCIM and JML practice are local-only simulations. SCIM provisions identity and group records; it does not create browser sessions, expose the app publicly, connect to a real provider, or bypass local RBAC.
 
 ## Final Portfolio Package
 

@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, and 16
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, and 18
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions. Phase 18 improves the local SCIM simulator and JML evidence experience so learners can separate provisioning, lifecycle evidence, login, and RBAC.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -177,6 +177,18 @@ Phase 15 does not add automatic admin mapping from Entra claims, automatic admin
 
 Phase 16 does not add automatic admin mapping from Entra claims, automatic admin mapping from Okta claims, automatic group-to-role mapping, RBAC bypasses, production authorization, AWS IAM, real SCIM provisioning, database persistence, cloud deployment, CI/CD, external API calls beyond existing OIDC behavior, raw token display, raw token logging, committed `.env`, secrets, tenant IDs, Okta domains, client IDs, client secrets, or screenshots.
 
+## What Phase 18 Demonstrates
+
+- Improved SCIM readiness page explaining provisioning, login, lifecycle, and RBAC boundaries
+- Safe SCIM simulator summary showing local user and group lifecycle state without bearer tokens
+- JML evidence summaries for Joiner, Mover, and Leaver events
+- Clearer relationship between SCIM records, JML lifecycle events, audit-style evidence, and local RBAC
+- Confirmation that SCIM-created users do not create browser sessions
+- Confirmation that SCIM group membership does not automatically grant admin access
+- Dashboard links that make SCIM and JML practice easier to find
+
+Phase 18 does not add real Entra SCIM provisioning, real Okta SCIM provisioning, public endpoint exposure, tunneling, cloud deployment, database persistence, CI/CD, AWS IAM, webhook/email/SIEM/background jobs, production authentication, production authorization, raw token display, raw token logging, committed `.env`, SCIM bearer tokens, tenant IDs, Okta domains, client IDs, client secrets, real user data, or screenshots.
+
 ## Install Dependencies
 
 ```bash
@@ -335,6 +347,43 @@ The current safe behavior is intentionally conservative:
 - external groups are not trusted for privileged authorization
 - local RBAC remains the final access control for `/admin`, `/security`, and `/finance`
 
+## SCIM Simulator And JML Evidence Improvements
+
+The SCIM readiness page is available after sign-in:
+
+```text
+http://localhost:3000/scim-readiness
+```
+
+Phase 18 makes the page explain that:
+
+- SCIM provisions application user and group records
+- SCIM is not a login protocol
+- SCIM bearer tokens stay local and are never returned by the app
+- SCIM group membership does not automatically grant admin access
+- local RBAC remains the final control for protected pages and APIs
+- real Entra or Okta SCIM provisioning is still deferred
+
+The signed-in learner can inspect a safe simulator summary:
+
+```text
+http://localhost:3000/api/scim/simulator-summary
+```
+
+The JML readiness page is available after sign-in:
+
+```text
+http://localhost:3000/jml-readiness
+```
+
+Phase 18 adds audit-style evidence summaries for Joiner, Mover, and Leaver practice:
+
+```text
+http://localhost:3000/api/jml/evidence-summary
+```
+
+These summaries are local learning views only. They do not accept provider calls, expose IdentityCore publicly, create sessions, store data permanently, or grant access from SCIM group names.
+
 ## Local Docker Runtime
 
 Docker support is local-only for portfolio review. The image is not a production deployment artifact and does not include `.env`, secrets, screenshots, logs, Git metadata, certificates, private keys, tokens, or local dependency folders.
@@ -403,8 +452,8 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/role-mapping` | `GET` | Browser page showing safe role mapping decisions, deny-by-default behavior, and RBAC examples | Authenticated users |
 | `/oidc-readiness` | `GET` | Browser page explaining OIDC readiness and current safe status | Authenticated users |
 | `/jwt-readiness` | `GET` | Browser page explaining protected API JWT validation status | Authenticated users |
-| `/scim-readiness` | `GET` | Browser page explaining SCIM Users and Groups readiness and current safe status | Authenticated users |
-| `/jml-readiness` | `GET` | Browser page explaining Joiner, Mover, Leaver simulation status | Authenticated users |
+| `/scim-readiness` | `GET` | Browser page explaining SCIM simulator state, provisioning boundaries, and RBAC separation | Authenticated users |
+| `/jml-readiness` | `GET` | Browser page explaining Joiner, Mover, Leaver simulation status and evidence summaries | Authenticated users |
 | `/saml-readiness` | `GET` | Browser page explaining SAML readiness and local simulation status | Authenticated users |
 | `/audit-readiness` | `GET` | Browser page showing safe local audit status, events, and evidence | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
@@ -422,7 +471,9 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/api/okta/status` | `GET` | Returns safe Okta OIDC readiness status without secrets | Authenticated users |
 | `/api/jwt/status` | `GET` | Returns safe JWT validation status without tokens or secrets | Public safe status |
 | `/api/scim/status` | `GET` | Returns safe SCIM readiness status without bearer tokens | Public safe status |
+| `/api/scim/simulator-summary` | `GET` | Returns safe SCIM user/group lifecycle summary and provisioning guardrails | Authenticated users |
 | `/api/jml/status` | `GET` | Returns safe local-only JML simulation status | Authenticated users |
+| `/api/jml/evidence-summary` | `GET` | Returns audit-style local JML evidence summaries and guardrails | Authenticated users |
 | `/api/saml/status` | `GET` | Returns safe SAML readiness status without certificates or assertions | Public safe status |
 | `/api/audit/status` | `GET` | Returns safe local audit status | Authenticated users |
 | `/api/audit/events` | `GET` | Returns safe local in-memory audit events | Authenticated users |
@@ -838,6 +889,8 @@ Phase 6 adds a local SCIM 2.0 Groups simulation:
 
 SCIM Users represent provisioned application accounts. SCIM Groups represent collections of users that an identity provider can push for access organization, assignment context, or later lifecycle workflows. Phase 6 stores group membership data for learning only; it does not map groups to local app roles or JWT authorization.
 
+Phase 18 adds `/api/scim/simulator-summary` for signed-in learners. It summarizes current in-memory SCIM user and group counts, safe dummy lifecycle examples, and guardrails showing that SCIM does not create browser sessions, does not grant admin access from group membership, and does not bypass RBAC.
+
 ## Phase 7 JML Lifecycle Simulation
 
 Phase 7 adds a local-only Joiner, Mover, Leaver simulation:
@@ -855,6 +908,7 @@ This phase does not call Entra, Okta, AWS, HR systems, email services, or extern
 | --- | --- |
 | `/api/jml/status` | Returns safe local-only simulation status |
 | `/api/jml/events` | Returns local JML event history |
+| `/api/jml/evidence-summary` | Returns local audit-style lifecycle summaries and safety guardrails |
 | `/api/jml/joiner` | Creates a simulated Joiner event |
 | `/api/jml/mover` | Creates a simulated Mover event |
 | `/api/jml/leaver` | Creates a simulated Leaver event |
@@ -920,6 +974,7 @@ Review events:
 
 ```powershell
 Invoke-RestMethod http://localhost:3000/api/jml/events -WebSession $session
+Invoke-RestMethod http://localhost:3000/api/jml/evidence-summary -WebSession $session
 ```
 
 ### Phase 7 curl Tests
@@ -950,6 +1005,8 @@ Lesson: lifecycle workflows depend on stable identity correlation. In real syste
 ### Phase 7 Deferrals
 
 Real Entra Lifecycle Workflows and real Okta Workflows are deferred. Real HR integration, real SCIM provisioning from Entra or Okta, background jobs, scheduled automation, email notifications, approval workflow engines, production identity governance, and real session revocation are not included.
+
+Phase 18 improves the JML browser evidence view and `/api/jml/evidence-summary`. The evidence summary explains lifecycle stage, subject, active state, evidence actions, RBAC enforcement, and the fact that no admin access is granted automatically.
 
 Production SAML setup remains deferred. Phase 8 adds only safe SAML readiness and local simulation support.
 
@@ -1596,16 +1653,18 @@ Browser-based API checks work after signing in because the browser already has t
 9. Open `/api/oidc/status` and confirm no client secret is exposed.
 10. Open `/api/jwt/status` and confirm no raw token or secret is exposed.
 11. Open `/api/scim/status` and confirm no SCIM bearer token is exposed.
-12. Open `/api/jml/status` and confirm it is local-only.
-13. Open `/api/jml/events` and confirm event history is returned.
-14. Confirm `/api/protected/profile` rejects a request without a bearer token.
-15. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
-16. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
-17. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
-18. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-19. Log out and sign in as `user@identitycore.local`.
-20. Open `/api/me` and confirm the standard user profile appears.
-21. Open `/api/admin/users` and confirm access is denied.
+12. Open `/api/scim/simulator-summary` and confirm SCIM is not login, does not create sessions, and does not grant admin access.
+13. Open `/api/jml/status` and confirm it is local-only.
+14. Open `/api/jml/events` and confirm event history is returned.
+15. Open `/api/jml/evidence-summary` and confirm RBAC remains enforced.
+16. Confirm `/api/protected/profile` rejects a request without a bearer token.
+17. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
+18. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
+19. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
+20. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+21. Log out and sign in as `user@identitycore.local`.
+22. Open `/api/me` and confirm the standard user profile appears.
+23. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -1780,11 +1839,23 @@ Symptom: PATCH returns the group, but the `members` array is unchanged.
 
 Fix: confirm the operation uses `op` as `add`, `replace`, or `remove`, uses `path` as `members`, and sends member objects with a `value`.
 
+### SCIM group membership does not grant admin access
+
+Symptom: a SCIM group exists or includes a user, but `/admin` is still denied.
+
+Fix: this is expected. SCIM provisions records only. Local RBAC still decides protected access, and SCIM group names are not trusted for privileged authorization.
+
 ### JML events are empty
 
 Symptom: `/api/jml/events` returns no events.
 
 Fix: run `/api/jml/joiner`, `/api/jml/mover`, or `/api/jml/leaver` first. The event store is in-memory only and resets when the app restarts or `/api/jml/reset` is called.
+
+### JML evidence summary is empty
+
+Symptom: `/api/jml/evidence-summary` loads but shows no recent lifecycle events.
+
+Fix: run a Joiner, Mover, or Leaver simulation first. The endpoint is a safe summary of local in-memory events, not a connection to a real provider.
 
 ### Mover updates the wrong identity
 
@@ -1833,6 +1904,7 @@ Fix: inspect `iam-practice-app/.dockerignore`. It excludes `.env`, `.env.*`, log
 - Real JWT validation values belong only in local uncommitted `.env`.
 - Real SCIM bearer tokens belong only in local uncommitted `.env`.
 - SCIM user and group data is in-memory only and resets on restart.
+- SCIM is provisioning only; it does not create browser sessions or grant admin access through group membership.
 - JML identity and event data is in-memory only and resets on restart.
 - JML is a local simulation only and does not call external identity systems.
 - Real SAML certificates and production SAML values belong only in local uncommitted `.env`.

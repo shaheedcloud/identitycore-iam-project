@@ -18,12 +18,30 @@
           <span class="badge local">Local Only</span>
           <span class="badge protected">Evidence Trail</span>
         </div>
-        <p class="eyebrow">Phase 7</p>
+        <p class="eyebrow">Phase 18 lifecycle evidence</p>
         <h1>JML lifecycle simulation</h1>
-        <p>Run Joiner, Mover, and Leaver events locally to see identity creation, access changes, deactivation, and simulated revocation evidence.</p>
+        <p>Run Joiner, Mover, and Leaver events locally to see identity creation, access changes, deactivation, and audit-style evidence.</p>
         <div class="notice warning">
-          No real Entra, Okta, AWS, HR, email, SCIM provider, scheduled job, or production workflow is called.
+          No real Entra, Okta, AWS, HR, email, SCIM provider, scheduled job, or production workflow is called. JML evidence does not create login sessions or bypass RBAC.
         </div>
+        <section class="summary-strip" aria-label="Lifecycle evidence summary">
+          <div class="summary-item">
+            <span class="summary-label">Events</span>
+            <span class="summary-value" id="summary-events">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">SCIM is login</span>
+            <span class="summary-value" id="summary-login">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Groups grant admin</span>
+            <span class="summary-value" id="summary-admin">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">RBAC enforced</span>
+            <span class="summary-value" id="summary-rbac">Loading...</span>
+          </div>
+        </section>
 
         <section class="card-grid">
           <article class="card">
@@ -49,8 +67,39 @@
         <div class="actions">
           <button type="button" class="secondary" onclick="resetJmlSimulation()">Reset JML simulation</button>
           <a class="button secondary" href="/api/jml/status">API: JML status</a>
+          <a class="button secondary" href="/api/jml/evidence-summary">API: evidence summary</a>
+          <a class="button secondary" href="/scim-readiness">Open SCIM simulator</a>
           <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </div>
+
+        <h2>Lifecycle Evidence Model</h2>
+        <table class="mini-table" aria-label="Lifecycle evidence model">
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Simulated change</th>
+              <th>Evidence goal</th>
+            </tr>
+          </thead>
+          <tbody id="evidence-model">
+            <tr><td colspan="3">Loading evidence model...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Recent Evidence Summary</h2>
+        <table class="mini-table" aria-label="Recent lifecycle evidence">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Subject</th>
+              <th>Lifecycle state</th>
+              <th>Evidence</th>
+            </tr>
+          </thead>
+          <tbody id="evidence-summary">
+            <tr><td colspan="4">No lifecycle events yet.</td></tr>
+          </tbody>
+        </table>
 
         <section class="json-grid">
           <div>
@@ -69,11 +118,66 @@
       async function loadJmlData() {
         const statusResponse = await fetch("/api/jml/status");
         const eventsResponse = await fetch("/api/jml/events");
+        const summaryResponse = await fetch("/api/jml/evidence-summary");
         const status = await statusResponse.json();
         const events = await eventsResponse.json();
+        const summary = await summaryResponse.json();
 
         document.getElementById("jml-status").textContent = JSON.stringify(status, null, 2);
         document.getElementById("jml-events").textContent = JSON.stringify(events, null, 2);
+        renderEvidenceSummary(summary);
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function formatValue(value) {
+        if (typeof value === "boolean") {
+          return value ? "true" : "false";
+        }
+
+        if (Array.isArray(value)) {
+          return value.join(", ");
+        }
+
+        return value || "not present";
+      }
+
+      function renderEvidenceSummary(summary) {
+        document.getElementById("summary-events").textContent = summary.totalEvents;
+        document.getElementById("summary-login").textContent = formatValue(summary.guardrails.scimIsLogin);
+        document.getElementById("summary-admin").textContent = formatValue(summary.guardrails.scimGroupGrantsAdminAccess);
+        document.getElementById("summary-rbac").textContent = formatValue(summary.guardrails.rbacStillEnforced);
+
+        document.getElementById("evidence-model").innerHTML = summary.lifecycleModel
+          .map((row) => `
+            <tr>
+              <th>${escapeHtml(row.stage)}</th>
+              <td>${escapeHtml(row.simulatedChange)}</td>
+              <td>${escapeHtml(row.evidenceGoal)}</td>
+            </tr>
+          `)
+          .join("");
+
+        document.getElementById("evidence-summary").innerHTML = summary.recentEvents.length
+          ? summary.recentEvents.map((event) => `
+            <tr>
+              <th>${escapeHtml(event.type)}<br><span class="muted">${escapeHtml(event.createdAt)}</span></th>
+              <td>${escapeHtml(event.subject)}</td>
+              <td>${escapeHtml(event.active ? "active" : "inactive")}</td>
+              <td>${escapeHtml(formatValue(event.evidenceActions))}</td>
+            </tr>
+            <tr>
+              <td colspan="4" class="table-note">${escapeHtml(event.evidenceSummary.lesson)}</td>
+            </tr>
+          `).join("")
+          : '<tr><td colspan="4">No lifecycle events yet. Run Joiner, Mover, or Leaver to create local evidence.</td></tr>';
       }
 
       async function postJmlAction(path, body) {
