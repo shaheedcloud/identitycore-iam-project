@@ -23,6 +23,7 @@ The project shows how an IAM professional can move from application-level identi
 - SCIM simulator and JML evidence improvements that explain provisioning, lifecycle, and RBAC separation
 - AWS federation readiness explaining local roles versus AWS IAM roles before any real AWS connection
 - guided IAM learning journey that connects authentication, claims, authorization, federation, provisioning, lifecycle, audit, and AWS readiness
+- scenario-based IAM practice workflows for local access decisions, lifecycle behavior, and evidence explanations
 
 ## Main Application
 
@@ -71,6 +72,8 @@ SCIM and JML practice are local-only simulations. SCIM provisions identity and g
 AWS federation readiness is local-only education. It does not add AWS SDK calls, AWS credentials, AWS account IDs, AWS role ARNs, CloudTrail ingestion, Terraform, or cloud deployment.
 
 The guided learning journey is a static local navigation and explanation layer. It does not add real provider integrations, workflow execution, external API calls, background jobs, secrets, tenant IDs, AWS account IDs, raw token display, or production automation.
+
+Scenario-based IAM practice is local-only and static. It does not add real integrations, workflow execution, a scoring engine, persistent learner tracking, external API calls, secrets, tenant IDs, AWS account IDs, role ARNs, raw token display, or production automation.
 
 ## Final Portfolio Package
 

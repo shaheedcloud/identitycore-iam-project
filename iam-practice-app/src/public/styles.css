@@ -516,12 +516,47 @@ button.secondary:hover,
   color: var(--muted);
 }
 
+.scenario-list {
+  display: grid;
+  gap: 14px;
+}
+
+.scenario-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(23, 33, 47, 0.06);
+}
+
+.scenario-card summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  color: var(--ink);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.scenario-body {
+  border-top: 1px solid var(--line);
+  padding: 18px;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  color: var(--muted);
+}
+
 @media (max-width: 980px) {
   .layout,
   .login-layout,
   .json-grid,
   .status-grid,
-  .prompt-grid {
+  .prompt-grid,
+  .scenario-grid {
     grid-template-columns: 1fr;
   }
 
