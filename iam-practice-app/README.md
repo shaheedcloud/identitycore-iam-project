@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18, and 20
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18, 20, and 21
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions. Phase 18 improves the local SCIM simulator and JML evidence experience so learners can separate provisioning, lifecycle evidence, login, and RBAC. Phase 20 adds a local-only AWS federation readiness foundation before any real AWS implementation.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions. Phase 18 improves the local SCIM simulator and JML evidence experience so learners can separate provisioning, lifecycle evidence, login, and RBAC. Phase 20 adds a local-only AWS federation readiness foundation before any real AWS implementation. Phase 21 adds a guided IAM learning journey that connects the existing modules into a clear learning path.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -201,6 +201,17 @@ Phase 18 does not add real Entra SCIM provisioning, real Okta SCIM provisioning,
 - Warnings against long-term AWS access keys as the main learning path
 
 Phase 20 does not add AWS SDK packages, AWS CLI integration, AWS credentials, AWS access keys, AWS secret access keys, AWS session tokens, credential profiles, real AWS account IDs, real AWS role ARNs, real AWS provider ARNs, CloudTrail ingestion, Terraform, cloud deployment, database persistence, CI/CD, external API calls, raw token display, raw token logging, committed `.env`, secrets, private keys, certificates, real user data, or screenshots.
+
+## What Phase 21 Demonstrates
+
+- A guided IAM learning journey from orientation through authentication, claims, authorization, federation, provisioning, lifecycle, audit, AWS readiness, and portfolio explanation
+- Module cards that link only to existing IdentityCore pages
+- Safe static status badges such as Local Only, Simulated, Readiness Only, Protected, Available, Not Connected, and Review Next
+- Interview prompts that help the learner explain each IAM concept out loud
+- Architecture prompts that connect implementation details to design tradeoffs
+- Clear reminders that IdentityCore is local-first, skill-practice focused, and not a production IAM system
+
+Phase 21 does not add complex workflow execution, scenario engines, scenario-based login simulation, claims transformation, access-denied workflows, JML automation, audit generation, real Entra integration, real Okta integration, AWS integration, AWS SDK calls, CloudTrail ingestion, database persistence, cloud deployment, CI/CD, external API calls, background jobs, raw token display, committed `.env`, secrets, tenant IDs, AWS account IDs, role ARNs, private keys, certificates, or screenshots.
 
 ## Install Dependencies
 
@@ -428,6 +439,28 @@ http://localhost:3000/api/aws-federation/status
 
 The endpoint returns static local-only readiness information. It does not return AWS credentials, account IDs, role ARNs, provider ARNs, raw tokens, CloudTrail events, or real user data.
 
+## Guided IAM Learning Journey
+
+The guided learning page is available after sign-in:
+
+```text
+http://localhost:3000/guided-learning
+```
+
+Phase 21 organizes the existing IdentityCore modules into this learning sequence:
+
+1. Orientation
+2. Authentication Foundation
+3. Claims and Token Understanding
+4. Authorization and Role Mapping
+5. Federation Concepts
+6. Provisioning and Lifecycle
+7. Audit and Evidence
+8. AWS Federation Readiness
+9. Portfolio and Interview Explanation
+
+The page is static and local-only. It links to existing pages, uses safe status badges, and does not add real integrations, external API calls, workflow execution, automation, raw token display, secrets, tenant IDs, AWS account IDs, or role ARNs.
+
 ## Local Docker Runtime
 
 Docker support is local-only for portfolio review. The image is not a production deployment artifact and does not include `.env`, secrets, screenshots, logs, Git metadata, certificates, private keys, tokens, or local dependency folders.
@@ -491,6 +524,7 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/auth/okta/callback` | `GET` | Handles Okta OIDC callback and creates a safe local app session | Public callback |
 | `/logout` | `POST` | Destroys the local session | Session action |
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
+| `/guided-learning` | `GET` | Guided IAM learning journey that connects existing modules and interview prompts | Authenticated users |
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
 | `/provider-comparison` | `GET` | Browser page comparing local, Entra, and Okta provider indicators and mapping guardrails | Authenticated users |
 | `/role-mapping` | `GET` | Browser page showing safe role mapping decisions, deny-by-default behavior, and RBAC examples | Authenticated users |

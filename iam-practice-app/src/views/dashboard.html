@@ -15,6 +15,7 @@
         </a>
         <nav class="navlinks" aria-label="Primary navigation">
           <a href="/claims">Claims</a>
+          <a href="/guided-learning">Journey</a>
           <a href="/provider-comparison">Providers</a>
           <a href="/role-mapping">Roles</a>
           <a href="/oidc-readiness">OIDC</a>
@@ -64,6 +65,12 @@
       <section class="layout">
         <div>
           <div class="card-grid">
+            <article class="card">
+              <span class="badge ready">Review Next</span>
+              <h3>Guided IAM Learning Journey</h3>
+              <p>Follow the IdentityCore modules in a clear sequence from authentication through AWS readiness.</p>
+              <a class="button" href="/guided-learning">Start journey</a>
+            </article>
             <article class="card">
               <span class="badge protected">Protected</span>
               <h3>Claims & Token Simulation</h3>
@@ -155,6 +162,7 @@
           <ul class="list-clean">
             <li>Sign in as <code>user@identitycore.local</code>, then try the admin page to see least privilege.</li>
             <li>Sign in as <code>analyst@identitycore.local</code> and compare Security access with Finance access.</li>
+            <li>Start the guided journey to explain each module in a portfolio-ready order.</li>
             <li>Run a JML Joiner event, then check audit evidence for the local event trail.</li>
             <li>Open SCIM readiness and confirm provisioning is separate from login and local RBAC.</li>
             <li>Open AWS readiness and compare IdentityCore local roles with future AWS IAM roles.</li>
