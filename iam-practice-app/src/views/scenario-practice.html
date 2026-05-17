@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore Scenario Practice</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks" aria-label="Primary navigation">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/guided-learning">Journey</a>
+          <a href="/claims">Claims</a>
+          <a href="/provider-comparison">Providers</a>
+          <a href="/role-mapping">Roles</a>
+          <a href="/audit-readiness">Audit</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">Phase 22 scenario-based IAM practice</p>
+        <h1>Scenario-based IAM practice</h1>
+        <p>
+          Review safe local IAM scenarios that connect identity context, access requests, decisions, reasons, evidence, and interview-ready explanations.
+        </p>
+        <div class="badge-row">
+          <span class="badge local">Local Only</span>
+          <span class="badge simulated">Simulated</span>
+          <span class="badge protected">Protected</span>
+          <span class="badge ready">Practice Scenario</span>
+          <span class="badge security">Evidence Example</span>
+        </div>
+      </section>
+
+      <section class="summary-strip" aria-label="Scenario practice summary">
+        <div class="summary-item">
+          <span class="summary-label">Practice mode</span>
+          <span class="summary-value">Static local scenarios</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Execution</span>
+          <span class="summary-value">No workflow engine</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Evidence</span>
+          <span class="summary-value">Simulated examples</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Access control</span>
+          <span class="summary-value">Existing RBAC</span>
+        </div>
+      </section>
+
+      <section class="layout">
+        <div class="stack">
+          <section class="learning-panel">
+            <p class="eyebrow">Local practice foundation</p>
+            <h2>How to use scenarios</h2>
+            <p>
+              IdentityCore is local-first and skill-practice focused. These scenarios do not execute real provider workflows, call external APIs, transform tokens, create persistent learner progress, or connect to AWS, Entra ID, Okta, SCIM targets, SAML IdPs, SIEM, email, or background jobs.
+            </p>
+            <div class="notice warning">
+              Treat each scenario as an explanation drill: who is the identity, what access was requested, what decision was made, why it happened, and what safe evidence would support that answer.
+            </div>
+          </section>
+
+          <section class="scenario-list" aria-label="IAM practice scenarios">
+            <details class="scenario-card" open>
+              <summary>
+                <span class="badge ready">Practice Scenario</span>
+                <span>Authentication context scenario</span>
+              </summary>
+              <div class="scenario-body">
+                <div class="scenario-grid">
+                  <div><strong>Identity context:</strong> A learner signs in with local dummy login as <code>user@identitycore.local</code>.</div>
+                  <div><strong>Access request:</strong> Open the dashboard and review the current session source.</div>
+                  <div><strong>Decision:</strong> Allow dashboard access because the user is authenticated.</div>
+                  <div><strong>Reason:</strong> Authentication creates an IdentityCore browser session, but it does not grant privileged routes.</div>
+                </div>
+                <div class="notice success">
+                  Evidence example: `/api/me` shows a safe local profile without password, raw tokens, tenant data, provider secrets, or external claims.
+                </div>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Explain what proves the user is signed in.</div>
+                  <div><strong>Architecture prompt:</strong> What extra controls would production authentication require?</div>
+                </div>
+                <a class="button" href="/dashboard">Open dashboard</a>
+              </div>
+            </details>
+
+            <details class="scenario-card">
+              <summary>
+                <span class="badge simulated">Simulated</span>
+                <span>Claims interpretation scenario</span>
+              </summary>
+              <div class="scenario-body">
+                <div class="scenario-grid">
+                  <div><strong>Identity context:</strong> A local user has simulated claims such as email, role, groups, department, and job title.</div>
+                  <div><strong>Access request:</strong> Interpret the claims and token-shaped object on the claims page.</div>
+                  <div><strong>Decision:</strong> Display safe local claim data for learning only.</div>
+                  <div><strong>Reason:</strong> Claims help explain identity facts, but simulated claims are not signed, validated, or trusted as production tokens.</div>
+                </div>
+                <div class="notice success">
+                  Evidence example: `/api/claims` and `/api/token-simulation` return safe local examples that are clearly marked as not real JWTs.
+                </div>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Which claims are identity facts and which claims may influence access?</div>
+                  <div><strong>Architecture prompt:</strong> What validation is required before trusting a real token?</div>
+                </div>
+                <a class="button" href="/claims">Open claims</a>
+              </div>
+            </details>
+
+            <details class="scenario-card">
+              <summary>
+                <span class="badge protected">Protected</span>
+                <span>Role mapping access decision scenario</span>
+              </summary>
+              <div class="scenario-body">
+                <div class="scenario-grid">
+                  <div><strong>Identity context:</strong> A user may come from local dummy login, Entra OIDC, or Okta OIDC.</div>
+                  <div><strong>Access request:</strong> Determine the local role and whether a safe mapping rule matched.</div>
+                  <div><strong>Decision:</strong> External users map conservatively unless an explicit allowlisted rule is designed.</div>
+                  <div><strong>Reason:</strong> External claims and groups must not automatically grant admin access.</div>
+                </div>
+                <div class="notice success">
+                  Evidence example: `/api/role-mapping` shows current provider, local role, role source, mapping outcome, and RBAC examples without raw tokens.
+                </div>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Why is allowlisted mapping safer than trusting every external group?</div>
+                  <div><strong>Architecture prompt:</strong> Where should the final authorization decision happen?</div>
+                </div>
+                <div class="actions">
+                  <a class="button" href="/role-mapping">Open role mapping</a>
+                  <a class="button secondary" href="/provider-comparison">Compare providers</a>
+                </div>
+              </div>
+            </details>
+
+            <details class="scenario-card">
+              <summary>
+                <span class="badge denied">Review Next</span>
+                <span>Access denied scenario</span>
+              </summary>
+              <div class="scenario-body">
+                <div class="scenario-grid">
+                  <div><strong>Identity context:</strong> A standard user has an authenticated session and a non-admin local role.</div>
+                  <div><strong>Access request:</strong> Attempt to open the admin-only page.</div>
+                  <div><strong>Decision:</strong> Deny access and show the access denied experience.</div>
+                  <div><strong>Reason:</strong> Authentication succeeded, but local RBAC requires the `admin` role for `/admin`.</div>
+                </div>
+                <div class="notice success">
+                  Evidence example: `/access-denied` shows the least-privilege lesson while protected routes continue enforcing local RBAC.
+                </div>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Explain why a signed-in user can still be denied.</div>
+                  <div><strong>Architecture prompt:</strong> What evidence should appear in an audit trail for denied access?</div>
+                </div>
+                <a class="button" href="/admin">Try admin page</a>
+              </div>
+            </details>
+
+            <details class="scenario-card">
+              <summary>
+                <span class="badge simulated">Simulated</span>
+                <span>Joiner, Mover, Leaver scenario</span>
+              </summary>
+              <div class="scenario-body">
+                <div class="scenario-grid">
+                  <div><strong>Identity context:</strong> A local lifecycle identity is onboarded, moved between responsibilities, or deactivated.</div>
+                  <div><strong>Access request:</strong> Review what changed and what evidence was produced.</div>
+                  <div><strong>Decision:</strong> Show simulated lifecycle evidence without calling HR, Entra, Okta, SCIM providers, or workflow engines.</div>
+                  <div><strong>Reason:</strong> JML practice teaches identity governance concepts while remaining local and in-memory.</div>
+                </div>
+                <div class="notice success">
+                  Evidence example: JML readiness and evidence summaries can show joiner, mover, and leaver records without granting access by themselves.
+                </div>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> What evidence proves a leaver was deactivated?</div>
+                  <div><strong>Architecture prompt:</strong> How should lifecycle changes interact with access reviews?</div>
+                </div>
+                <a class="button" href="/jml-readiness">Open JML</a>
+              </div>
+            </details>
+
+            <details class="scenario-card">
+              <summary>
+                <span class="badge security">Evidence Example</span>
+                <span>Audit evidence scenario</span>
+              </summary>
+              <div class="scenario-body">
+                <div class="scenario-grid">
+                  <div><strong>Identity context:</strong> A learner triggers local login, logout, route denial, SCIM fail-closed, JML, SAML, or JWT practice activity.</div>
+                  <div><strong>Access request:</strong> Review safe troubleshooting evidence.</div>
+                  <div><strong>Decision:</strong> Display redacted in-memory evidence only.</div>
+                  <div><strong>Reason:</strong> Audit practice should help explain what happened without logging passwords, cookies, raw tokens, assertions, bearer values, secrets, or real provider data.</div>
+                </div>
+                <div class="notice success">
+                  Evidence example: audit readiness summarizes local events and redaction rules. It is not a SIEM, CloudTrail ingestion path, or production audit log.
+                </div>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> What is useful troubleshooting evidence for an IAM incident?</div>
+                  <div><strong>Architecture prompt:</strong> Which fields must be masked before logs leave an application?</div>
+                </div>
+                <a class="button" href="/audit-readiness">Open audit</a>
+              </div>
+            </details>
+          </section>
+        </div>
+
+        <aside class="panel">
+          <p class="eyebrow">Scenario guide</p>
+          <h2>Decision model</h2>
+          <ul class="list-clean">
+            <li>Identify the user and authentication source.</li>
+            <li>Inspect only safe claim or context indicators.</li>
+            <li>Determine the local role and role source.</li>
+            <li>Compare the request with the protected route policy.</li>
+            <li>Explain the allow or deny decision.</li>
+            <li>Point to simulated evidence that supports the decision.</li>
+          </ul>
+
+          <div class="notice warning">
+            This page is not a training engine, scoring engine, workflow state machine, automation runner, or progress tracker.
+          </div>
+
+          <h2>Related practice pages</h2>
+          <nav class="actions">
+            <a class="button secondary" href="/guided-learning">Journey</a>
+            <a class="button secondary" href="/claims">Claims</a>
+            <a class="button secondary" href="/role-mapping">Roles</a>
+            <a class="button secondary" href="/scim-readiness">SCIM</a>
+            <a class="button secondary" href="/jml-readiness">JML</a>
+            <a class="button secondary" href="/audit-readiness">Audit</a>
+          </nav>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>

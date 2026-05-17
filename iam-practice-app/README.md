@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18, 20, and 21
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18, 20, 21, and 22
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions. Phase 18 improves the local SCIM simulator and JML evidence experience so learners can separate provisioning, lifecycle evidence, login, and RBAC. Phase 20 adds a local-only AWS federation readiness foundation before any real AWS implementation. Phase 21 adds a guided IAM learning journey that connects the existing modules into a clear learning path.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions. Phase 18 improves the local SCIM simulator and JML evidence experience so learners can separate provisioning, lifecycle evidence, login, and RBAC. Phase 20 adds a local-only AWS federation readiness foundation before any real AWS implementation. Phase 21 adds a guided IAM learning journey that connects the existing modules into a clear learning path. Phase 22 adds local-only IAM practice scenarios that connect context, access requests, decisions, reasons, evidence, and interview explanations.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -212,6 +212,17 @@ Phase 20 does not add AWS SDK packages, AWS CLI integration, AWS credentials, AW
 - Clear reminders that IdentityCore is local-first, skill-practice focused, and not a production IAM system
 
 Phase 21 does not add complex workflow execution, scenario engines, scenario-based login simulation, claims transformation, access-denied workflows, JML automation, audit generation, real Entra integration, real Okta integration, AWS integration, AWS SDK calls, CloudTrail ingestion, database persistence, cloud deployment, CI/CD, external API calls, background jobs, raw token display, committed `.env`, secrets, tenant IDs, AWS account IDs, role ARNs, private keys, certificates, or screenshots.
+
+## What Phase 22 Demonstrates
+
+- Local-only IAM scenario cards for authentication context, claims interpretation, role mapping decisions, access denied behavior, JML lifecycle, and audit evidence
+- Scenario sections that explain identity context, access request, decision, reason, and simulated evidence
+- Interview prompts that help the learner practice explaining access decisions
+- Architecture prompts that connect local behavior to production design questions
+- Dashboard and guided learning links into scenario practice
+- Native expandable details without adding dependencies, state engines, scoring engines, workflow engines, or progress tracking
+
+Phase 22 does not add real Entra integration, real Okta integration, real AWS IAM integration, real AWS account connection, real SCIM targets, real SAML identity providers, AWS SDK calls, AWS CLI integration, CloudTrail ingestion, database persistence, cloud deployment, CI/CD, public endpoints, external API calls, webhook/email/scheduled/background jobs, raw token display, raw token logging, committed `.env`, secrets, tenant IDs, AWS account IDs, role ARNs, private keys, certificates, screenshots, a full training engine, a scoring engine, persistent learner progress tracking, or a complex workflow state machine.
 
 ## Install Dependencies
 
@@ -461,6 +472,25 @@ Phase 21 organizes the existing IdentityCore modules into this learning sequence
 
 The page is static and local-only. It links to existing pages, uses safe status badges, and does not add real integrations, external API calls, workflow execution, automation, raw token display, secrets, tenant IDs, AWS account IDs, or role ARNs.
 
+## Scenario-Based IAM Practice
+
+The scenario practice page is available after sign-in:
+
+```text
+http://localhost:3000/scenario-practice
+```
+
+Phase 22 adds safe local scenario cards for:
+
+1. Authentication context
+2. Claims interpretation
+3. Role mapping access decision
+4. Access denied behavior
+5. Joiner, Mover, Leaver lifecycle
+6. Audit evidence
+
+Each scenario explains identity context, access request, decision, reason, simulated evidence, interview prompts, and architecture prompts. The page links only to existing local IdentityCore pages and does not execute workflows, call providers, transform claims, persist progress, score learners, or create production automation.
+
 ## Local Docker Runtime
 
 Docker support is local-only for portfolio review. The image is not a production deployment artifact and does not include `.env`, secrets, screenshots, logs, Git metadata, certificates, private keys, tokens, or local dependency folders.
@@ -525,6 +555,7 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/logout` | `POST` | Destroys the local session | Session action |
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
 | `/guided-learning` | `GET` | Guided IAM learning journey that connects existing modules and interview prompts | Authenticated users |
+| `/scenario-practice` | `GET` | Local-only IAM practice scenarios for access decisions, lifecycle behavior, and evidence explanation | Authenticated users |
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
 | `/provider-comparison` | `GET` | Browser page comparing local, Entra, and Okta provider indicators and mapping guardrails | Authenticated users |
 | `/role-mapping` | `GET` | Browser page showing safe role mapping decisions, deny-by-default behavior, and RBAC examples | Authenticated users |

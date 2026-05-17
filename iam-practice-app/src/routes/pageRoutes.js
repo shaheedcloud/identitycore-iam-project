@@ -22,6 +22,10 @@ router.get("/guided-learning", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "guided-learning.html"));
 });
 
+router.get("/scenario-practice", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "scenario-practice.html"));
+});
+
 router.get("/claims", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "claims.html"));
 });
