@@ -21,6 +21,7 @@ The project shows how an IAM professional can move from application-level identi
 - provider comparison and claims mapping guardrails across local, Entra, and Okta identity sources
 - role mapping and authorization practice showing deny-by-default mapping and local RBAC as the final control
 - SCIM simulator and JML evidence improvements that explain provisioning, lifecycle, and RBAC separation
+- AWS federation readiness explaining local roles versus AWS IAM roles before any real AWS connection
 
 ## Main Application
 
@@ -65,6 +66,8 @@ Okta OIDC practice also uses only local uncommitted `.env` values. The app must 
 Role mapping practice is local-only. External Entra or Okta authentication does not automatically grant admin access, and external claims or groups are not blindly trusted for privileged authorization.
 
 SCIM and JML practice are local-only simulations. SCIM provisions identity and group records; it does not create browser sessions, expose the app publicly, connect to a real provider, or bypass local RBAC.
+
+AWS federation readiness is local-only education. It does not add AWS SDK calls, AWS credentials, AWS account IDs, AWS role ARNs, CloudTrail ingestion, Terraform, or cloud deployment.
 
 ## Final Portfolio Package
 

@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, and 18
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18, and 20
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions. Phase 18 improves the local SCIM simulator and JML evidence experience so learners can separate provisioning, lifecycle evidence, login, and RBAC.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions. Phase 18 improves the local SCIM simulator and JML evidence experience so learners can separate provisioning, lifecycle evidence, login, and RBAC. Phase 20 adds a local-only AWS federation readiness foundation before any real AWS implementation.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -188,6 +188,19 @@ Phase 16 does not add automatic admin mapping from Entra claims, automatic admin
 - Dashboard links that make SCIM and JML practice easier to find
 
 Phase 18 does not add real Entra SCIM provisioning, real Okta SCIM provisioning, public endpoint exposure, tunneling, cloud deployment, database persistence, CI/CD, AWS IAM, webhook/email/SIEM/background jobs, production authentication, production authorization, raw token display, raw token logging, committed `.env`, SCIM bearer tokens, tenant IDs, Okta domains, client IDs, client secrets, real user data, or screenshots.
+
+## What Phase 20 Demonstrates
+
+- AWS federation readiness concepts without connecting to AWS
+- IdentityCore local roles versus AWS IAM roles
+- Future Entra ID and Okta federation paths into AWS
+- SAML federation and OIDC federation concepts at a readiness level
+- AWS trust policy and permission policy concepts
+- Least-privilege placeholder AWS role ideas
+- CloudTrail evidence planning without ingesting real CloudTrail data
+- Warnings against long-term AWS access keys as the main learning path
+
+Phase 20 does not add AWS SDK packages, AWS CLI integration, AWS credentials, AWS access keys, AWS secret access keys, AWS session tokens, credential profiles, real AWS account IDs, real AWS role ARNs, real AWS provider ARNs, CloudTrail ingestion, Terraform, cloud deployment, database persistence, CI/CD, external API calls, raw token display, raw token logging, committed `.env`, secrets, private keys, certificates, real user data, or screenshots.
 
 ## Install Dependencies
 
@@ -384,6 +397,37 @@ http://localhost:3000/api/jml/evidence-summary
 
 These summaries are local learning views only. They do not accept provider calls, expose IdentityCore publicly, create sessions, store data permanently, or grant access from SCIM group names.
 
+## AWS Federation Readiness
+
+The AWS federation readiness page is available after sign-in:
+
+```text
+http://localhost:3000/aws-federation-readiness
+```
+
+Phase 20 explains that:
+
+- AWS federation is planned but not active
+- no AWS account is connected
+- no AWS credentials are configured
+- no AWS SDK calls are made
+- no AWS account ID, role ARN, or provider ARN is stored
+- IdentityCore local roles do not automatically become AWS IAM roles
+- IdentityCore admins do not automatically become AWS admins
+- Entra ID or Okta may later federate users into AWS through an explicit design
+- AWS trust policies define who may assume a role
+- AWS permission policies define what the role may do
+- CloudTrail would provide future AWS audit evidence
+- long-term AWS access keys are not the preferred enterprise learning path
+
+The signed-in learner can inspect the safe readiness status:
+
+```text
+http://localhost:3000/api/aws-federation/status
+```
+
+The endpoint returns static local-only readiness information. It does not return AWS credentials, account IDs, role ARNs, provider ARNs, raw tokens, CloudTrail events, or real user data.
+
 ## Local Docker Runtime
 
 Docker support is local-only for portfolio review. The image is not a production deployment artifact and does not include `.env`, secrets, screenshots, logs, Git metadata, certificates, private keys, tokens, or local dependency folders.
@@ -456,6 +500,7 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/jml-readiness` | `GET` | Browser page explaining Joiner, Mover, Leaver simulation status and evidence summaries | Authenticated users |
 | `/saml-readiness` | `GET` | Browser page explaining SAML readiness and local simulation status | Authenticated users |
 | `/audit-readiness` | `GET` | Browser page showing safe local audit status, events, and evidence | Authenticated users |
+| `/aws-federation-readiness` | `GET` | Browser page explaining AWS federation readiness with local-only placeholder examples | Authenticated users |
 | `/admin` | `GET` | Admin-only page | `admin` |
 | `/security` | `GET` | Security analyst page | `admin`, `security_analyst` |
 | `/finance` | `GET` | Finance page | `admin`, `finance_user` |
@@ -474,6 +519,7 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/api/scim/simulator-summary` | `GET` | Returns safe SCIM user/group lifecycle summary and provisioning guardrails | Authenticated users |
 | `/api/jml/status` | `GET` | Returns safe local-only JML simulation status | Authenticated users |
 | `/api/jml/evidence-summary` | `GET` | Returns audit-style local JML evidence summaries and guardrails | Authenticated users |
+| `/api/aws-federation/status` | `GET` | Returns safe local-only AWS federation readiness status | Authenticated users |
 | `/api/saml/status` | `GET` | Returns safe SAML readiness status without certificates or assertions | Public safe status |
 | `/api/audit/status` | `GET` | Returns safe local audit status | Authenticated users |
 | `/api/audit/events` | `GET` | Returns safe local in-memory audit events | Authenticated users |
@@ -1633,10 +1679,11 @@ Lesson: applications depend on correct claims to make authorization decisions.
 5. Confirm `/dashboard`, `/claims`, `/oidc-readiness`, `/admin`, `/security`, and `/finance` load.
 6. Open `/provider-comparison` and confirm provider comparison loads without real provider configuration.
 7. Open `/role-mapping` and confirm role mapping practice shows local role source and RBAC examples.
-8. Log out.
-9. Sign in as `user@identitycore.local` with `UserPass123!`.
-10. Confirm `/dashboard` loads.
-11. Try `/admin` and confirm the app shows `/access-denied`.
+8. Open `/aws-federation-readiness` and confirm AWS federation is marked not connected.
+9. Log out.
+10. Sign in as `user@identitycore.local` with `UserPass123!`.
+11. Confirm `/dashboard` loads.
+12. Try `/admin` and confirm the app shows `/access-denied`.
 
 ## API Testing Checklist
 
@@ -1657,14 +1704,15 @@ Browser-based API checks work after signing in because the browser already has t
 13. Open `/api/jml/status` and confirm it is local-only.
 14. Open `/api/jml/events` and confirm event history is returned.
 15. Open `/api/jml/evidence-summary` and confirm RBAC remains enforced.
-16. Confirm `/api/protected/profile` rejects a request without a bearer token.
-17. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
-18. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
-19. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
-20. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-21. Log out and sign in as `user@identitycore.local`.
-22. Open `/api/me` and confirm the standard user profile appears.
-23. Open `/api/admin/users` and confirm access is denied.
+16. Open `/api/aws-federation/status` and confirm AWS connected, SDK enabled, credentials configured, account ID stored, and CloudTrail ingestion are all false.
+17. Confirm `/api/protected/profile` rejects a request without a bearer token.
+18. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
+19. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
+20. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
+21. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+22. Log out and sign in as `user@identitycore.local`.
+23. Open `/api/me` and confirm the standard user profile appears.
+24. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -1887,6 +1935,12 @@ Symptom: a reviewer is concerned that local environment values may have been cop
 
 Fix: inspect `iam-practice-app/.dockerignore`. It excludes `.env`, `.env.*`, logs, screenshots, Git files, certificates, keys, token-like files, and local dependency folders. Use only `.env.example` for committed placeholders.
 
+### AWS federation readiness shows not connected
+
+Symptom: `/aws-federation-readiness` or `/api/aws-federation/status` says AWS is not connected, credentials are not configured, and no account ID is stored.
+
+Fix: this is expected. Phase 20 is readiness-only and must not connect to AWS, use SDK calls, store credentials, or expose real AWS identifiers.
+
 ## Phase 1 Security Limitations
 
 - Authentication is local-only and not production-safe.
@@ -1910,6 +1964,7 @@ Fix: inspect `iam-practice-app/.dockerignore`. It excludes `.env`, `.env.*`, log
 - Real SAML certificates and production SAML values belong only in local uncommitted `.env`.
 - SAML readiness and local simulation do not validate real assertions.
 - SAML-authenticated users are mapped to `standard_user` only.
+- AWS federation readiness is local-only and does not add AWS SDK calls, AWS credentials, account IDs, role ARNs, provider ARNs, or CloudTrail ingestion.
 - Audit events are local, in-memory, redacted, and not production audit logs.
 - Docker support is local portfolio runtime only and does not add cloud deployment or production infrastructure.
 - There is no database, account lockout, local MFA enforcement, external SIEM, Splunk, CloudTrail, file-based logging, CSRF protection, production SAML integration, role/group authorization from Entra claims, real workflow automation, or production identity governance integration.

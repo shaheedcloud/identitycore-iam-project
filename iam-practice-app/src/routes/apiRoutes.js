@@ -36,6 +36,30 @@ const {
 
 const router = express.Router();
 
+const awsFederationStatus = {
+  awsFederationPlanned: true,
+  awsConnected: false,
+  awsSdkEnabled: false,
+  awsCredentialsConfigured: false,
+  awsAccountIdStored: false,
+  realRoleArnsStored: false,
+  realProviderArnsStored: false,
+  cloudTrailIngestionEnabled: false,
+  externalApiCallsEnabled: false,
+  localOnly: true,
+  phase: "Phase 20 - AWS Federation Readiness Foundation",
+  learningPurpose: "Explain AWS federation concepts before real implementation.",
+  safetyPrinciple: "External authentication proves identity. IdentityCore local RBAC controls IdentityCore access. AWS IAM roles and policies control AWS access.",
+  placeholderValuesOnly: true,
+  examplePlaceholders: [
+    "ACCOUNT_ID_PLACEHOLDER",
+    "ROLE_ARN_PLACEHOLDER",
+    "SAML_PROVIDER_PLACEHOLDER",
+    "OIDC_PROVIDER_PLACEHOLDER",
+    "AWS_LAB_ACCOUNT_PLACEHOLDER"
+  ]
+};
+
 router.get("/me", requireAuth, (req, res) => {
   res.json({
     authenticated: true,
@@ -154,6 +178,10 @@ router.get("/jml/events", requireAuth, (req, res) => {
 
 router.get("/jml/evidence-summary", requireAuth, (req, res) => {
   res.json(getEvidenceSummary());
+});
+
+router.get("/aws-federation/status", requireAuth, (req, res) => {
+  res.json(awsFederationStatus);
 });
 
 router.post("/jml/joiner", requireAuth, (req, res) => {

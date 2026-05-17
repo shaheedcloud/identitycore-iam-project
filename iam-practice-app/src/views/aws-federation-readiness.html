@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore AWS Federation Readiness</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/provider-comparison">Providers</a>
+          <a href="/role-mapping">Roles</a>
+          <a href="/oidc-readiness">OIDC</a>
+          <a href="/saml-readiness">SAML</a>
+          <a href="/audit-readiness">Audit</a>
+        </nav>
+      </header>
+
+      <section class="panel">
+        <div class="badge-row">
+          <span class="badge local">Local Only</span>
+          <span class="badge denied">AWS Not Connected</span>
+          <span class="badge ready">Readiness Only</span>
+          <span class="badge protected">No Credentials</span>
+          <span class="badge simulated">No SDK Calls</span>
+          <span class="badge future">Federation Planned</span>
+        </div>
+        <p class="eyebrow">Phase 20 AWS federation readiness</p>
+        <h1>AWS federation readiness</h1>
+        <p>
+          Learn the AWS IAM federation model before any real AWS account, credential, role, provider, or CloudTrail source is connected to IdentityCore.
+        </p>
+
+        <div class="notice warning">
+          AWS federation is not IdentityCore login. IdentityCore local RBAC controls this app. AWS IAM roles and permission policies would control AWS access in a later explicit federation design.
+        </div>
+
+        <section class="summary-strip" aria-label="AWS federation readiness summary">
+          <div class="summary-item">
+            <span class="summary-label">AWS connected</span>
+            <span class="summary-value" id="summary-connected">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Credentials</span>
+            <span class="summary-value" id="summary-credentials">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">SDK calls</span>
+            <span class="summary-value" id="summary-sdk">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Account ID stored</span>
+            <span class="summary-value" id="summary-account">Loading...</span>
+          </div>
+        </section>
+
+        <section class="card-grid two">
+          <article class="card">
+            <span class="badge ready">Correct model</span>
+            <h3>Federated role session</h3>
+            <p>Entra ID or Okta may later authenticate the user, AWS may trust the provider, and the user may assume a least-privilege AWS IAM role.</p>
+          </article>
+          <article class="card">
+            <span class="badge denied">Blocked model</span>
+            <h3>No automatic AWS access</h3>
+            <p>Local login, Entra login, Okta login, or IdentityCore admin status does not automatically create AWS access.</p>
+          </article>
+        </section>
+
+        <h2>Readiness Status</h2>
+        <table class="mini-table" aria-label="AWS federation readiness status">
+          <tbody id="status-table">
+            <tr><td>Loading AWS federation readiness status...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Federation Flow</h2>
+        <table class="mini-table" aria-label="AWS federation future flow">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Future concept</th>
+              <th>Phase 20 status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>Entra ID or Okta authenticates the workforce user.</td>
+              <td>Explained only. No AWS federation request is started.</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>AWS trusts a configured SAML or OIDC provider.</td>
+              <td>Placeholder concepts only. No provider ARN is stored.</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>The user assumes an approved AWS IAM role.</td>
+              <td>Readiness only. No role ARN or account ID is stored.</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>A permission policy limits what that role can do.</td>
+              <td>Placeholder examples only. Nothing is attached in AWS.</td>
+            </tr>
+            <tr>
+              <th>5</th>
+              <td>CloudTrail records future AWS activity.</td>
+              <td>Planning only. No CloudTrail logs are ingested.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Local Role vs AWS IAM Role</h2>
+        <table class="mini-table" aria-label="IdentityCore local roles versus AWS IAM roles">
+          <thead>
+            <tr>
+              <th>Role type</th>
+              <th>Example</th>
+              <th>Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>IdentityCore local role</th>
+              <td><code>admin</code>, <code>security_analyst</code>, <code>standard_user</code></td>
+              <td>Access inside IdentityCore only.</td>
+            </tr>
+            <tr>
+              <th>AWS IAM role</th>
+              <td><code>ROLE-AWS-SecurityAudit-ReadOnly</code></td>
+              <td>AWS permissions after a separate federation design is implemented.</td>
+            </tr>
+            <tr>
+              <th>AWS role session</th>
+              <td>Temporary assumed role session</td>
+              <td>Time-limited AWS access governed by trust and permission policies.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Least-Privilege Placeholder Roles</h2>
+        <table class="mini-table" aria-label="Placeholder AWS role ideas">
+          <thead>
+            <tr>
+              <th>Business role</th>
+              <th>Placeholder AWS role idea</th>
+              <th>Access level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Security Analyst</th>
+              <td><code>ROLE-AWS-SecurityAudit-ReadOnly</code></td>
+              <td>Read-only security visibility.</td>
+            </tr>
+            <tr>
+              <th>Cloud Engineer</th>
+              <td><code>ROLE-AWS-CloudEngineer-LimitedDeploy</code></td>
+              <td>Limited deployment practice permissions.</td>
+            </tr>
+            <tr>
+              <th>Finance Analyst</th>
+              <td><code>ROLE-AWS-Finance-BillingReadOnly</code></td>
+              <td>Billing and cost visibility only.</td>
+            </tr>
+            <tr>
+              <th>IAM Reviewer</th>
+              <td><code>ROLE-AWS-IAMAccessAnalyzer-ReadOnly</code></td>
+              <td>IAM visibility and Access Analyzer review.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <section class="card-grid two">
+          <article class="card">
+            <span class="badge protected">Trust policy</span>
+            <h3>Who may assume the role?</h3>
+            <p>A trust policy defines the trusted identity provider and conditions for role assumption. Phase 20 uses placeholders only.</p>
+            <pre>{
+  "Principal": {
+    "Federated": "SAML_PROVIDER_PLACEHOLDER"
+  },
+  "Action": "sts:AssumeRoleWithSAML"
+}</pre>
+          </article>
+          <article class="card">
+            <span class="badge security">Permission policy</span>
+            <h3>What may the role do?</h3>
+            <p>A permission policy defines allowed AWS actions after role assumption. Future lab policies must be reviewed and narrowed.</p>
+            <pre>{
+  "Action": [
+    "iam:Get*",
+    "iam:List*",
+    "access-analyzer:Get*"
+  ],
+  "Resource": "*"
+}</pre>
+          </article>
+        </section>
+
+        <section class="card-grid two">
+          <article class="card">
+            <span class="badge denied">Avoid access keys</span>
+            <h3>Do not build around long-term keys</h3>
+            <p>The enterprise learning path should prefer federated login, temporary role sessions, least-privilege policies, and audit evidence over long-term access keys.</p>
+          </article>
+          <article class="card">
+            <span class="badge simulated">CloudTrail evidence</span>
+            <h3>Future audit trail</h3>
+            <p>CloudTrail would later help show who assumed a role, when, which actions were attempted, and whether any actions were denied.</p>
+          </article>
+        </section>
+
+        <h2>Safety Guardrails</h2>
+        <pre id="status-json">Loading AWS federation status...</pre>
+
+        <nav class="actions">
+          <a class="button" href="/api/aws-federation/status">API: AWS federation status</a>
+          <a class="button secondary" href="/provider-comparison">Compare providers</a>
+          <a class="button secondary" href="/role-mapping">Open role mapping</a>
+          <a class="button secondary" href="/audit-readiness">Open audit readiness</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      const statusFields = [
+        ["awsFederationPlanned", "AWS federation planned"],
+        ["awsConnected", "AWS connected"],
+        ["awsSdkEnabled", "AWS SDK enabled"],
+        ["awsCredentialsConfigured", "AWS credentials configured"],
+        ["awsAccountIdStored", "AWS account ID stored"],
+        ["realRoleArnsStored", "Real role ARNs stored"],
+        ["realProviderArnsStored", "Real provider ARNs stored"],
+        ["cloudTrailIngestionEnabled", "CloudTrail ingestion enabled"],
+        ["externalApiCallsEnabled", "External API calls enabled"],
+        ["localOnly", "Local only"]
+      ];
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function formatValue(value) {
+        if (typeof value === "boolean") {
+          return value ? "true" : "false";
+        }
+
+        if (Array.isArray(value)) {
+          return value.join(", ");
+        }
+
+        return value || "not present";
+      }
+
+      function renderStatus(status) {
+        document.getElementById("summary-connected").textContent = formatValue(status.awsConnected);
+        document.getElementById("summary-credentials").textContent = formatValue(status.awsCredentialsConfigured);
+        document.getElementById("summary-sdk").textContent = formatValue(status.awsSdkEnabled);
+        document.getElementById("summary-account").textContent = formatValue(status.awsAccountIdStored);
+        document.getElementById("status-table").innerHTML = statusFields
+          .map(([key, label]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(formatValue(status[key]))}</td></tr>`)
+          .join("");
+        document.getElementById("status-json").textContent = JSON.stringify(status, null, 2);
+      }
+
+      async function loadAwsFederationStatus() {
+        const response = await fetch("/api/aws-federation/status");
+        const status = await response.json();
+        renderStatus(status);
+      }
+
+      loadAwsFederationStatus();
+    </script>
+  </body>
+</html>
