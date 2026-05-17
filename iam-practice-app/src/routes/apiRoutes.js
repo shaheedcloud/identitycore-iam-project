@@ -8,7 +8,7 @@ const {
   buildSimulatedToken,
   getProviderContext
 } = require("../claims");
-const { getOidcStatus } = require("../oidcConfig");
+const { getOidcStatus, getOktaOidcStatus } = require("../oidcConfig");
 const { getJwtStatus } = require("../jwtConfig");
 const { getScimStatus } = require("../scimConfig");
 const { getSamlStatus } = require("../samlConfig");
@@ -73,6 +73,10 @@ router.get("/claims/authorization-check", requireAuth, (req, res) => {
 
 router.get("/oidc/status", requireAuth, (req, res) => {
   res.json(getOidcStatus());
+});
+
+router.get("/okta/status", requireAuth, (req, res) => {
+  res.json(getOktaOidcStatus());
 });
 
 router.get("/jwt/status", (req, res) => {

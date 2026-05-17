@@ -115,9 +115,9 @@
             </article>
             <article class="card">
               <span class="badge future">Future Okta</span>
-              <h3>Okta Practice Path</h3>
-              <p>Reserved for later reviewed Okta workforce identity practice. No external Okta calls are made now.</p>
-              <a class="button secondary" href="/saml-readiness">Review SSO concepts</a>
+              <h3>Okta OIDC Practice</h3>
+              <p>Practice Okta OIDC locally with uncommitted configuration. Okta claims do not grant admin access.</p>
+              <a class="button secondary" href="/oidc-readiness">Review Okta readiness</a>
             </article>
           </div>
         </div>
@@ -132,7 +132,7 @@
             <li>Open SCIM readiness and confirm protected SCIM routes fail closed without a local bearer token.</li>
           </ul>
           <div class="notice warning">
-            Local simulator warning: no tenant IDs, client secrets, access tokens, refresh tokens, private keys, SAML assertions, or SCIM bearer tokens are shown or stored in this dashboard.
+            Local simulator warning: no tenant IDs, Okta domains, client secrets, access tokens, refresh tokens, private keys, SAML assertions, or SCIM bearer tokens are shown or stored in this dashboard.
           </div>
           <div class="notice success" id="provider-context">
             Loading safe provider context...
@@ -143,6 +143,7 @@
             <a class="button secondary" href="/api/claims">Claims</a>
             <a class="button secondary" href="/api/token-simulation">Token</a>
             <a class="button secondary" href="/api/oidc/status">OIDC</a>
+            <a class="button secondary" href="/api/okta/status">Okta</a>
             <a class="button secondary" href="/api/scim/status">SCIM</a>
             <a class="button secondary" href="/api/audit/status">Audit</a>
           </nav>
@@ -174,7 +175,7 @@
         if (user.authSource === "oidc") {
           providerContext.textContent = `${user.authProvider || "Microsoft Entra ID Lab"} authenticated this session. IdentityCore mapped the session to standard_user and did not store or display raw tokens.`;
         } else {
-          providerContext.textContent = "Local dummy login is active. Entra OIDC practice remains optional and uses only local uncommitted configuration.";
+          providerContext.textContent = "Local dummy login is active. Entra and Okta OIDC practice remain optional and use only local uncommitted configuration.";
         }
       }
 

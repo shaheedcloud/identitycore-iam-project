@@ -1,21 +1,20 @@
 const { Issuer, generators } = require("openid-client");
-const { getOidcConfig } = require("./oidcConfig");
+const { getProviderConfig } = require("./oidcConfig");
 
-let cachedIssuer;
-let cachedIssuerUrl;
+const issuerCache = new Map();
 
-async function getClient() {
-  const config = getOidcConfig();
+async function getClient(providerKey = "entra") {
+  const config = getProviderConfig(providerKey);
 
   if (!config.canStartLogin) {
     throw new Error("OIDC is disabled, incomplete, or still using placeholder values.");
   }
 
-  if (!cachedIssuer || cachedIssuerUrl !== config.issuerUrl) {
-    cachedIssuer = await Issuer.discover(config.issuerUrl);
-    cachedIssuerUrl = config.issuerUrl;
+  if (!issuerCache.has(config.issuerUrl)) {
+    issuerCache.set(config.issuerUrl, await Issuer.discover(config.issuerUrl));
   }
 
+  const cachedIssuer = issuerCache.get(config.issuerUrl);
   const client = new cachedIssuer.Client({
     client_id: config.clientId,
     client_secret: config.clientSecret,
@@ -26,8 +25,8 @@ async function getClient() {
   return { client, config };
 }
 
-async function buildAuthorizationUrl() {
-  const { client, config } = await getClient();
+async function buildAuthorizationUrl(providerKey = "entra") {
+  const { client, config } = await getClient(providerKey);
   const state = generators.state();
   const nonce = generators.nonce();
   const authorizationUrl = client.authorizationUrl({
@@ -43,12 +42,12 @@ async function buildAuthorizationUrl() {
   };
 }
 
-async function handleCallback(req) {
-  const { client, config } = await getClient();
+async function handleCallback(req, providerKey = "entra", expected = {}) {
+  const { client, config } = await getClient(providerKey);
   const params = client.callbackParams(req);
   const oidcResponse = await client.callback(config.redirectUri, params, {
-    state: req.session.oidcState,
-    nonce: req.session.oidcNonce
+    state: expected.state || req.session.oidcState,
+    nonce: expected.nonce || req.session.oidcNonce
   });
 
   return oidcResponse.claims();
@@ -85,23 +84,25 @@ function buildSafeClaimSummary(claims, providerName) {
     groupsClaimPresent: hasValue(claims.groups),
     rawTokensStored: false,
     rawClaimsStored: false,
-    authorizationMapping: "External Entra claims are not mapped to privileged local roles in Phase 13."
+    externalClaimsMappedToAdmin: false,
+    authorizationMapping: "External OIDC claims are not mapped to privileged local roles in this phase."
   };
 }
 
-function buildSessionUserFromClaims(claims) {
-  const config = getOidcConfig();
+function buildSessionUserFromClaims(claims, providerKey = "entra") {
+  const config = getProviderConfig(providerKey);
   const safeClaimSummary = buildSafeClaimSummary(claims, config.providerName);
 
   return {
-    id: "oidc-local-practice-user",
-    email: "oidc-user@identitycore.local",
+    id: `${providerKey}-oidc-local-practice-user`,
+    email: `${providerKey}-oidc-user@identitycore.local`,
     displayName: "OIDC Authenticated User",
     role: "standard_user",
     department: "OIDC Authenticated",
-    jobTitle: "Entra OIDC Local Practice User",
+    jobTitle: `${config.providerName} OIDC Local Practice User`,
     userType: "external_oidc",
     authSource: "oidc",
+    authProviderType: providerKey,
     authProvider: config.providerName,
     groups: [],
     oidcSafeClaimSummary: safeClaimSummary
