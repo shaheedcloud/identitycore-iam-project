@@ -20,6 +20,7 @@
           <a href="/oidc-readiness">OIDC</a>
           <a href="/scim-readiness">SCIM</a>
           <a href="/jml-readiness">JML</a>
+          <a href="/aws-federation-readiness">AWS</a>
           <a href="/audit-readiness">Audit</a>
         </nav>
         <form action="/logout" method="post" class="logout-form">
@@ -128,6 +129,12 @@
               <a class="button" href="/saml-readiness">Open SAML</a>
             </article>
             <article class="card">
+              <span class="badge future">AWS Readiness</span>
+              <h3>AWS Federation Readiness</h3>
+              <p>Learn how Entra or Okta may later federate users into AWS IAM roles without adding credentials or SDK calls.</p>
+              <a class="button" href="/aws-federation-readiness">Open AWS readiness</a>
+            </article>
+            <article class="card">
               <span class="badge protected">Evidence</span>
               <h3>Audit & Troubleshooting</h3>
               <p>Review redacted in-memory events that explain login, logout, JML, SCIM, and JWT decisions.</p>
@@ -150,6 +157,7 @@
             <li>Sign in as <code>analyst@identitycore.local</code> and compare Security access with Finance access.</li>
             <li>Run a JML Joiner event, then check audit evidence for the local event trail.</li>
             <li>Open SCIM readiness and confirm provisioning is separate from login and local RBAC.</li>
+            <li>Open AWS readiness and compare IdentityCore local roles with future AWS IAM roles.</li>
           </ul>
           <div class="notice warning">
             Local simulator warning: no tenant IDs, Okta domains, client secrets, access tokens, refresh tokens, private keys, SAML assertions, or SCIM bearer tokens are shown or stored in this dashboard.
@@ -168,6 +176,7 @@
             <a class="button secondary" href="/api/scim/status">SCIM</a>
             <a class="button secondary" href="/api/scim/simulator-summary">SCIM Summary</a>
             <a class="button secondary" href="/api/jml/evidence-summary">JML Evidence</a>
+            <a class="button secondary" href="/api/aws-federation/status">AWS</a>
             <a class="button secondary" href="/api/audit/status">Audit</a>
           </nav>
         </aside>

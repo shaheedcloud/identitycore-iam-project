@@ -54,6 +54,10 @@ router.get("/audit-readiness", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "audit-readiness.html"));
 });
 
+router.get("/aws-federation-readiness", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "aws-federation-readiness.html"));
+});
+
 router.get("/admin", requireRole(["admin"]), (req, res) => {
   res.sendFile(path.join(viewsPath, "admin.html"));
 });
