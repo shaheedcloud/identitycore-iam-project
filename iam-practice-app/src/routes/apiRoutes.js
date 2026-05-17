@@ -4,6 +4,7 @@ const { requireRole } = require("../middleware/rbac");
 const { listUsersWithoutPasswords } = require("../users");
 const {
   buildAuthorizationCheck,
+  buildProviderComparison,
   buildSimulatedClaims,
   buildSimulatedToken,
   getProviderContext
@@ -69,6 +70,10 @@ router.get("/token-simulation", requireAuth, (req, res) => {
 
 router.get("/claims/authorization-check", requireAuth, (req, res) => {
   res.json(buildAuthorizationCheck(req.session.user, req.session.authTime));
+});
+
+router.get("/provider-comparison", requireAuth, (req, res) => {
+  res.json(buildProviderComparison(req.session.user));
 });
 
 router.get("/oidc/status", requireAuth, (req, res) => {

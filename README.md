@@ -18,6 +18,7 @@ The project shows how an IAM professional can move from application-level identi
 - enterprise-style UI foundation for a professional IAM learning portal
 - safe Microsoft Entra ID OIDC local practice without committing real tenant configuration
 - safe Okta OIDC local practice without committing a real Okta domain or application credentials
+- provider comparison and claims mapping guardrails across local, Entra, and Okta identity sources
 
 ## Main Application
 

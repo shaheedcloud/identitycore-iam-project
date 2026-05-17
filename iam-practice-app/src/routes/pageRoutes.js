@@ -22,6 +22,10 @@ router.get("/claims", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "claims.html"));
 });
 
+router.get("/provider-comparison", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "provider-comparison.html"));
+});
+
 router.get("/oidc-readiness", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "oidc-readiness.html"));
 });
