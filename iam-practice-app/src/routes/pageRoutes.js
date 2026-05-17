@@ -26,6 +26,10 @@ router.get("/provider-comparison", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "provider-comparison.html"));
 });
 
+router.get("/role-mapping", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "role-mapping.html"));
+});
+
 router.get("/oidc-readiness", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "oidc-readiness.html"));
 });

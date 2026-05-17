@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore Role Mapping</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/provider-comparison">Providers</a>
+          <a href="/claims">Claims</a>
+          <a href="/oidc-readiness">OIDC</a>
+        </nav>
+      </header>
+
+      <section class="panel">
+        <div class="badge-row">
+          <span class="badge protected">Role Mapping</span>
+          <span class="badge ready">Deny By Default</span>
+          <span class="badge denied">No External Admin Auto-Mapping</span>
+          <span class="badge local">RBAC Final</span>
+        </div>
+        <p class="eyebrow">Phase 16 authorization practice</p>
+        <h1>Role mapping and authorization practice</h1>
+        <p>
+          See how IdentityCore converts a safe identity signal into a local role, then lets local RBAC make the final access decision.
+        </p>
+
+        <div class="notice warning">
+          External authentication proves identity. Local authorization decides access. Entra and Okta claims or groups do not automatically grant privileged access.
+        </div>
+
+        <section class="summary-strip" aria-label="Current role mapping summary">
+          <div class="summary-item">
+            <span class="summary-label">Provider</span>
+            <span class="summary-value" id="summary-provider">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Local role</span>
+            <span class="summary-value" id="summary-role">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Role source</span>
+            <span class="summary-value" id="summary-role-source">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Rule matched</span>
+            <span class="summary-value" id="summary-rule">Loading...</span>
+          </div>
+        </section>
+
+        <section class="card-grid two">
+          <article class="card">
+            <span class="badge ready">Safe model</span>
+            <h3>Allowlisted mapping</h3>
+            <p>Provider claim -> explicit allowlisted mapping rule -> local role -> RBAC decision.</p>
+          </article>
+          <article class="card">
+            <span class="badge denied">Forbidden model</span>
+            <h3>No blind privilege</h3>
+            <p>Any external claim or group -> automatic admin access is blocked from this practice foundation.</p>
+          </article>
+        </section>
+
+        <h2>Current Mapping Decision</h2>
+        <table class="mini-table" aria-label="Current mapping decision">
+          <tbody id="decision-table">
+            <tr><td>Loading mapping decision...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Practice Mapping Rules</h2>
+        <table class="mini-table" aria-label="Practice mapping rules">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Provider</th>
+              <th>Input signal</th>
+              <th>Local role result</th>
+              <th>Allowlisted</th>
+              <th>Matched</th>
+            </tr>
+          </thead>
+          <tbody id="rules-table">
+            <tr><td colspan="6">Loading practice rules...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>RBAC Decision Examples</h2>
+        <table class="mini-table" aria-label="RBAC decision examples">
+          <thead>
+            <tr>
+              <th>Protected route</th>
+              <th>Required local roles</th>
+              <th>Current role allowed</th>
+              <th>Why</th>
+            </tr>
+          </thead>
+          <tbody id="rbac-table">
+            <tr><td colspan="4">Loading RBAC examples...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Safety Guardrails</h2>
+        <pre id="guardrails-output">Loading role mapping guardrails...</pre>
+
+        <nav class="actions">
+          <a class="button" href="/provider-comparison">Compare providers</a>
+          <a class="button secondary" href="/claims">Inspect claims</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
+          <a class="button secondary" href="/api/role-mapping">API: role mapping</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      const decisionFields = [
+        ["providerName", "Provider"],
+        ["providerType", "Provider type"],
+        ["authenticationSource", "Authentication source"],
+        ["localRole", "Local role"],
+        ["roleSource", "Role source"],
+        ["mappingRuleMatched", "Any safe rule matched"],
+        ["matchedRuleId", "Matched rule"],
+        ["allowlistedProviderMappingMatched", "Allowlisted provider mapping matched"],
+        ["allowlistedPrivilegedMappingMatched", "Allowlisted privileged mapping matched"],
+        ["safeDefaultExternalMappingApplied", "Safe external default applied"],
+        ["safeDefaultRole", "Safe default role"],
+        ["mappingOutcome", "Mapping outcome"],
+        ["automaticAdminMappingEnabled", "Automatic admin mapping enabled"],
+        ["externalClaimsTrustedForAdmin", "External claims trusted for admin"],
+        ["externalGroupsTrustedForAdmin", "External groups trusted for admin"],
+        ["finalAuthorizationControl", "Final authorization control"]
+      ];
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function formatValue(value) {
+        if (typeof value === "boolean") {
+          return value ? "true" : "false";
+        }
+
+        if (Array.isArray(value)) {
+          return value.join(", ");
+        }
+
+        return value || "not present";
+      }
+
+      function renderDecision(decision) {
+        document.getElementById("summary-provider").textContent = decision.providerName;
+        document.getElementById("summary-role").textContent = decision.localRole;
+        document.getElementById("summary-role-source").textContent = decision.roleSource;
+        document.getElementById("summary-rule").textContent = decision.mappingRuleMatched ? "yes" : "no";
+
+        document.getElementById("decision-table").innerHTML = decisionFields
+          .map(([key, label]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(formatValue(decision[key]))}</td></tr>`)
+          .join("");
+      }
+
+      function renderRules(rules) {
+        document.getElementById("rules-table").innerHTML = rules
+          .map((rule) => `
+            <tr>
+              <th>${escapeHtml(rule.id)}</th>
+              <td>${escapeHtml(rule.provider)}</td>
+              <td>${escapeHtml(rule.inputSignal)}</td>
+              <td>${escapeHtml(rule.localRoleResult)}</td>
+              <td>${escapeHtml(formatValue(rule.allowlisted))}</td>
+              <td>${escapeHtml(formatValue(rule.matched))}</td>
+            </tr>
+            <tr>
+              <td colspan="6" class="table-note">${escapeHtml(rule.explanation)}</td>
+            </tr>
+          `)
+          .join("");
+      }
+
+      function renderRbacExamples(examples) {
+        document.getElementById("rbac-table").innerHTML = examples
+          .map((example) => `
+            <tr>
+              <th>${escapeHtml(example.route)}<br><span class="muted">${escapeHtml(example.label)}</span></th>
+              <td>${escapeHtml(formatValue(example.requiredLocalRoles))}</td>
+              <td>${escapeHtml(formatValue(example.allowedForCurrentRole))}</td>
+              <td>${escapeHtml(example.explanation)}</td>
+            </tr>
+          `)
+          .join("");
+      }
+
+      async function loadRoleMapping() {
+        const response = await fetch("/api/role-mapping");
+        const data = await response.json();
+        renderDecision(data.currentDecision);
+        renderRules(data.practiceRules);
+        renderRbacExamples(data.rbacExamples);
+        document.getElementById("guardrails-output").textContent = JSON.stringify({
+          principle: data.principle,
+          safeMappingModel: data.safeMappingModel,
+          forbiddenMappingModel: data.forbiddenMappingModel,
+          guardrails: data.guardrails
+        }, null, 2);
+      }
+
+      loadRoleMapping();
+    </script>
+  </body>
+</html>

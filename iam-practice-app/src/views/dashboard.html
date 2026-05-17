@@ -16,6 +16,7 @@
         <nav class="navlinks" aria-label="Primary navigation">
           <a href="/claims">Claims</a>
           <a href="/provider-comparison">Providers</a>
+          <a href="/role-mapping">Roles</a>
           <a href="/oidc-readiness">OIDC</a>
           <a href="/scim-readiness">SCIM</a>
           <a href="/jml-readiness">JML</a>
@@ -73,6 +74,12 @@
               <h3>Provider Comparison</h3>
               <p>Compare local, Entra, and Okta identity indicators and see why authentication does not grant admin access.</p>
               <a class="button" href="/provider-comparison">Compare providers</a>
+            </article>
+            <article class="card">
+              <span class="badge ready">Deny By Default</span>
+              <h3>Role Mapping Practice</h3>
+              <p>Review how provider signals become local roles only through safe mapping rules before RBAC decides access.</p>
+              <a class="button" href="/role-mapping">Open role mapping</a>
             </article>
             <article class="card">
               <span class="badge admin">Admin Only</span>
@@ -148,6 +155,7 @@
           <nav class="actions">
             <a class="button secondary" href="/api/me">Me</a>
             <a class="button secondary" href="/api/claims">Claims</a>
+            <a class="button secondary" href="/api/role-mapping">Roles</a>
             <a class="button secondary" href="/api/token-simulation">Token</a>
             <a class="button secondary" href="/api/oidc/status">OIDC</a>
             <a class="button secondary" href="/api/okta/status">Okta</a>

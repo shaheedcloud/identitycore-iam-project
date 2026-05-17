@@ -19,6 +19,7 @@ The project shows how an IAM professional can move from application-level identi
 - safe Microsoft Entra ID OIDC local practice without committing real tenant configuration
 - safe Okta OIDC local practice without committing a real Okta domain or application credentials
 - provider comparison and claims mapping guardrails across local, Entra, and Okta identity sources
+- role mapping and authorization practice showing deny-by-default mapping and local RBAC as the final control
 
 ## Main Application
 
@@ -59,6 +60,8 @@ Docker support is local portfolio runtime only. It does not add cloud deployment
 Entra OIDC practice uses only local uncommitted `.env` values. The app must never commit real tenant IDs, client IDs tied to a real lab tenant, client secrets, access tokens, refresh tokens, ID tokens, private keys, certificates, or screenshots containing unredacted identity data.
 
 Okta OIDC practice also uses only local uncommitted `.env` values. The app must never commit real Okta domains, Okta client IDs, Okta client secrets, tokens, private keys, certificates, or screenshots containing unredacted identity data.
+
+Role mapping practice is local-only. External Entra or Okta authentication does not automatically grant admin access, and external claims or groups are not blindly trusted for privileged authorization.
 
 ## Final Portfolio Package
 
