@@ -100,7 +100,9 @@ function getProviderContext(user) {
     return {
       authSource: user && user.authSource ? user.authSource : "local",
       providerName: "Local dummy login",
-      externalClaimsMappedToAdmin: false
+      externalClaimsMappedToAdmin: false,
+      localRole: user && user.role ? user.role : "unknown",
+      roleSource: "Local dummy user object"
     };
   }
 
@@ -110,7 +112,125 @@ function getProviderContext(user) {
     providerName: user.authProvider || "Microsoft Entra ID Lab",
     externalClaimsMappedToAdmin: false,
     localRole: user.role,
+    roleSource: "Safe default OIDC mapping",
     safeClaimSummary: user.oidcSafeClaimSummary || {}
+  };
+}
+
+function boolLabel(value) {
+  return value ? "yes" : "no";
+}
+
+function buildCurrentProviderComparison(user) {
+  const providerContext = getProviderContext(user);
+  const isExternalOidc = providerContext.authSource === "oidc";
+  const safeSummary = providerContext.safeClaimSummary || {};
+
+  return {
+    providerName: providerContext.providerName,
+    providerType: providerContext.authProviderType || "local",
+    authenticationSource: isExternalOidc ? "External OIDC provider" : "Local app session",
+    subjectClaim: isExternalOidc ? boolLabel(safeSummary.subjectPresent) : "simulated/local",
+    usernameOrEmail: isExternalOidc ? boolLabel(safeSummary.emailPresent || safeSummary.preferredUsernamePresent) : "local test user",
+    displayName: isExternalOidc ? boolLabel(safeSummary.displayNamePresent) : "local test user",
+    issuer: isExternalOidc ? (safeSummary.issuer || "present if returned") : "simulated/local",
+    audience: isExternalOidc ? boolLabel(safeSummary.audiencePresent) : "simulated/local",
+    groupsClaim: isExternalOidc ? boolLabel(safeSummary.groupsClaimPresent) : "local training groups",
+    localRole: providerContext.localRole,
+    localRoleSource: providerContext.roleSource,
+    adminAccess: providerContext.localRole === "admin" ? "local RBAC allow" : "not automatic",
+    externalClaimsMappedToAdmin: false,
+    rawTokensStored: false,
+    rawTokensDisplayed: false
+  };
+}
+
+function buildProviderComparison(user) {
+  return {
+    localOnly: true,
+    purpose: "Compare safe identity-provider indicators without exposing raw tokens, secrets, or raw external claims.",
+    currentSession: buildCurrentProviderComparison(user),
+    comparisonModel: [
+      {
+        field: "Provider",
+        localDummyLogin: "Local simulator",
+        entraOidc: "Microsoft Entra ID Lab",
+        oktaOidc: "Okta Lab"
+      },
+      {
+        field: "Authentication source",
+        localDummyLogin: "Local app session",
+        entraOidc: "External OIDC provider",
+        oktaOidc: "External OIDC provider"
+      },
+      {
+        field: "Subject claim",
+        localDummyLogin: "Simulated/local",
+        entraOidc: "Present if returned",
+        oktaOidc: "Present if returned"
+      },
+      {
+        field: "Username/email",
+        localDummyLogin: "Local test user",
+        entraOidc: "Present if returned",
+        oktaOidc: "Present if returned"
+      },
+      {
+        field: "Display name",
+        localDummyLogin: "Local test user",
+        entraOidc: "Present if returned",
+        oktaOidc: "Present if returned"
+      },
+      {
+        field: "Issuer",
+        localDummyLogin: "Simulated/local",
+        entraOidc: "Masked/presence only",
+        oktaOidc: "Masked/presence only"
+      },
+      {
+        field: "Audience",
+        localDummyLogin: "Simulated/local",
+        entraOidc: "Present if returned",
+        oktaOidc: "Present if returned"
+      },
+      {
+        field: "Groups claim",
+        localDummyLogin: "Local training groups",
+        entraOidc: "Present only if configured",
+        oktaOidc: "Present only if configured"
+      },
+      {
+        field: "Local role source",
+        localDummyLogin: "Local dummy user object",
+        entraOidc: "Safe default OIDC mapping",
+        oktaOidc: "Safe default OIDC mapping"
+      },
+      {
+        field: "Admin access",
+        localDummyLogin: "Local RBAC only",
+        entraOidc: "Not automatic",
+        oktaOidc: "Not automatic"
+      },
+      {
+        field: "Raw tokens stored",
+        localDummyLogin: "false",
+        entraOidc: "false",
+        oktaOidc: "false"
+      },
+      {
+        field: "Raw tokens displayed",
+        localDummyLogin: "false",
+        entraOidc: "false",
+        oktaOidc: "false"
+      }
+    ],
+    mappingGuardrails: {
+      safeRule: "External authentication proves identity. Local authorization decides access.",
+      allowedFuturePattern: "Provider claim -> explicit allowlisted mapping -> local role -> RBAC decision",
+      forbiddenPattern: "Any external claim or group -> automatic admin access",
+      localRbacRemainsAuthoritative: true,
+      automaticExternalAdminMappingEnabled: false
+    }
   };
 }
 
@@ -118,5 +238,6 @@ module.exports = {
   buildSimulatedClaims,
   buildSimulatedToken,
   buildAuthorizationCheck,
-  getProviderContext
+  getProviderContext,
+  buildProviderComparison
 };

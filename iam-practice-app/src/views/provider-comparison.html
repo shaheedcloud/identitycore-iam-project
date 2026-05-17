@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore Provider Comparison</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/claims">Claims</a>
+          <a href="/oidc-readiness">OIDC</a>
+        </nav>
+      </header>
+
+      <section class="panel">
+        <div class="badge-row">
+          <span class="badge protected">Provider Comparison</span>
+          <span class="badge local">Presence Only</span>
+          <span class="badge denied">No Automatic Admin Mapping</span>
+        </div>
+        <p class="eyebrow">Phase 15 claims mapping foundation</p>
+        <h1>Provider comparison</h1>
+        <p>
+          Compare local dummy login, Microsoft Entra ID OIDC, and Okta OIDC without exposing raw tokens, secrets, provider domains, tenant IDs, client IDs, or raw external claims.
+        </p>
+
+        <div class="notice warning">
+          Authentication answers who signed in. Authorization answers what that identity may access. IdentityCore keeps local RBAC as the authorization control.
+        </div>
+
+        <section class="summary-strip" aria-label="Current provider summary">
+          <div class="summary-item">
+            <span class="summary-label">Provider</span>
+            <span class="summary-value" id="current-provider">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Auth source</span>
+            <span class="summary-value" id="current-auth-source">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Local role</span>
+            <span class="summary-value" id="current-role">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Role source</span>
+            <span class="summary-value" id="current-role-source">Loading...</span>
+          </div>
+        </section>
+
+        <section class="card-grid two">
+          <article class="card">
+            <span class="badge ready">Safe mapping pattern</span>
+            <h3>Explicit mapping only</h3>
+            <p>Provider claim -> explicit allowlisted mapping -> local role -> RBAC decision.</p>
+          </article>
+          <article class="card">
+            <span class="badge denied">Forbidden pattern</span>
+            <h3>No blind privilege</h3>
+            <p>Any external claim or group -> automatic admin access is intentionally not implemented.</p>
+          </article>
+        </section>
+
+        <h2>Current Session Indicators</h2>
+        <table class="mini-table" aria-label="Current session provider indicators">
+          <tbody id="current-session-table">
+            <tr><td>Loading current session indicators...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Provider Comparison Model</h2>
+        <table class="mini-table" aria-label="Provider comparison model">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Local Dummy Login</th>
+              <th>Entra ID OIDC</th>
+              <th>Okta OIDC</th>
+            </tr>
+          </thead>
+          <tbody id="comparison-table">
+            <tr><td colspan="4">Loading provider comparison...</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Claims Mapping Guardrails</h2>
+        <pre id="guardrails-output">Loading mapping guardrails...</pre>
+
+        <nav class="actions">
+          <a class="button" href="/claims">Open claims</a>
+          <a class="button secondary" href="/dashboard">Back to dashboard</a>
+          <a class="button secondary" href="/api/provider-comparison">API: provider comparison</a>
+        </nav>
+      </section>
+    </main>
+
+    <script>
+      const currentFields = [
+        ["providerName", "Provider"],
+        ["providerType", "Provider type"],
+        ["authenticationSource", "Authentication source"],
+        ["subjectClaim", "Subject claim"],
+        ["usernameOrEmail", "Username/email"],
+        ["displayName", "Display name"],
+        ["issuer", "Issuer"],
+        ["audience", "Audience"],
+        ["groupsClaim", "Groups claim"],
+        ["localRole", "Local role"],
+        ["localRoleSource", "Local role source"],
+        ["adminAccess", "Admin access"],
+        ["externalClaimsMappedToAdmin", "External claims mapped to admin"],
+        ["rawTokensStored", "Raw tokens stored"],
+        ["rawTokensDisplayed", "Raw tokens displayed"]
+      ];
+
+      function formatValue(value) {
+        if (typeof value === "boolean") {
+          return value ? "true" : "false";
+        }
+
+        return value || "not present";
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function renderCurrentSession(currentSession) {
+        document.getElementById("current-provider").textContent = currentSession.providerName;
+        document.getElementById("current-auth-source").textContent = currentSession.authenticationSource;
+        document.getElementById("current-role").textContent = currentSession.localRole;
+        document.getElementById("current-role-source").textContent = currentSession.localRoleSource;
+
+        document.getElementById("current-session-table").innerHTML = currentFields
+          .map(([key, label]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(formatValue(currentSession[key]))}</td></tr>`)
+          .join("");
+      }
+
+      function renderComparisonTable(rows) {
+        document.getElementById("comparison-table").innerHTML = rows
+          .map((row) => `
+            <tr>
+              <th>${escapeHtml(row.field)}</th>
+              <td>${escapeHtml(row.localDummyLogin)}</td>
+              <td>${escapeHtml(row.entraOidc)}</td>
+              <td>${escapeHtml(row.oktaOidc)}</td>
+            </tr>
+          `)
+          .join("");
+      }
+
+      async function loadProviderComparison() {
+        const response = await fetch("/api/provider-comparison");
+        const data = await response.json();
+        renderCurrentSession(data.currentSession);
+        renderComparisonTable(data.comparisonModel);
+        document.getElementById("guardrails-output").textContent = JSON.stringify(data.mappingGuardrails, null, 2);
+      }
+
+      loadProviderComparison();
+    </script>
+  </body>
+</html>
