@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, and 15
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, and 16
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC. Phase 15 adds a provider comparison and claims mapping foundation across local dummy login, Entra OIDC, and Okta OIDC. Phase 16 adds role mapping and authorization practice so learners can see deny-by-default mapping before local RBAC makes access decisions.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -166,6 +166,17 @@ Phase 14 does not add AWS IAM, real SCIM provisioning, a real SAML IdP, database
 
 Phase 15 does not add automatic admin mapping from Entra claims, automatic admin mapping from Okta claims, group-to-role mapping, AWS IAM, real SCIM provisioning, database persistence, cloud deployment, CI/CD, external API calls beyond existing OIDC behavior, raw token display, raw token logging, committed `.env`, secrets, tenant IDs, Okta domains, client IDs, client secrets, or screenshots.
 
+## What Phase 16 Demonstrates
+
+- Role mapping practice for local dummy login, Microsoft Entra ID OIDC, and Okta OIDC
+- Current provider, local role, role source, and matched safe mapping rule
+- Safe default external mapping to `standard_user`
+- Deny-by-default guardrails for external claims and groups
+- Authentication versus authorization explanation
+- Confirmation that local RBAC remains the final authorization control
+
+Phase 16 does not add automatic admin mapping from Entra claims, automatic admin mapping from Okta claims, automatic group-to-role mapping, RBAC bypasses, production authorization, AWS IAM, real SCIM provisioning, database persistence, cloud deployment, CI/CD, external API calls beyond existing OIDC behavior, raw token display, raw token logging, committed `.env`, secrets, tenant IDs, Okta domains, client IDs, client secrets, or screenshots.
+
 ## Install Dependencies
 
 ```bash
@@ -299,6 +310,31 @@ The forbidden design is:
 Any external claim or group -> automatic admin access
 ```
 
+## Role Mapping And Authorization Practice
+
+The role mapping practice page is available after sign-in:
+
+```text
+http://localhost:3000/role-mapping
+```
+
+It shows the current provider, current local role, role source, matched safe mapping rule, safe default external mapping behavior, and local RBAC route examples.
+
+The Phase 16 practice model is:
+
+```text
+Provider claim -> explicit allowlisted mapping rule -> local role -> RBAC decision
+```
+
+The current safe behavior is intentionally conservative:
+
+- local dummy users receive the role configured in the local training user object
+- Entra-authenticated users map to `standard_user`
+- Okta-authenticated users map to `standard_user`
+- external claims are not trusted for admin authorization
+- external groups are not trusted for privileged authorization
+- local RBAC remains the final access control for `/admin`, `/security`, and `/finance`
+
 ## Local Docker Runtime
 
 Docker support is local-only for portfolio review. The image is not a production deployment artifact and does not include `.env`, secrets, screenshots, logs, Git metadata, certificates, private keys, tokens, or local dependency folders.
@@ -364,6 +400,7 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
 | `/provider-comparison` | `GET` | Browser page comparing local, Entra, and Okta provider indicators and mapping guardrails | Authenticated users |
+| `/role-mapping` | `GET` | Browser page showing safe role mapping decisions, deny-by-default behavior, and RBAC examples | Authenticated users |
 | `/oidc-readiness` | `GET` | Browser page explaining OIDC readiness and current safe status | Authenticated users |
 | `/jwt-readiness` | `GET` | Browser page explaining protected API JWT validation status | Authenticated users |
 | `/scim-readiness` | `GET` | Browser page explaining SCIM Users and Groups readiness and current safe status | Authenticated users |
@@ -380,6 +417,7 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/api/token-simulation` | `GET` | Returns a local unsigned token-like object | Authenticated users |
 | `/api/claims/authorization-check` | `GET` | Explains route access using role and group claims | Authenticated users |
 | `/api/provider-comparison` | `GET` | Returns safe provider comparison and claims mapping guardrails | Authenticated users |
+| `/api/role-mapping` | `GET` | Returns safe role mapping practice data and RBAC guardrails | Authenticated users |
 | `/api/oidc/status` | `GET` | Returns safe OIDC readiness status without secrets | Authenticated users |
 | `/api/okta/status` | `GET` | Returns safe Okta OIDC readiness status without secrets | Authenticated users |
 | `/api/jwt/status` | `GET` | Returns safe JWT validation status without tokens or secrets | Public safe status |
@@ -1429,6 +1467,8 @@ Lesson: SCIM provisioning depends on both enabled configuration and a shared bea
 | `/api/claims/authorization-check` | JSON explanation of route access based on simulated role and group claims |
 | `/provider-comparison` | Browser view comparing local, Entra, and Okta identity indicators |
 | `/api/provider-comparison` | JSON response containing safe provider comparison and mapping guardrails |
+| `/role-mapping` | Browser view explaining safe role mapping and local RBAC decisions |
+| `/api/role-mapping` | JSON response containing safe role mapping guardrails and RBAC examples |
 
 ## Phase 3B Testing Checklist
 
@@ -1535,10 +1575,11 @@ Lesson: applications depend on correct claims to make authorization decisions.
 4. Sign in as `admin@identitycore.local` with `AdminPass123!`.
 5. Confirm `/dashboard`, `/claims`, `/oidc-readiness`, `/admin`, `/security`, and `/finance` load.
 6. Open `/provider-comparison` and confirm provider comparison loads without real provider configuration.
-7. Log out.
-8. Sign in as `user@identitycore.local` with `UserPass123!`.
-9. Confirm `/dashboard` loads.
-10. Try `/admin` and confirm the app shows `/access-denied`.
+7. Open `/role-mapping` and confirm role mapping practice shows local role source and RBAC examples.
+8. Log out.
+9. Sign in as `user@identitycore.local` with `UserPass123!`.
+10. Confirm `/dashboard` loads.
+11. Try `/admin` and confirm the app shows `/access-denied`.
 
 ## API Testing Checklist
 
@@ -1551,19 +1592,20 @@ Browser-based API checks work after signing in because the browser already has t
 5. Open `/api/token-simulation` and confirm the response is clearly marked as not a real JWT.
 6. Open `/api/claims/authorization-check` and confirm admin access is allowed.
 7. Open `/api/provider-comparison` and confirm it contains safe provider indicators and no raw tokens.
-8. Open `/api/oidc/status` and confirm no client secret is exposed.
-9. Open `/api/jwt/status` and confirm no raw token or secret is exposed.
-10. Open `/api/scim/status` and confirm no SCIM bearer token is exposed.
-11. Open `/api/jml/status` and confirm it is local-only.
-12. Open `/api/jml/events` and confirm event history is returned.
-13. Confirm `/api/protected/profile` rejects a request without a bearer token.
-14. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
-15. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
-16. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
-17. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
-18. Log out and sign in as `user@identitycore.local`.
-19. Open `/api/me` and confirm the standard user profile appears.
-20. Open `/api/admin/users` and confirm access is denied.
+8. Open `/api/role-mapping` and confirm external admin mapping and external group admin mapping are false.
+9. Open `/api/oidc/status` and confirm no client secret is exposed.
+10. Open `/api/jwt/status` and confirm no raw token or secret is exposed.
+11. Open `/api/scim/status` and confirm no SCIM bearer token is exposed.
+12. Open `/api/jml/status` and confirm it is local-only.
+13. Open `/api/jml/events` and confirm event history is returned.
+14. Confirm `/api/protected/profile` rejects a request without a bearer token.
+15. Confirm `/api/protected/profile` rejects `Authorization: Bearer not-a-jwt`.
+16. Confirm `/scim/v2/Users` fails closed while SCIM is disabled or placeholder-based.
+17. Confirm `/scim/v2/Groups` fails closed while SCIM is disabled or placeholder-based.
+18. Open `/api/admin/users` and confirm all dummy users are returned without passwords.
+19. Log out and sign in as `user@identitycore.local`.
+20. Open `/api/me` and confirm the standard user profile appears.
+21. Open `/api/admin/users` and confirm access is denied.
 
 ## Break/Fix Scenario
 
@@ -1786,6 +1828,7 @@ Fix: inspect `iam-practice-app/.dockerignore`. It excludes `.env`, `.env.*`, log
 - OIDC session data stores only a conservative local user profile and safe claim-presence summary.
 - Entra-authenticated users map to `standard_user`; Entra claims do not grant admin access in Phase 13.
 - Okta-authenticated users map to `standard_user`; Okta claims and groups do not grant admin access in Phase 14.
+- Phase 16 role mapping practice is deny-by-default and does not trust external claims or groups for privileged authorization.
 - Real OIDC values belong only in local uncommitted `.env`.
 - Real JWT validation values belong only in local uncommitted `.env`.
 - Real SCIM bearer tokens belong only in local uncommitted `.env`.

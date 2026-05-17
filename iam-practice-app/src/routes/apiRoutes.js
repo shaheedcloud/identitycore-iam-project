@@ -5,6 +5,7 @@ const { listUsersWithoutPasswords } = require("../users");
 const {
   buildAuthorizationCheck,
   buildProviderComparison,
+  buildRoleMappingPractice,
   buildSimulatedClaims,
   buildSimulatedToken,
   getProviderContext
@@ -74,6 +75,10 @@ router.get("/claims/authorization-check", requireAuth, (req, res) => {
 
 router.get("/provider-comparison", requireAuth, (req, res) => {
   res.json(buildProviderComparison(req.session.user));
+});
+
+router.get("/role-mapping", requireAuth, (req, res) => {
+  res.json(buildRoleMappingPractice(req.session.user));
 });
 
 router.get("/oidc/status", requireAuth, (req, res) => {

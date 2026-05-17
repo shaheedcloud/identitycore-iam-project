@@ -234,10 +234,115 @@ function buildProviderComparison(user) {
   };
 }
 
+function buildRoleMappingPractice(user) {
+  const providerContext = getProviderContext(user);
+  const isExternalOidc = providerContext.authSource === "oidc";
+  const providerType = providerContext.authProviderType || "local";
+  const isEntra = providerType === "entra";
+  const isOkta = providerType === "okta";
+  const localRole = providerContext.localRole || "standard_user";
+  const safeDefaultRole = "standard_user";
+  const localMappingMatched = !isExternalOidc;
+  const safeDefaultExternalMappingApplied = isExternalOidc;
+
+  const currentDecision = {
+    providerName: providerContext.providerName,
+    providerType,
+    authenticationSource: isExternalOidc ? "External OIDC provider" : "Local app session",
+    localRole,
+    roleSource: providerContext.roleSource,
+    mappingRuleMatched: localMappingMatched || safeDefaultExternalMappingApplied,
+    matchedRuleId: localMappingMatched
+      ? "local_dummy_user_role"
+      : "external_oidc_safe_default_standard_user",
+    allowlistedProviderMappingMatched: localMappingMatched,
+    allowlistedPrivilegedMappingMatched: false,
+    safeDefaultExternalMappingApplied,
+    safeDefaultRole,
+    mappingOutcome: isExternalOidc
+      ? "No allowlisted privileged provider mapping matched, so the safe default local role was applied."
+      : "The local dummy user object supplied the local role for this training session.",
+    automaticAdminMappingEnabled: false,
+    externalClaimsTrustedForAdmin: false,
+    externalGroupsTrustedForAdmin: false,
+    finalAuthorizationControl: "Local RBAC middleware"
+  };
+
+  return {
+    localOnly: true,
+    purpose: "Practice role mapping and authorization decisions without trusting raw external claims or groups for privileged access.",
+    principle: "External authentication proves identity. Local authorization decides access.",
+    safeMappingModel: "Provider claim -> explicit allowlisted mapping rule -> local role -> RBAC decision",
+    forbiddenMappingModel: "Any external claim or group -> automatic admin access",
+    currentDecision,
+    practiceRules: [
+      {
+        id: "local_dummy_user_role",
+        provider: "Local dummy login",
+        inputSignal: "Local dummy user object",
+        localRoleResult: "User's configured local role",
+        allowlisted: true,
+        privileged: localRole === "admin",
+        matched: localMappingMatched,
+        explanation: "Local dummy users receive the role assigned in the local training user object."
+      },
+      {
+        id: "entra_oidc_safe_default_standard_user",
+        provider: "Microsoft Entra ID OIDC",
+        inputSignal: "Validated OIDC authentication with safe claim presence summary",
+        localRoleResult: safeDefaultRole,
+        allowlisted: true,
+        privileged: false,
+        matched: isEntra,
+        explanation: "Entra authentication creates a conservative local session and does not grant admin access."
+      },
+      {
+        id: "okta_oidc_safe_default_standard_user",
+        provider: "Okta OIDC",
+        inputSignal: "Validated OIDC authentication with safe claim presence summary",
+        localRoleResult: safeDefaultRole,
+        allowlisted: true,
+        privileged: false,
+        matched: isOkta,
+        explanation: "Okta authentication creates a conservative local session and does not trust groups for admin access."
+      },
+      {
+        id: "external_claim_or_group_to_admin",
+        provider: "External OIDC provider",
+        inputSignal: "Any external role claim, group claim, or display value",
+        localRoleResult: "admin",
+        allowlisted: false,
+        privileged: true,
+        matched: false,
+        explanation: "This forbidden pattern is intentionally not implemented because it can cause privilege escalation."
+      }
+    ],
+    rbacExamples: routePolicies.map((policy) => ({
+      route: policy.route,
+      label: policy.label,
+      requiredLocalRoles: policy.allowedRoles,
+      allowedForCurrentRole: policy.allowedRoles.includes(localRole),
+      explanation: policy.allowedRoles.includes(localRole)
+        ? "Local RBAC allows access because the mapped local role matches this route policy."
+        : "Local RBAC denies access because the mapped local role does not match this route policy."
+    })),
+    guardrails: {
+      denyByDefault: true,
+      externalClaimsMappedToAdmin: false,
+      externalGroupsMappedToAdmin: false,
+      rawTokensStored: false,
+      rawTokensDisplayed: false,
+      rawClaimsStored: false,
+      localRbacRemainsAuthoritative: true
+    }
+  };
+}
+
 module.exports = {
   buildSimulatedClaims,
   buildSimulatedToken,
   buildAuthorizationCheck,
   getProviderContext,
-  buildProviderComparison
+  buildProviderComparison,
+  buildRoleMappingPractice
 };
