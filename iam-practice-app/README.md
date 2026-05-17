@@ -1,6 +1,6 @@
-# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, and 13
+# IdentityCore IAM Practice App - Phases 1, 2, 3A, 3B, 4, 5, 6, 7, 8, 9, 10, 11, 13, and 14
 
-This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary.
+This app is the local target application for the IdentityCore IAM Project. Phase 1 demonstrates local authentication, Express sessions, and role-based access control with dummy users only. Phase 2 adds local simulated identity claims and token-like objects so learners can inspect identity data before real federation is introduced. Phase 3A adds OIDC readiness placeholders. Phase 3B adds Entra ID OIDC local login support using values loaded only from a local uncommitted `.env` file. Phase 4 adds protected API JWT validation for bearer tokens. Phase 5 adds a local SCIM 2.0 Users endpoint simulation. Phase 6 adds a local SCIM 2.0 Groups endpoint simulation. Phase 7 adds a local Joiner, Mover, Leaver lifecycle simulation. Phase 8 adds SAML login readiness and safe local SAML simulation. Phase 9 adds safe local audit logging and troubleshooting evidence. Phase 10 adds local-only Docker runtime support and final portfolio documentation. Phase 11 adds an enterprise-style UI foundation for a more professional local IAM learning portal. Phase 13 tightens Entra ID OIDC local practice so a lab user can authenticate safely while IdentityCore stores only a conservative local session and safe claim summary. Phase 14 adds the same safe local practice pattern for Okta OIDC.
 
 The app still keeps local dummy login available. It does not commit real tenant IDs, client IDs, client secrets, access tokens, refresh tokens, ID tokens, private keys, SCIM bearer tokens, SAML configuration, AWS configuration, Docker configuration, databases, or production deployment configuration.
 
@@ -140,6 +140,20 @@ Phase 11 does not add real Entra ID, Okta, AWS IAM, SCIM target, SAML identity p
 
 Phase 13 does not add Okta, AWS IAM, real SCIM provisioning, a real SAML IdP, database persistence, cloud deployment, CI/CD, SIEM integration, webhook/email integration, scheduled jobs, background jobs, or external-claim-to-admin role mapping.
 
+## What Phase 14 Demonstrates
+
+- Okta OIDC authorization code login for local lab practice when configured only through an uncommitted `.env`
+- Safe disabled behavior when Okta OIDC is not configured or still placeholder-based
+- Separate Okta start, callback, and status routes beside the existing Entra OIDC routes
+- Callback state and nonce validation through `openid-client`
+- Conservative local session creation for Okta-authenticated users
+- Okta-authenticated users mapped to `standard_user`
+- Dashboard provider context showing `Okta Lab`
+- Claims page provider context showing presence-only safe claim indicators
+- No raw access tokens, refresh tokens, ID tokens, authorization codes, Okta domains, Okta client secrets, group IDs, or raw external claims displayed or stored in the session
+
+Phase 14 does not add AWS IAM, real SCIM provisioning, a real SAML IdP, database persistence, cloud deployment, CI/CD, SIEM integration, webhook/email integration, scheduled jobs, background jobs, Okta group-to-role mapping, or external-claim-to-admin role mapping.
+
 ## Install Dependencies
 
 ```bash
@@ -194,6 +208,43 @@ After Entra authentication succeeds, IdentityCore creates a local app session wi
 - a safe claim summary showing only whether expected claims were present
 
 Raw access tokens, refresh tokens, ID tokens, authorization codes, client secrets, tenant IDs, group IDs, and raw external claims are not shown on pages, returned from browser session APIs, stored in files, or written to logs.
+
+## Okta OIDC Local Practice
+
+IdentityCore starts safely without Okta configuration. Local dummy login and Entra OIDC practice remain available, and clicking the Okta OIDC login option shows a safe disabled or incomplete-configuration message until local values are ready.
+
+To test with a private Okta lab, create `iam-practice-app/.env` locally. Do not commit it.
+
+```text
+OKTA_OIDC_ENABLED=true
+OKTA_ISSUER_URL=https://YOUR_OKTA_DOMAIN/oauth2/default
+OKTA_CLIENT_ID=YOUR_LOCAL_OKTA_CLIENT_ID
+OKTA_CLIENT_SECRET=YOUR_LOCAL_OKTA_CLIENT_SECRET
+OKTA_REDIRECT_URI=http://localhost:3000/auth/okta/callback
+OKTA_PROVIDER_NAME=Okta Lab
+```
+
+The committed `.env.example` must stay placeholder-only:
+
+```text
+OKTA_OIDC_ENABLED=false
+OKTA_ISSUER_URL=https://YOUR_OKTA_DOMAIN/oauth2/default
+OKTA_CLIENT_ID=YOUR_OKTA_CLIENT_ID
+OKTA_CLIENT_SECRET=YOUR_OKTA_CLIENT_SECRET
+OKTA_REDIRECT_URI=http://localhost:3000/auth/okta/callback
+OKTA_PROVIDER_NAME=Okta Lab
+```
+
+After Okta authentication succeeds, IdentityCore creates a local app session with:
+
+- `authSource: "oidc"`
+- `authProviderType: "okta"`
+- provider name from `OKTA_PROVIDER_NAME`
+- local role `standard_user`
+- no privileged authorization mapping from Okta claims or groups
+- a safe claim summary showing only whether expected claims were present
+
+Raw access tokens, refresh tokens, ID tokens, authorization codes, Okta client secrets, Okta group IDs, and raw external claims are not shown on pages, returned from browser session APIs, stored in files, or written to logs.
 
 ## Local Docker Runtime
 
@@ -254,6 +305,8 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/login` | `POST` | Checks local dummy credentials and creates a session | Public form post |
 | `/auth/oidc/start` | `GET` | Starts Entra OIDC login only when local OIDC config is enabled and complete | Public |
 | `/auth/oidc/callback` | `GET` | Handles Entra OIDC callback and creates a safe local app session | Public callback |
+| `/auth/okta/start` | `GET` | Starts Okta OIDC login only when local Okta config is enabled and complete | Public |
+| `/auth/okta/callback` | `GET` | Handles Okta OIDC callback and creates a safe local app session | Public callback |
 | `/logout` | `POST` | Destroys the local session | Session action |
 | `/dashboard` | `GET` | Main protected landing page | Authenticated users |
 | `/claims` | `GET` | Browser page for inspecting simulated local claims | Authenticated users |
@@ -273,6 +326,7 @@ Local identity integrations are disabled in Docker: expected. Compose defaults O
 | `/api/token-simulation` | `GET` | Returns a local unsigned token-like object | Authenticated users |
 | `/api/claims/authorization-check` | `GET` | Explains route access using role and group claims | Authenticated users |
 | `/api/oidc/status` | `GET` | Returns safe OIDC readiness status without secrets | Authenticated users |
+| `/api/okta/status` | `GET` | Returns safe Okta OIDC readiness status without secrets | Authenticated users |
 | `/api/jwt/status` | `GET` | Returns safe JWT validation status without tokens or secrets | Public safe status |
 | `/api/scim/status` | `GET` | Returns safe SCIM readiness status without bearer tokens | Public safe status |
 | `/api/jml/status` | `GET` | Returns safe local-only JML simulation status | Authenticated users |
@@ -1356,6 +1410,31 @@ With local uncommitted `.env` configured:
 9. Confirm admin access is still blocked for the OIDC-authenticated user.
 10. Confirm raw tokens are not visible in pages, APIs, console output, or files.
 
+## Phase 14 Okta OIDC Local Practice Checklist
+
+Without local Okta config:
+
+1. Start the app with `npm.cmd start`.
+2. Open `/login`.
+3. Confirm local dummy login works.
+4. Open `/oidc-readiness` after signing in locally.
+5. Confirm `/api/okta/status` reports disabled or placeholder-based readiness without returning secrets.
+6. Click `Sign in with Okta OIDC` and confirm no real Okta redirect starts while config is incomplete.
+7. Confirm `/api/oidc/status` still reports the Entra state independently.
+
+With local uncommitted `.env` configured:
+
+1. Set only local private Okta values in `iam-practice-app/.env`.
+2. Restart the app.
+3. Click `Sign in with Okta OIDC`.
+4. Complete Okta lab sign-in.
+5. Confirm the callback returns to `/dashboard`.
+6. Confirm the dashboard shows `Okta Lab` provider context.
+7. Confirm `/api/me` shows `authSource: "oidc"`, `authProviderType: "okta"`, and `role: "standard_user"`.
+8. Open `/claims` and confirm the provider context contains safe presence-only indicators.
+9. Confirm admin access is still blocked for the Okta-authenticated user.
+10. Confirm raw tokens are not visible in pages, APIs, console output, or files.
+
 ## Phase 3B Break/Fix Scenario
 
 Break: use the wrong redirect URI in Entra app registration.
@@ -1522,6 +1601,24 @@ Symptom: `/claims` shows simulated local claims and a safe provider summary inst
 
 Fix: this is expected. Phase 13 stores only presence indicators for learning and does not expose raw external claim values, tokens, group IDs, tenant IDs, or user identifiers.
 
+### Okta login does not redirect to Okta
+
+Symptom: clicking `Sign in with Okta OIDC` shows that Okta OIDC is disabled, incomplete, or placeholder-based.
+
+Fix: confirm `OKTA_OIDC_ENABLED=true` and all Okta OIDC values are set only in local `iam-practice-app/.env`. Restart the app after changing `.env`.
+
+### Okta login succeeds but user is not admin
+
+Symptom: the dashboard loads after Okta authentication, but `/admin` is still denied.
+
+Fix: this is expected. Phase 14 treats Okta authentication and local authorization separately. Okta-authenticated users map to `standard_user`; group-to-role mapping requires a later approved phase.
+
+### Claims page does not show raw Okta claims
+
+Symptom: `/claims` shows simulated local claims and a safe provider summary instead of raw Okta claim values.
+
+Fix: this is expected. Phase 14 stores only presence indicators for learning and does not expose raw external claim values, tokens, group IDs, Okta domains, or user identifiers.
+
 ### Missing email claim
 
 Symptom: OIDC login succeeds but the app user email is `unknown@example.local`.
@@ -1629,6 +1726,7 @@ Fix: inspect `iam-practice-app/.dockerignore`. It excludes `.env`, `.env.*`, log
 - Raw OIDC and JWT token values are not stored in session and are not returned by APIs.
 - OIDC session data stores only a conservative local user profile and safe claim-presence summary.
 - Entra-authenticated users map to `standard_user`; Entra claims do not grant admin access in Phase 13.
+- Okta-authenticated users map to `standard_user`; Okta claims and groups do not grant admin access in Phase 14.
 - Real OIDC values belong only in local uncommitted `.env`.
 - Real JWT validation values belong only in local uncommitted `.env`.
 - Real SCIM bearer tokens belong only in local uncommitted `.env`.

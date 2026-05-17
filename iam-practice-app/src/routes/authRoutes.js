@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 const { findUserByEmail, withoutPassword } = require("../users");
 const { redirectIfLoggedIn } = require("../middleware/auth");
-const { getOidcStatus } = require("../oidcConfig");
+const { getOidcStatus, getOktaOidcStatus } = require("../oidcConfig");
 const {
   buildSamlSessionUserFromAttributes,
   getSamlConfig,
@@ -27,19 +27,27 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-function renderOidcMessage(res, statusCode, title, message, details = "") {
+function renderOidcMessage(
+  res,
+  statusCode,
+  title,
+  message,
+  details = "",
+  providerLabel = "OIDC",
+  statusHref = "/api/oidc/status"
+) {
   return res.status(statusCode).send(`
     <link rel="stylesheet" href="/styles.css">
     <main class="shell">
       <section class="panel">
-        <p class="eyebrow">Phase 3B Entra OIDC</p>
+        <p class="eyebrow">${escapeHtml(providerLabel)}</p>
         <h1>${escapeHtml(title)}</h1>
         <p>${escapeHtml(message)}</p>
         ${details ? `<div class="notice">${escapeHtml(details)}</div>` : ""}
         <nav class="actions">
           <a class="button" href="/login">Back to local login</a>
           <a class="button" href="/oidc-readiness">OIDC readiness</a>
-          <a class="button" href="/api/oidc/status">API: OIDC status</a>
+          <a class="button" href="${escapeHtml(statusHref)}">API: status</a>
         </nav>
       </section>
     </main>
@@ -57,6 +65,25 @@ function safeOidcErrorMessage(error) {
     .replace(/access_token=[^&\s]+/gi, "access_token=[redacted]")
     .replace(/refresh_token=[^&\s]+/gi, "refresh_token=[redacted]")
     .replace(/client_secret=[^&\s]+/gi, "client_secret=[redacted]");
+}
+
+function recordOidcLoginSuccess(req) {
+  recordAuditEvent(
+    "oidc_login_success",
+    "success",
+    {
+      authSource: req.session.user.authSource,
+      providerType: req.session.user.authProviderType,
+      providerName: req.session.user.authProvider,
+      role: req.session.user.role,
+      subjectPresent: req.session.user.oidcSafeClaimSummary.subjectPresent,
+      preferredUsernamePresent: req.session.user.oidcSafeClaimSummary.preferredUsernamePresent,
+      displayNamePresent: req.session.user.oidcSafeClaimSummary.displayNamePresent,
+      emailPresent: req.session.user.oidcSafeClaimSummary.emailPresent,
+      groupsClaimPresent: req.session.user.oidcSafeClaimSummary.groupsClaimPresent
+    },
+    req
+  );
 }
 
 function renderSamlMessage(res, statusCode, title, message, details = "") {
@@ -161,7 +188,8 @@ router.get("/auth/oidc/start", (req, res) => {
       200,
       "OIDC is disabled",
       "Local dummy login is still active. Set OIDC_ENABLED=true in a local uncommitted .env file when you are ready to test Entra OIDC.",
-      "No authorization URL was built and no redirect was started."
+      "No authorization URL was built and no redirect was started.",
+      "Phase 13 Entra OIDC"
     );
   }
 
@@ -171,7 +199,8 @@ router.get("/auth/oidc/start", (req, res) => {
       400,
       "OIDC configuration is incomplete",
       "OIDC is enabled, but required values are missing or still use placeholders.",
-      "Check /api/oidc/status and configure real Entra values only in iam-practice-app/.env."
+      "Check /api/oidc/status and configure real Entra values only in iam-practice-app/.env.",
+      "Phase 13 Entra OIDC"
     );
   }
 
@@ -189,7 +218,8 @@ router.get("/auth/oidc/start", (req, res) => {
         500,
         "OIDC login could not start",
         "The app could not start Entra OIDC login. Check local OIDC configuration and try again.",
-        "No tokens were requested, stored, or returned."
+        "No tokens were requested, stored, or returned.",
+        "Phase 13 Entra OIDC"
       );
     });
 });
@@ -203,7 +233,8 @@ router.get("/auth/oidc/callback", (req, res) => {
       400,
       "OIDC callback is not active",
       "OIDC must be enabled and fully configured locally before callback handling can run.",
-      "No authorization code was exchanged."
+      "No authorization code was exchanged.",
+      "Phase 13 Entra OIDC"
     );
   }
 
@@ -213,31 +244,19 @@ router.get("/auth/oidc/callback", (req, res) => {
       400,
       "OIDC state is missing",
       "Start OIDC login again so the app can validate the callback state.",
-      "This protects the login flow from unexpected callback requests."
+      "This protects the login flow from unexpected callback requests.",
+      "Phase 13 Entra OIDC"
     );
   }
 
   return handleCallback(req)
     .then((claims) => {
-      req.session.user = buildSessionUserFromClaims(claims);
+      req.session.user = buildSessionUserFromClaims(claims, "entra");
       req.session.authTime = Math.floor(Date.now() / 1000);
       delete req.session.oidcState;
       delete req.session.oidcNonce;
       delete req.session.oidcStartedAt;
-      recordAuditEvent(
-        "oidc_login_success",
-        "success",
-        {
-          authSource: req.session.user.authSource,
-          providerName: req.session.user.authProvider,
-          role: req.session.user.role,
-          subjectPresent: req.session.user.oidcSafeClaimSummary.subjectPresent,
-          preferredUsernamePresent: req.session.user.oidcSafeClaimSummary.preferredUsernamePresent,
-          displayNamePresent: req.session.user.oidcSafeClaimSummary.displayNamePresent,
-          emailPresent: req.session.user.oidcSafeClaimSummary.emailPresent
-        },
-        req
-      );
+      recordOidcLoginSuccess(req);
       res.redirect("/dashboard");
     })
     .catch((error) => {
@@ -247,7 +266,110 @@ router.get("/auth/oidc/callback", (req, res) => {
         500,
         "OIDC callback failed",
         "The app could not complete Entra OIDC login. Check redirect URI, issuer, client settings, and try again.",
-        "No raw tokens were stored or returned."
+        "No raw tokens were stored or returned.",
+        "Phase 13 Entra OIDC"
+      );
+    });
+});
+
+router.get("/auth/okta/start", (req, res) => {
+  const status = getOktaOidcStatus();
+
+  if (!status.enabled) {
+    return renderOidcMessage(
+      res,
+      200,
+      "Okta OIDC is disabled",
+      "Local dummy login and Entra OIDC practice remain active. Set OKTA_OIDC_ENABLED=true in a local uncommitted .env file when you are ready to test Okta OIDC.",
+      "No Okta authorization URL was built and no redirect was started.",
+      "Phase 14 Okta OIDC",
+      "/api/okta/status"
+    );
+  }
+
+  if (!status.canStartLogin) {
+    return renderOidcMessage(
+      res,
+      400,
+      "Okta OIDC configuration is incomplete",
+      "Okta OIDC is enabled, but required values are missing or still use placeholders.",
+      "Check /api/okta/status and configure real Okta values only in iam-practice-app/.env.",
+      "Phase 14 Okta OIDC",
+      "/api/okta/status"
+    );
+  }
+
+  return buildAuthorizationUrl("okta")
+    .then(({ authorizationUrl, state, nonce }) => {
+      req.session.oktaOidcState = state;
+      req.session.oktaOidcNonce = nonce;
+      req.session.oktaOidcStartedAt = Math.floor(Date.now() / 1000);
+      res.redirect(authorizationUrl);
+    })
+    .catch((error) => {
+      console.error(`Okta OIDC start failed: ${safeOidcErrorMessage(error)}`);
+      return renderOidcMessage(
+        res,
+        500,
+        "Okta OIDC login could not start",
+        "The app could not start Okta OIDC login. Check local Okta OIDC configuration and try again.",
+        "No tokens were requested, stored, or returned.",
+        "Phase 14 Okta OIDC",
+        "/api/okta/status"
+      );
+    });
+});
+
+router.get("/auth/okta/callback", (req, res) => {
+  const status = getOktaOidcStatus();
+
+  if (!status.canStartLogin) {
+    return renderOidcMessage(
+      res,
+      400,
+      "Okta OIDC callback is not active",
+      "Okta OIDC must be enabled and fully configured locally before callback handling can run.",
+      "No authorization code was exchanged.",
+      "Phase 14 Okta OIDC",
+      "/api/okta/status"
+    );
+  }
+
+  if (!req.session.oktaOidcState || !req.session.oktaOidcNonce) {
+    return renderOidcMessage(
+      res,
+      400,
+      "Okta OIDC state is missing",
+      "Start Okta OIDC login again so the app can validate the callback state.",
+      "This protects the login flow from unexpected callback requests.",
+      "Phase 14 Okta OIDC",
+      "/api/okta/status"
+    );
+  }
+
+  return handleCallback(req, "okta", {
+    state: req.session.oktaOidcState,
+    nonce: req.session.oktaOidcNonce
+  })
+    .then((claims) => {
+      req.session.user = buildSessionUserFromClaims(claims, "okta");
+      req.session.authTime = Math.floor(Date.now() / 1000);
+      delete req.session.oktaOidcState;
+      delete req.session.oktaOidcNonce;
+      delete req.session.oktaOidcStartedAt;
+      recordOidcLoginSuccess(req);
+      res.redirect("/dashboard");
+    })
+    .catch((error) => {
+      console.error(`Okta OIDC callback failed: ${safeOidcErrorMessage(error)}`);
+      return renderOidcMessage(
+        res,
+        500,
+        "Okta OIDC callback failed",
+        "The app could not complete Okta OIDC login. Check redirect URI, issuer, client settings, and try again.",
+        "No raw tokens were stored or returned.",
+        "Phase 14 Okta OIDC",
+        "/api/okta/status"
       );
     });
 });

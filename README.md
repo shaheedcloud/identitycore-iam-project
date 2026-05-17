@@ -17,6 +17,7 @@ The project shows how an IAM professional can move from application-level identi
 - local Docker runtime support for portfolio review
 - enterprise-style UI foundation for a professional IAM learning portal
 - safe Microsoft Entra ID OIDC local practice without committing real tenant configuration
+- safe Okta OIDC local practice without committing a real Okta domain or application credentials
 
 ## Main Application
 
@@ -55,6 +56,8 @@ This repository is designed for safe local learning. It must not contain real `.
 Docker support is local portfolio runtime only. It does not add cloud deployment, production infrastructure, CI/CD deployment, registry publishing, production secrets management, external logging, or persistent storage.
 
 Entra OIDC practice uses only local uncommitted `.env` values. The app must never commit real tenant IDs, client IDs tied to a real lab tenant, client secrets, access tokens, refresh tokens, ID tokens, private keys, certificates, or screenshots containing unredacted identity data.
+
+Okta OIDC practice also uses only local uncommitted `.env` values. The app must never commit real Okta domains, Okta client IDs, Okta client secrets, tokens, private keys, certificates, or screenshots containing unredacted identity data.
 
 ## Final Portfolio Package
 

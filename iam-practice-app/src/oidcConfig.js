@@ -8,7 +8,12 @@ const placeholderValues = [
   "replace-with-entra-app-client-id",
   "replace-with-entra-client-secret",
   "YOUR_CLIENT_ID",
-  "YOUR_CLIENT_SECRET"
+  "YOUR_CLIENT_SECRET",
+  "https://YOUR_OKTA_DOMAIN/oauth2/default",
+  "YOUR_OKTA_CLIENT_ID",
+  "YOUR_OKTA_CLIENT_SECRET",
+  "YOUR_LOCAL_OKTA_CLIENT_ID",
+  "YOUR_LOCAL_OKTA_CLIENT_SECRET"
 ];
 
 function getEnvValue(name, fallback = "") {
@@ -25,7 +30,12 @@ function isPlaceholder(value) {
     lowerValue.includes("replace_with") ||
     lowerValue.includes("your_tenant_id") ||
     lowerValue.includes("your_client_id") ||
-    lowerValue.includes("your_client_secret")
+    lowerValue.includes("your_client_secret") ||
+    lowerValue.includes("your_okta_domain") ||
+    lowerValue.includes("your_okta_client_id") ||
+    lowerValue.includes("your_okta_client_secret") ||
+    lowerValue.includes("your_local_okta_client_id") ||
+    lowerValue.includes("your_local_okta_client_secret")
   );
 }
 
@@ -45,26 +55,61 @@ function maskValue(value) {
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
 }
 
-function getOidcConfig() {
-  const enabled = getEnvValue("OIDC_ENABLED", "false").toLowerCase() === "true";
-  const providerName = getEnvValue("OIDC_PROVIDER_NAME", "Microsoft Entra ID Lab");
-  const issuerUrl = getEnvValue("OIDC_ISSUER_URL", "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0");
-  const clientId = getEnvValue("OIDC_CLIENT_ID", "YOUR_CLIENT_ID");
-  const clientSecret = getEnvValue("OIDC_CLIENT_SECRET", "YOUR_CLIENT_SECRET");
-  const redirectUri = getEnvValue("OIDC_REDIRECT_URI", "http://localhost:3000/auth/oidc/callback");
-  const scopes = getEnvValue("OIDC_SCOPES", "openid profile email");
+const providerDefinitions = {
+  entra: {
+    enabledEnv: "OIDC_ENABLED",
+    providerNameEnv: "OIDC_PROVIDER_NAME",
+    issuerUrlEnv: "OIDC_ISSUER_URL",
+    clientIdEnv: "OIDC_CLIENT_ID",
+    clientSecretEnv: "OIDC_CLIENT_SECRET",
+    redirectUriEnv: "OIDC_REDIRECT_URI",
+    scopesEnv: "OIDC_SCOPES",
+    providerNameFallback: "Microsoft Entra ID Lab",
+    issuerUrlFallback: "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0",
+    clientIdFallback: "YOUR_CLIENT_ID",
+    clientSecretFallback: "YOUR_CLIENT_SECRET",
+    redirectUriFallback: "http://localhost:3000/auth/oidc/callback",
+    scopesFallback: "openid profile email"
+  },
+  okta: {
+    enabledEnv: "OKTA_OIDC_ENABLED",
+    providerNameEnv: "OKTA_PROVIDER_NAME",
+    issuerUrlEnv: "OKTA_ISSUER_URL",
+    clientIdEnv: "OKTA_CLIENT_ID",
+    clientSecretEnv: "OKTA_CLIENT_SECRET",
+    redirectUriEnv: "OKTA_REDIRECT_URI",
+    scopesEnv: "OKTA_SCOPES",
+    providerNameFallback: "Okta Lab",
+    issuerUrlFallback: "https://YOUR_OKTA_DOMAIN/oauth2/default",
+    clientIdFallback: "YOUR_OKTA_CLIENT_ID",
+    clientSecretFallback: "YOUR_OKTA_CLIENT_SECRET",
+    redirectUriFallback: "http://localhost:3000/auth/okta/callback",
+    scopesFallback: "openid profile email"
+  }
+};
+
+function getProviderConfig(providerKey) {
+  const definition = providerDefinitions[providerKey] || providerDefinitions.entra;
+  const enabled = getEnvValue(definition.enabledEnv, "false").toLowerCase() === "true";
+  const providerName = getEnvValue(definition.providerNameEnv, definition.providerNameFallback);
+  const issuerUrl = getEnvValue(definition.issuerUrlEnv, definition.issuerUrlFallback);
+  const clientId = getEnvValue(definition.clientIdEnv, definition.clientIdFallback);
+  const clientSecret = getEnvValue(definition.clientSecretEnv, definition.clientSecretFallback);
+  const redirectUri = getEnvValue(definition.redirectUriEnv, definition.redirectUriFallback);
+  const scopes = getEnvValue(definition.scopesEnv, definition.scopesFallback);
 
   const values = [issuerUrl, clientId, clientSecret, redirectUri, scopes];
   const hasPlaceholderValues = values.some(isPlaceholder);
   const missingFields = [];
 
-  if (!issuerUrl) missingFields.push("OIDC_ISSUER_URL");
-  if (!clientId) missingFields.push("OIDC_CLIENT_ID");
-  if (!clientSecret) missingFields.push("OIDC_CLIENT_SECRET");
-  if (!redirectUri) missingFields.push("OIDC_REDIRECT_URI");
-  if (!scopes) missingFields.push("OIDC_SCOPES");
+  if (!issuerUrl) missingFields.push(definition.issuerUrlEnv);
+  if (!clientId) missingFields.push(definition.clientIdEnv);
+  if (!clientSecret) missingFields.push(definition.clientSecretEnv);
+  if (!redirectUri) missingFields.push(definition.redirectUriEnv);
+  if (!scopes) missingFields.push(definition.scopesEnv);
 
   return {
+    providerKey,
     enabled,
     providerName,
     issuerUrl,
@@ -79,8 +124,8 @@ function getOidcConfig() {
   };
 }
 
-function getOidcStatus() {
-  const config = getOidcConfig();
+function getProviderStatus(providerKey) {
+  const config = getProviderConfig(providerKey);
 
   return {
     localOnly: true,
@@ -103,8 +148,28 @@ function getOidcStatus() {
   };
 }
 
+function getOidcConfig() {
+  return getProviderConfig("entra");
+}
+
+function getOktaOidcConfig() {
+  return getProviderConfig("okta");
+}
+
+function getOidcStatus() {
+  return getProviderStatus("entra");
+}
+
+function getOktaOidcStatus() {
+  return getProviderStatus("okta");
+}
+
 module.exports = {
+  getProviderConfig,
+  getProviderStatus,
   getOidcConfig,
+  getOktaOidcConfig,
   getOidcStatus,
+  getOktaOidcStatus,
   getSafeOidcStatus: getOidcStatus
 };

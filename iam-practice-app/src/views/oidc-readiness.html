@@ -14,15 +14,16 @@
       </header>
       <section class="panel">
         <div class="badge-row">
-          <span class="badge future">Future Entra Practice</span>
+          <span class="badge future">Entra Practice</span>
+          <span class="badge future">Okta Practice</span>
           <span class="badge local">Local .env Only</span>
           <span class="badge protected">No Raw Tokens</span>
         </div>
-        <p class="eyebrow">Phase 3B Entra OIDC</p>
-        <h1>Entra OIDC local practice</h1>
-        <p>Microsoft Entra ID OIDC login can run only when <code>OIDC_ENABLED=true</code> and complete values are present in a local uncommitted <code>.env</code> file.</p>
+        <p class="eyebrow">Phase 14 OIDC local practice</p>
+        <h1>Entra and Okta OIDC local practice</h1>
+        <p>Microsoft Entra ID and Okta OIDC login can run only when complete values are present in a local uncommitted <code>.env</code> file.</p>
         <div class="notice warning">
-          Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role and external claims do not grant admin access.
+          Local dummy login still works. OIDC-authenticated users are intentionally assigned the safe local <code>standard_user</code> role and external claims or groups do not grant admin access.
         </div>
         <div class="status-grid">
           <aside class="learning-panel">
@@ -30,29 +31,33 @@
             <ul class="list-clean">
               <li>Configured values belong only in <code>iam-practice-app/.env</code>.</li>
               <li><code>.env.example</code> must stay placeholder-only.</li>
-              <li>Dashboard provider context should show the Entra lab name after login.</li>
+              <li>Dashboard provider context should show the Entra or Okta lab name after login.</li>
             </ul>
           </aside>
           <div>
-            <h2>OIDC Status</h2>
-            <pre id="oidc-status">Loading OIDC readiness status...</pre>
+            <h2>Entra OIDC Status</h2>
+            <pre id="oidc-status">Loading Entra OIDC readiness status...</pre>
+            <h2>Okta OIDC Status</h2>
+            <pre id="okta-status">Loading Okta OIDC readiness status...</pre>
           </div>
         </div>
         <section class="card-grid two">
           <article class="card">
-            <span class="badge local">Without Entra config</span>
+            <span class="badge local">Without provider config</span>
             <h3>Safe disabled state</h3>
-            <p>The app starts, local login works, and the Entra login button shows a safe not-configured message without contacting Microsoft.</p>
+            <p>The app starts, local login works, and Entra or Okta login buttons show safe not-configured messages without contacting a provider.</p>
           </article>
           <article class="card">
             <span class="badge future">With local .env</span>
             <h3>Lab sign-in path</h3>
-            <p>The app redirects to Microsoft, validates the callback state and nonce, creates a local session, then maps the user to <code>standard_user</code>.</p>
+            <p>The app redirects to the configured provider, validates callback state and nonce, creates a local session, then maps the user to <code>standard_user</code>.</p>
           </article>
         </section>
         <nav class="actions">
           <a class="button" href="/auth/oidc/start">Start Entra OIDC login</a>
+          <a class="button" href="/auth/okta/start">Start Okta OIDC login</a>
           <a class="button secondary" href="/api/oidc/status">API: OIDC status</a>
+          <a class="button secondary" href="/api/okta/status">API: Okta status</a>
           <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </nav>
       </section>
@@ -60,9 +65,14 @@
 
     <script>
       async function loadOidcStatus() {
-        const response = await fetch("/api/oidc/status");
-        const data = await response.json();
-        document.getElementById("oidc-status").textContent = JSON.stringify(data, null, 2);
+        const [entraResponse, oktaResponse] = await Promise.all([
+          fetch("/api/oidc/status"),
+          fetch("/api/okta/status")
+        ]);
+        const entraData = await entraResponse.json();
+        const oktaData = await oktaResponse.json();
+        document.getElementById("oidc-status").textContent = JSON.stringify(entraData, null, 2);
+        document.getElementById("okta-status").textContent = JSON.stringify(oktaData, null, 2);
       }
 
       loadOidcStatus();

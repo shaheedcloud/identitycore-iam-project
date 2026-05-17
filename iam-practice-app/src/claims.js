@@ -106,6 +106,7 @@ function getProviderContext(user) {
 
   return {
     authSource: "oidc",
+    authProviderType: user.authProviderType || "entra",
     providerName: user.authProvider || "Microsoft Entra ID Lab",
     externalClaimsMappedToAdmin: false,
     localRole: user.role,
