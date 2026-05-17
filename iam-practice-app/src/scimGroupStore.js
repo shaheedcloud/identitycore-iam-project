@@ -165,11 +165,58 @@ function deleteGroup(id) {
   return groups.delete(id);
 }
 
+function getGroupLifecycleSummary() {
+  const allGroups = Array.from(groups.values());
+  const memberCount = allGroups.reduce((total, group) => total + group.members.length, 0);
+
+  return {
+    localOnly: true,
+    resourceType: "SCIM Group",
+    totalGroups: allGroups.length,
+    totalMemberships: memberCount,
+    groupMeaning: "SCIM groups model provisioned membership records. They are not a shortcut around local RBAC.",
+    provisioningBoundaries: {
+      groupMembershipCreatesBrowserSession: false,
+      groupMembershipGrantsAdminAccess: false,
+      groupMembershipBypassesRbac: false,
+      rbacStillEnforced: true,
+      storage: "in-memory only"
+    },
+    sampleGroups: allGroups.slice(0, 5).map((group) => ({
+      id: group.id,
+      displayName: group.displayName,
+      memberCount: group.members.length,
+      members: group.members.map((member) => ({
+        value: member.value,
+        display: member.display,
+        type: member.type
+      })),
+      created: group.meta.created,
+      lastModified: group.meta.lastModified
+    })),
+    safeDummyExamples: [
+      {
+        displayName: "GRP-SCIM-Finance-Standard",
+        lesson: "Provisioned membership can describe a business group without automatically granting admin access."
+      },
+      {
+        displayName: "GRP-SCIM-Security-ReadOnly",
+        lesson: "A group name is not trusted for privileged authorization unless a later explicit mapping rule allows it."
+      },
+      {
+        displayName: "GRP-SCIM-Contractor-Limited",
+        lesson: "Group lifecycle practice can show least privilege for temporary or limited-access identities."
+      }
+    ]
+  };
+}
+
 module.exports = {
   listGroups,
   getGroup,
   createGroup,
   replaceGroup,
   patchGroup,
-  deleteGroup
+  deleteGroup,
+  getGroupLifecycleSummary
 };

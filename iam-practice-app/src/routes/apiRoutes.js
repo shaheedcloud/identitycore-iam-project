@@ -13,6 +13,8 @@ const {
 const { getOidcStatus, getOktaOidcStatus } = require("../oidcConfig");
 const { getJwtStatus } = require("../jwtConfig");
 const { getScimStatus } = require("../scimConfig");
+const { getUserLifecycleSummary } = require("../scimStore");
+const { getGroupLifecycleSummary } = require("../scimGroupStore");
 const { getSamlStatus } = require("../samlConfig");
 const { requireJwt } = require("../middleware/jwtAuth");
 const {
@@ -24,6 +26,7 @@ const {
 } = require("../auditStore");
 const {
   getEvents,
+  getEvidenceSummary,
   getStatus,
   reset,
   simulateJoiner,
@@ -97,6 +100,30 @@ router.get("/scim/status", (req, res) => {
   res.json(getScimStatus());
 });
 
+router.get("/scim/simulator-summary", requireAuth, (req, res) => {
+  res.json({
+    localOnly: true,
+    purpose: "Explain the local SCIM simulator without exposing bearer tokens or requiring a real provider.",
+    conceptModel: {
+      authentication: "Local login, OIDC, or SAML proves who signed in.",
+      provisioning: "SCIM creates or updates application identity and group records.",
+      authorization: "Local RBAC still decides access to protected pages and APIs.",
+      lifecycle: "JML explains joiner, mover, and leaver changes.",
+      audit: "Audit-style evidence explains what happened."
+    },
+    guardrails: {
+      scimIsLogin: false,
+      scimCreatesBrowserSession: false,
+      scimGroupGrantsAdminAccess: false,
+      realProviderProvisioningConnected: false,
+      publicEndpointExposed: false,
+      rbacStillEnforced: true
+    },
+    users: getUserLifecycleSummary(),
+    groups: getGroupLifecycleSummary()
+  });
+});
+
 router.get("/saml/status", (req, res) => {
   res.json(getSamlStatus());
 });
@@ -123,6 +150,10 @@ router.get("/jml/status", requireAuth, (req, res) => {
 
 router.get("/jml/events", requireAuth, (req, res) => {
   res.json(getEvents());
+});
+
+router.get("/jml/evidence-summary", requireAuth, (req, res) => {
+  res.json(getEvidenceSummary());
 });
 
 router.post("/jml/joiner", requireAuth, (req, res) => {

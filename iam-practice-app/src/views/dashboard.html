@@ -105,15 +105,21 @@
             </article>
             <article class="card">
               <span class="badge simulated">Provisioning</span>
-              <h3>SCIM Users & Groups</h3>
-              <p>Study local SCIM users, groups, bearer protection, and identity-provider provisioning patterns.</p>
+              <h3>SCIM Provisioning Simulator</h3>
+              <p>Study local SCIM users, groups, bearer protection, and why provisioning is not login or RBAC.</p>
               <a class="button" href="/scim-readiness">Open SCIM</a>
             </article>
             <article class="card">
               <span class="badge simulated">Lifecycle</span>
-              <h3>JML Lifecycle</h3>
-              <p>Run Joiner, Mover, and Leaver simulations with evidence for access changes and deactivation.</p>
+              <h3>JML Lifecycle Evidence</h3>
+              <p>Run Joiner, Mover, and Leaver simulations with audit-style evidence for changes and deactivation.</p>
               <a class="button" href="/jml-readiness">Open JML</a>
+            </article>
+            <article class="card">
+              <span class="badge denied">No RBAC Bypass</span>
+              <h3>SCIM and RBAC Separation</h3>
+              <p>Confirm SCIM records and group memberships do not create sessions or automatically grant admin access.</p>
+              <a class="button secondary" href="/scim-readiness">Review boundaries</a>
             </article>
             <article class="card">
               <span class="badge simulated">SSO</span>
@@ -143,7 +149,7 @@
             <li>Sign in as <code>user@identitycore.local</code>, then try the admin page to see least privilege.</li>
             <li>Sign in as <code>analyst@identitycore.local</code> and compare Security access with Finance access.</li>
             <li>Run a JML Joiner event, then check audit evidence for the local event trail.</li>
-            <li>Open SCIM readiness and confirm protected SCIM routes fail closed without a local bearer token.</li>
+            <li>Open SCIM readiness and confirm provisioning is separate from login and local RBAC.</li>
           </ul>
           <div class="notice warning">
             Local simulator warning: no tenant IDs, Okta domains, client secrets, access tokens, refresh tokens, private keys, SAML assertions, or SCIM bearer tokens are shown or stored in this dashboard.
@@ -160,6 +166,8 @@
             <a class="button secondary" href="/api/oidc/status">OIDC</a>
             <a class="button secondary" href="/api/okta/status">Okta</a>
             <a class="button secondary" href="/api/scim/status">SCIM</a>
+            <a class="button secondary" href="/api/scim/simulator-summary">SCIM Summary</a>
+            <a class="button secondary" href="/api/jml/evidence-summary">JML Evidence</a>
             <a class="button secondary" href="/api/audit/status">Audit</a>
           </nav>
         </aside>

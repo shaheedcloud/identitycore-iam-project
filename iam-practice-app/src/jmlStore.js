@@ -75,7 +75,8 @@ function recordEvent(type, identity, evidence) {
     localOnly: true,
     createdAt: now(),
     identity: cloneIdentity(identity),
-    evidence
+    evidence,
+    evidenceSummary: buildEvidenceSummary(type, identity)
   };
 
   events.unshift(event);
@@ -88,6 +89,27 @@ function addUnique(values, value) {
 
 function removeValue(values, value) {
   return values.filter((item) => item !== value);
+}
+
+function buildEvidenceSummary(type, identity) {
+  const lifecycleLabels = {
+    joiner: "joiner",
+    mover: "mover",
+    leaver: "leaver"
+  };
+
+  return {
+    lifecycleStage: lifecycleLabels[type] || "unknown",
+    subject: identity.email,
+    activeAfter: identity.active,
+    groupCountAfter: identity.groups.length,
+    accessCountAfter: identity.access.length,
+    rbacStillEnforced: true,
+    adminAccessAutomatic: false,
+    scimCreatesBrowserSession: false,
+    source: "local_simulator",
+    lesson: "JML records lifecycle evidence. SCIM-style records and groups do not bypass local RBAC."
+  };
 }
 
 function simulateJoiner(input = {}) {
@@ -205,6 +227,54 @@ function getEvents() {
   };
 }
 
+function getEvidenceSummary() {
+  const recentEvents = events.slice(0, 10).map((event) => ({
+    id: event.id,
+    type: event.type,
+    createdAt: event.createdAt,
+    identityId: event.identity.id,
+    subject: event.identity.email,
+    department: event.identity.department,
+    jobTitle: event.identity.jobTitle,
+    active: event.identity.active,
+    groups: event.identity.groups,
+    evidenceActions: event.evidence.map((item) => item.action),
+    evidenceSummary: event.evidenceSummary
+  }));
+
+  return {
+    localOnly: true,
+    purpose: "Explain local Joiner, Mover, and Leaver lifecycle evidence without calling external systems.",
+    lifecycleModel: [
+      {
+        stage: "joiner",
+        simulatedChange: "Create or reference a local identity and mark it active.",
+        evidenceGoal: "Show account creation, starter access, and conservative RBAC boundaries."
+      },
+      {
+        stage: "mover",
+        simulatedChange: "Update department, job title, group, and access evidence.",
+        evidenceGoal: "Show what changed before and after, because movers are high-risk IAM events."
+      },
+      {
+        stage: "leaver",
+        simulatedChange: "Deactivate the local identity and remove simulated groups/access.",
+        evidenceGoal: "Show deactivation and retained evidence instead of unsafe hard delete."
+      }
+    ],
+    guardrails: {
+      scimIsLogin: false,
+      scimCreatesBrowserSession: false,
+      scimGroupGrantsAdminAccess: false,
+      rbacStillEnforced: true,
+      realProviderProvisioningConnected: false,
+      storage: "in-memory only"
+    },
+    totalEvents: events.length,
+    recentEvents
+  };
+}
+
 function reset() {
   identities.clear();
   events.length = 0;
@@ -218,6 +288,7 @@ function reset() {
 
 module.exports = {
   getEvents,
+  getEvidenceSummary,
   getStatus,
   reset,
   simulateJoiner,

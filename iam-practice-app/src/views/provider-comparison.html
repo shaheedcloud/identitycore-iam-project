@@ -15,6 +15,7 @@
           <a href="/claims">Claims</a>
           <a href="/role-mapping">Roles</a>
           <a href="/oidc-readiness">OIDC</a>
+          <a href="/scim-readiness">SCIM</a>
         </nav>
       </header>
 
@@ -31,7 +32,7 @@
         </p>
 
         <div class="notice warning">
-          Authentication answers who signed in. Authorization answers what that identity may access. IdentityCore keeps local RBAC as the authorization control.
+          Authentication answers who signed in. SCIM answers which account or group record exists. Authorization answers what that identity may access. IdentityCore keeps local RBAC as the authorization control.
         </div>
 
         <section class="summary-strip" aria-label="Current provider summary">
@@ -94,6 +95,7 @@
         <nav class="actions">
           <a class="button" href="/claims">Open claims</a>
           <a class="button secondary" href="/role-mapping">Open role mapping</a>
+          <a class="button secondary" href="/scim-readiness">Open SCIM simulator</a>
           <a class="button secondary" href="/dashboard">Back to dashboard</a>
           <a class="button secondary" href="/api/provider-comparison">API: provider comparison</a>
         </nav>

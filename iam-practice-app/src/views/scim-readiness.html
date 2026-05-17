@@ -18,19 +18,38 @@
           <span class="badge protected">Bearer Protected</span>
           <span class="badge local">In Memory</span>
         </div>
-        <p class="eyebrow">Phase 6</p>
-        <h1>SCIM users and groups</h1>
-        <p>Local SCIM 2.0 endpoints model how identity providers provision application identities and memberships.</p>
+        <p class="eyebrow">Phase 18 simulator upgrade</p>
+        <h1>SCIM provisioning simulator</h1>
+        <p>Local SCIM 2.0 endpoints model how identity providers provision application identity records and group memberships.</p>
         <div class="notice warning">
-          SCIM bearer tokens belong only in an uncommitted local <code>.env</code> file and are never returned by the app.
+          SCIM is not login. SCIM bearer tokens belong only in an uncommitted local <code>.env</code> file and are never returned by the app.
         </div>
+        <section class="summary-strip" aria-label="SCIM simulator summary">
+          <div class="summary-item">
+            <span class="summary-label">SCIM users</span>
+            <span class="summary-value" id="summary-users">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">SCIM groups</span>
+            <span class="summary-value" id="summary-groups">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Creates session</span>
+            <span class="summary-value" id="summary-session">Loading...</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">RBAC bypass</span>
+            <span class="summary-value" id="summary-rbac">Loading...</span>
+          </div>
+        </section>
         <section class="status-grid">
           <aside class="learning-panel">
-            <strong>IAM concept:</strong> Provisioning creates and updates accounts. Authentication still happens separately through local login, OIDC, or SAML.
+            <strong>IAM concept:</strong> Provisioning creates and updates account records. Authentication still happens separately through local login, OIDC, or SAML.
             <ul class="list-clean">
-              <li>Users endpoint: create, replace, patch, deactivate</li>
-              <li>Groups endpoint: create, replace, patch membership, delete</li>
-              <li>Data resets when the server restarts</li>
+              <li>SCIM users are application identity records, not signed-in sessions.</li>
+              <li>SCIM groups describe provisioned membership, not automatic admin access.</li>
+              <li>Local RBAC still controls protected pages and APIs.</li>
+              <li>Data resets when the server restarts.</li>
             </ul>
           </aside>
           <div>
@@ -38,8 +57,41 @@
             <pre id="scim-status">Loading SCIM status...</pre>
           </div>
         </section>
+        <section class="card-grid two">
+          <article class="card">
+            <span class="badge ready">Correct model</span>
+            <h3>Provisioning plus RBAC</h3>
+            <p>SCIM creates or updates records. Role mapping and local RBAC still decide protected access.</p>
+          </article>
+          <article class="card">
+            <span class="badge denied">Blocked model</span>
+            <h3>No group-to-admin shortcut</h3>
+            <p>A SCIM group name or membership does not bypass RBAC or grant admin access automatically.</p>
+          </article>
+        </section>
+        <h2>Provisioning Boundaries</h2>
+        <table class="mini-table" aria-label="SCIM provisioning boundaries">
+          <tbody id="boundary-table">
+            <tr><td>Loading SCIM boundaries...</td></tr>
+          </tbody>
+        </table>
+        <h2>Safe Dummy SCIM Examples</h2>
+        <table class="mini-table" aria-label="Safe dummy SCIM examples">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Example</th>
+              <th>Learning point</th>
+            </tr>
+          </thead>
+          <tbody id="examples-table">
+            <tr><td colspan="3">Loading examples...</td></tr>
+          </tbody>
+        </table>
         <nav class="actions">
           <a class="button" href="/api/scim/status">API: SCIM status</a>
+          <a class="button secondary" href="/api/scim/simulator-summary">API: simulator summary</a>
+          <a class="button secondary" href="/jml-readiness">Open JML evidence</a>
           <a class="button secondary" href="/scim/v2/ServiceProviderConfig">SCIM config</a>
           <a class="button secondary" href="/dashboard">Back to dashboard</a>
         </nav>
@@ -47,10 +99,76 @@
     </main>
 
     <script>
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function formatValue(value) {
+        if (typeof value === "boolean") {
+          return value ? "true" : "false";
+        }
+
+        return value || "not present";
+      }
+
+      function renderBoundaries(summary) {
+        const rows = [
+          ["SCIM is login", summary.guardrails.scimIsLogin],
+          ["SCIM creates browser session", summary.guardrails.scimCreatesBrowserSession],
+          ["SCIM group grants admin", summary.guardrails.scimGroupGrantsAdminAccess],
+          ["Real provider connected", summary.guardrails.realProviderProvisioningConnected],
+          ["Public endpoint exposed", summary.guardrails.publicEndpointExposed],
+          ["RBAC still enforced", summary.guardrails.rbacStillEnforced]
+        ];
+
+        document.getElementById("boundary-table").innerHTML = rows
+          .map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(formatValue(value))}</td></tr>`)
+          .join("");
+      }
+
+      function renderExamples(summary) {
+        const userRows = summary.users.safeDummyExamples.map((example) => ({
+          type: `User ${example.lifecycleStage}`,
+          example: example.userName,
+          lesson: example.lesson
+        }));
+        const groupRows = summary.groups.safeDummyExamples.map((example) => ({
+          type: "Group",
+          example: example.displayName,
+          lesson: example.lesson
+        }));
+
+        document.getElementById("examples-table").innerHTML = [...userRows, ...groupRows]
+          .map((row) => `
+            <tr>
+              <th>${escapeHtml(row.type)}</th>
+              <td>${escapeHtml(row.example)}</td>
+              <td>${escapeHtml(row.lesson)}</td>
+            </tr>
+          `)
+          .join("");
+      }
+
       async function loadScimStatus() {
-        const response = await fetch("/api/scim/status");
-        const data = await response.json();
-        document.getElementById("scim-status").textContent = JSON.stringify(data, null, 2);
+        const [statusResponse, summaryResponse] = await Promise.all([
+          fetch("/api/scim/status"),
+          fetch("/api/scim/simulator-summary")
+        ]);
+        const status = await statusResponse.json();
+        const summary = await summaryResponse.json();
+
+        document.getElementById("scim-status").textContent = JSON.stringify(status, null, 2);
+        document.getElementById("summary-users").textContent = summary.users.totalUsers;
+        document.getElementById("summary-groups").textContent = summary.groups.totalGroups;
+        document.getElementById("summary-session").textContent = formatValue(summary.guardrails.scimCreatesBrowserSession);
+        document.getElementById("summary-rbac").textContent = formatValue(summary.guardrails.scimGroupGrantsAdminAccess);
+        renderBoundaries(summary);
+        renderExamples(summary);
       }
 
       loadScimStatus();
