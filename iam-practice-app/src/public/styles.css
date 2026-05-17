@@ -477,11 +477,51 @@ button.secondary:hover,
   align-items: start;
 }
 
+.journey-list {
+  display: grid;
+  gap: 16px;
+}
+
+.journey-step {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(23, 33, 47, 0.06);
+}
+
+.step-number {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: var(--navy);
+  font-weight: 900;
+}
+
+.step-body {
+  min-width: 0;
+}
+
+.prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+  color: var(--muted);
+}
+
 @media (max-width: 980px) {
   .layout,
   .login-layout,
   .json-grid,
-  .status-grid {
+  .status-grid,
+  .prompt-grid {
     grid-template-columns: 1fr;
   }
 
@@ -523,6 +563,10 @@ button.secondary:hover,
   .card-grid,
   .card-grid.two,
   .summary-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .journey-step {
     grid-template-columns: 1fr;
   }
 }

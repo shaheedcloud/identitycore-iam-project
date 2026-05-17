@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IdentityCore Guided IAM Learning Journey</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/dashboard"><span class="brand-mark">IC</span><span>IdentityCore</span></a>
+        <nav class="navlinks" aria-label="Primary navigation">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/claims">Claims</a>
+          <a href="/provider-comparison">Providers</a>
+          <a href="/role-mapping">Roles</a>
+          <a href="/scim-readiness">SCIM</a>
+          <a href="/aws-federation-readiness">AWS</a>
+          <a href="/audit-readiness">Audit</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">Phase 21 guided learner foundation</p>
+        <h1>Guided IAM learning journey</h1>
+        <p>
+          Follow the IdentityCore modules in a clear sequence from local authentication through claims, authorization, federation, provisioning, lifecycle evidence, audit, and AWS readiness.
+        </p>
+        <div class="badge-row">
+          <span class="badge local">Local Only</span>
+          <span class="badge simulated">Simulated</span>
+          <span class="badge protected">Protected</span>
+          <span class="badge ready">Available</span>
+          <span class="badge future">Review Next</span>
+        </div>
+      </section>
+
+      <section class="summary-strip" aria-label="Journey summary">
+        <div class="summary-item">
+          <span class="summary-label">Learning mode</span>
+          <span class="summary-value">Local skill practice</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Integration mode</span>
+          <span class="summary-value">Readiness and simulation</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Authorization control</span>
+          <span class="summary-value">IdentityCore RBAC</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Next step</span>
+          <span class="summary-value">Start with orientation</span>
+        </div>
+      </section>
+
+      <section class="layout">
+        <div class="stack">
+          <section class="learning-panel">
+            <p class="eyebrow">Orientation</p>
+            <h2>How to use this path</h2>
+            <p>
+              IdentityCore is a local-first IAM practice app, not a production IAM system. Use each module to explain one IAM concept, open the linked page, then practice describing what the module proves and what it deliberately does not do.
+            </p>
+            <div class="notice warning">
+              Core principle: external authentication proves identity. IdentityCore local RBAC controls IdentityCore access. Future cloud or provider access requires separate explicit authorization design.
+            </div>
+          </section>
+
+          <section class="journey-list" aria-label="Guided IAM module sequence">
+            <article class="journey-step">
+              <div class="step-number">1</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge local">Local Only</span>
+                  <span class="badge protected">Available</span>
+                </div>
+                <h3>Authentication Foundation</h3>
+                <p>Start with dummy local login and session handling. Learn how IdentityCore creates a browser session without using a production identity provider.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Explain the difference between sign-in, session creation, and authorization.</div>
+                  <div><strong>Architecture prompt:</strong> What would change when an external IdP becomes the authenticator?</div>
+                </div>
+                <a class="button" href="/dashboard">Open dashboard</a>
+              </div>
+            </article>
+
+            <article class="journey-step">
+              <div class="step-number">2</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge simulated">Simulated</span>
+                  <span class="badge protected">Available</span>
+                </div>
+                <h3>Claims and Token Understanding</h3>
+                <p>Inspect safe local claims and token-shaped examples. The goal is to understand claim names and authorization signals before trusting any real token.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> What does a claim tell an application?</div>
+                  <div><strong>Architecture prompt:</strong> Which claims should never be blindly trusted for privileged access?</div>
+                </div>
+                <a class="button" href="/claims">Open claims</a>
+              </div>
+            </article>
+
+            <article class="journey-step">
+              <div class="step-number">3</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge ready">Review Next</span>
+                  <span class="badge denied">Protected</span>
+                </div>
+                <h3>Authorization and Role Mapping</h3>
+                <p>Compare providers, inspect safe mapping decisions, and confirm that local RBAC remains the final control for protected pages.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Why does authentication not equal authorization?</div>
+                  <div><strong>Architecture prompt:</strong> How does allowlisted mapping reduce privilege-escalation risk?</div>
+                </div>
+                <div class="actions">
+                  <a class="button" href="/provider-comparison">Compare providers</a>
+                  <a class="button secondary" href="/role-mapping">Open role mapping</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="journey-step">
+              <div class="step-number">4</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge future">Readiness Only</span>
+                  <span class="badge simulated">Not Connected</span>
+                </div>
+                <h3>Federation Concepts</h3>
+                <p>Review OIDC, JWT API validation, and SAML readiness. These pages explain protocol boundaries while avoiding raw token display and real provider secrets.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> How is browser OIDC login different from bearer JWT API validation?</div>
+                  <div><strong>Architecture prompt:</strong> When would you choose SAML versus OIDC for workforce SSO?</div>
+                </div>
+                <div class="actions">
+                  <a class="button" href="/oidc-readiness">Open OIDC</a>
+                  <a class="button secondary" href="/jwt-readiness">Open JWT</a>
+                  <a class="button secondary" href="/saml-readiness">Open SAML</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="journey-step">
+              <div class="step-number">5</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge simulated">Simulated</span>
+                  <span class="badge local">Local Only</span>
+                </div>
+                <h3>Provisioning and Lifecycle</h3>
+                <p>Study SCIM user and group provisioning alongside Joiner, Mover, and Leaver evidence. SCIM records do not create sessions or bypass RBAC.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Why is SCIM not a login protocol?</div>
+                  <div><strong>Architecture prompt:</strong> How should lifecycle events feed evidence without granting access by themselves?</div>
+                </div>
+                <div class="actions">
+                  <a class="button" href="/scim-readiness">Open SCIM</a>
+                  <a class="button secondary" href="/jml-readiness">Open JML</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="journey-step">
+              <div class="step-number">6</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge protected">Available</span>
+                  <span class="badge simulated">Simulated</span>
+                </div>
+                <h3>Audit and Evidence</h3>
+                <p>Use local in-memory audit events and troubleshooting evidence to explain what happened during login, logout, JML, SCIM, SAML, and JWT practice.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> What evidence would you collect when debugging an access issue?</div>
+                  <div><strong>Architecture prompt:</strong> Which data must be redacted from logs?</div>
+                </div>
+                <a class="button" href="/audit-readiness">Open audit</a>
+              </div>
+            </article>
+
+            <article class="journey-step">
+              <div class="step-number">7</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge future">Readiness Only</span>
+                  <span class="badge denied">Not Connected</span>
+                </div>
+                <h3>AWS Federation Readiness</h3>
+                <p>Learn how Entra or Okta may later federate users into AWS IAM roles. IdentityCore local roles are separate from AWS IAM roles and do not create AWS access.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> What is the difference between a trust policy and a permission policy?</div>
+                  <div><strong>Architecture prompt:</strong> Why should long-term access keys not be the main workforce access pattern?</div>
+                </div>
+                <a class="button" href="/aws-federation-readiness">Open AWS readiness</a>
+              </div>
+            </article>
+
+            <article class="journey-step">
+              <div class="step-number">8</div>
+              <div class="step-body">
+                <div class="badge-row">
+                  <span class="badge ready">Review Next</span>
+                  <span class="badge local">Portfolio</span>
+                </div>
+                <h3>Portfolio and Interview Explanation</h3>
+                <p>Close the loop by explaining the whole system: identity source, claim signals, mapping decision, RBAC enforcement, provisioning evidence, audit trail, and future federation design.</p>
+                <div class="prompt-grid">
+                  <div><strong>Interview prompt:</strong> Walk through a user from sign-in to access decision.</div>
+                  <div><strong>Architecture prompt:</strong> Where would you add production controls without weakening local practice safety?</div>
+                </div>
+                <a class="button" href="/dashboard">Return to dashboard</a>
+              </div>
+            </article>
+          </section>
+        </div>
+
+        <aside class="panel">
+          <p class="eyebrow">Learning map</p>
+          <h2>Concept connections</h2>
+          <ul class="list-clean">
+            <li>Authentication creates a safe local session.</li>
+            <li>Claims describe identity signals.</li>
+            <li>Role mapping explains how signals become local roles.</li>
+            <li>RBAC decides access to protected IdentityCore pages.</li>
+            <li>Federation pages explain OIDC, JWT, and SAML boundaries.</li>
+            <li>SCIM provisions records but does not log users in.</li>
+            <li>JML creates lifecycle evidence for identity changes.</li>
+            <li>Audit pages help explain troubleshooting evidence safely.</li>
+            <li>AWS readiness stays separate from IdentityCore authorization.</li>
+          </ul>
+
+          <div class="notice success">
+            Every link on this page points to an existing local IdentityCore page. Unavailable production behavior is marked as simulated, readiness-only, or not connected.
+          </div>
+
+          <h2>Quick access</h2>
+          <nav class="actions">
+            <a class="button secondary" href="/claims">Claims</a>
+            <a class="button secondary" href="/provider-comparison">Providers</a>
+            <a class="button secondary" href="/role-mapping">Roles</a>
+            <a class="button secondary" href="/oidc-readiness">OIDC</a>
+            <a class="button secondary" href="/saml-readiness">SAML</a>
+            <a class="button secondary" href="/scim-readiness">SCIM</a>
+            <a class="button secondary" href="/jml-readiness">JML</a>
+            <a class="button secondary" href="/audit-readiness">Audit</a>
+            <a class="button secondary" href="/aws-federation-readiness">AWS</a>
+          </nav>
+
+          <div class="notice warning">
+            This guided journey does not add real integrations, workflow execution, token transformation, automation, background jobs, cloud calls, secrets, or persistent storage.
+          </div>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>

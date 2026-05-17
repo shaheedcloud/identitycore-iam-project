@@ -22,6 +22,7 @@ The project shows how an IAM professional can move from application-level identi
 - role mapping and authorization practice showing deny-by-default mapping and local RBAC as the final control
 - SCIM simulator and JML evidence improvements that explain provisioning, lifecycle, and RBAC separation
 - AWS federation readiness explaining local roles versus AWS IAM roles before any real AWS connection
+- guided IAM learning journey that connects authentication, claims, authorization, federation, provisioning, lifecycle, audit, and AWS readiness
 
 ## Main Application
 
@@ -68,6 +69,8 @@ Role mapping practice is local-only. External Entra or Okta authentication does 
 SCIM and JML practice are local-only simulations. SCIM provisions identity and group records; it does not create browser sessions, expose the app publicly, connect to a real provider, or bypass local RBAC.
 
 AWS federation readiness is local-only education. It does not add AWS SDK calls, AWS credentials, AWS account IDs, AWS role ARNs, CloudTrail ingestion, Terraform, or cloud deployment.
+
+The guided learning journey is a static local navigation and explanation layer. It does not add real provider integrations, workflow execution, external API calls, background jobs, secrets, tenant IDs, AWS account IDs, raw token display, or production automation.
 
 ## Final Portfolio Package
 

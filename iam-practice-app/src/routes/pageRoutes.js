@@ -18,6 +18,10 @@ router.get("/dashboard", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "dashboard.html"));
 });
 
+router.get("/guided-learning", requireAuth, (req, res) => {
+  res.sendFile(path.join(viewsPath, "guided-learning.html"));
+});
+
 router.get("/claims", requireAuth, (req, res) => {
   res.sendFile(path.join(viewsPath, "claims.html"));
 });
